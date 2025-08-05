@@ -39,8 +39,8 @@
 }
 
 
-% --- Riferimenti intelligenti ---
-\usepackage[italian]{cleveref}  % Riferimenti automatici con label
+
+\usepackage[italian]{cleveref}
 
 % \usepackage{showframe} % <-- utile per debugging margini (da lasciare commentato)
 
@@ -73,12 +73,90 @@
 \tableofcontents
 
 \chapter{Analisi dei requisiti}
+Si ha come obiettivo la realizzazione di un database per la gestione di un agriturismo che offre un'ampia gamma di servizi: ristorazione,
+ospitalità, piscina, attività con animali, sport e molto altro. A seguito dell'intervista è stata prodotta la seguente
+descrizione delle specifiche del sistema in linguaggio naturale.
 
 \section{Intervista}
+\textit{L'agriturismo "Campo Verde" offre una vasta gamma di servizi, tra cui ospitalità, ristorazione, piscina, attività con animali
+	e sport, e necessita di un sistema integrato per la gestione delle prenotazioni, dei clienti e delle attività.}
+
+\textit{Il sistema dovrà gestire diverse tipologie di servizi, tra cui camere, tavoli al ristorante, lettini in piscina, attività
+	con animali e campo da calcio. Ogni servizio avrà regole specifiche: ad esempio, i lettini in piscina sono prenotabili per fasce orarie
+	di 2 ore, mentre il campo da calcio può essere prenotato per un'ora o più.}
+
+\textit{Per ogni cliente verranno memorizzati nome, cognome, codice fiscale, indirizzo email e numero di telefono. Al momento della
+	registrazione, verrà creato un account personale con credenziali di accesso alla piattaforma. Ogni cliente potrà effettuare prenotazioni
+	solo se autenticato, e ogni prenotazione verrà registrata con i relativi dettagli (servizio richiesto, data, orario e numero di partecipanti).}
+
+\textit{I clienti potranno acquistare sia servizi singoli che pacchetti combinati, creati dallo staff o personalizzati in base alle
+	loro esigenze. Ogni pacchetto potrà includere più servizi (es. pernottamento + cena + attività con animali) e avrà un prezzo
+	specifico, con eventuali sconti applicabili in base alla stagione o a promozioni speciali.}
+
+\textit{Ogni prenotazione verrà confermata via email, con la possibilità di modificarla o cancellarla entro un certo termine. In
+	caso di mancata presentazione senza preavviso, potrà essere applicata una penale. Le prenotazioni per eventi speciali (come tornei o cene a tema)
+	richiederanno spesso un acconto non rimborsabile.}
+
+\textit{L'agriturismo terrà traccia di tutte le prenotazioni effettuate dai clienti, mantenendo uno storico che permetterà
+	di analizzare le preferenze e di proporre offerte personalizzate. I clienti potranno lasciare recensioni per ogni servizio utilizzato, valutandolo
+	con un voto da 1 a 5 stelle e aggiungendo un commento. Le recensioni verranno moderate dallo staff e potranno essere utilizzate per
+	migliorare i servizi offerti.}
+
+\textit{Il sistema permetterà anche la gestione degli eventi organizzati dall'agriturismo, come tornei di calcio o laboratori con animali. Per ogni
+	evento sarà possibile definire il numero massimo di partecipanti, il prezzo e le date disponibili. I clienti potranno iscriversi agli eventi direttamente
+	dalla piattaforma, ricevendo una conferma e i dettagli organizzativi.}
+
+\textit{Lo staff dell'agriturismo avrà accesso a una dashboard che mostrerà in tempo reale lo stato delle prenotazioni, l'occupazione delle
+	camere e dei servizi, e le recensioni ricevute. Potranno generare report periodici per analizzare l'andamento delle prenotazioni, le preferenze dei clienti e
+	l'efficacia delle promozioni. Inoltre, il sistema supporterà la gestione di account multipli per lo staff, con diversi livelli di accesso in base al
+	ruolo (es. receptionist, responsabile del ristorante, gestore della piscina).}
+
+\section{Prima fase di analisi}
+A seguito di un'analisi preliminare dei requisiti, sono emerse alcune aree critiche che necessitano di specifiche tecniche
+aggiuntive. Per colmare queste lacune informative, è stato condotto un ciclo di interviste mirate con i gestori dell'agriturismo, i
+cui esiti sono sintetizzati nella tabella seguente:
+
+\paragraph{D:}
+“Come devono essere gestite le prenotazioni, dalla loro creazione alla cancellazione?”
+\\ {\bf R:} “Le prenotazioni possono essere effettuate tramite il sito web, telefonicamente o direttamente in reception. Ogni servizio avrà un termine
+entro il quale è possibile modificare o cancellare la prenotazione senza penali. Per le camere, ad esempio, la cancellazione è gratuita fino a 48 ore prima
+dell'arrivo. Per i servizi a tempo, come il campo da calcio, la cancellazione è possibile fino a 24 ore prima.”
+
+\paragraph{D:}
+“Come devono essere gestiti i pacchetti combinati?”
+\\ {\bf R:} “I pacchetti possono essere creati dallo staff con servizi predefiniti. Ogni pacchetto avrà un prezzo complessivo calcolato in base ai
+servizi inclusi, con eventuali sconti applicati.
 
 \section{Estrazione dei concetti principali}
+Dall'analisi svolta emergono le principali entità che il sistema dovrà gestire: \textbf{Cliente}, \textbf{Servizio}, \textbf{Prenotazione},
+\textbf{Pacchetto}, \textbf{Evento}, \textbf{Recensione} e \textbf{Staff}.
 
-\section{Sintesi dei concetti}
+Ogni \textbf{Cliente} potrà registrarsi fornendo i seguenti attributi: \underline{nome}, \underline{cognome}, \underline{codice fiscale},
+\underline{email} e \underline{numero di telefono}. All'atto della registrazione, verrà creato un account contenente \underline{username} e \underline{password}. Solo i clienti
+autenticati potranno effettuare prenotazioni. Ogni cliente avrà accesso al proprio \underline{storico prenotazioni} e potrà lasciare recensioni.
+
+I \textbf{Servizi} gestiti comprendono: \underline{camere}, \underline{tavoli ristorante}, \underline{lettini piscina}, \underline{attività con
+	animali} e \underline{campo da calcio}. Ogni servizio presenta regole specifiche: ad esempio, i lettini in piscina sono prenotabili a fasce orarie di
+due ore, mentre il campo da calcio è prenotabile per una o più ore. Per ciascun servizio devono essere definiti \underline{orari}, \underline{capacità massima},
+\underline{durata prenotabile} e \underline{penali in caso di cancellazione}.
+
+La \textbf{Prenotazione} sarà associata a un cliente e a uno o più servizi, e includerà \underline{data}, \underline{orario}, \underline{numero di
+	partecipanti} e \underline{stato}. La cancellazione sarà possibile secondo i termini previsti (es. 48 ore per le camere, 24 per servizi a tempo). In caso di
+mancata presentazione, potrà essere applicata una \underline{penale}, mentre per eventi speciali sarà richiesto un \underline{acconto non rimborsabile}.
+
+Il sistema gestirà anche \textbf{Pacchetti}, ovvero combinazioni \newline di più servizi, con un \underline{prezzo complessivo},
+eventuali \underline{sconti promozionali} e possibilità \newline di \underline{personalizzazione}. I pacchetti potranno essere creati dallo staff o richiesti dai clienti.
+
+Per quanto riguarda gli \textbf{Eventi}, come tornei o laboratori, saranno definiti con \underline{nome}, \newline \underline{descrizione}, \underline{data},
+\underline{prezzo}, \underline{numero massimo di partecipanti} e, se necessario, \underline{acconto}. I clienti potranno iscriversi online e riceveranno conferma via email.
+
+Le \textbf{Recensioni} potranno essere lasciate dai clienti solo dopo aver usufruito di un servizio. Ogni recensione includerà
+una \underline{valutazione da 1 a 5 stelle} e un \underline{commento testuale}. Le recensioni verranno \underline{moderate} dallo staff prima della pubblicazione.
+
+Lo \textbf{Staff} accederà al sistema tramite un \underline{account personale} con \underline{ruolo} definito (es. receptionist, gestore piscina). Tramite
+una \underline{dashboard}, lo staff potrà monitorare in tempo reale le \underline{prenotazioni}, lo \underline{stato di occupazione dei servizi} e le
+\underline{recensioni}. Il sistema permetterà inoltre la \underline{generazione di report} statistici sull'attività dell'agriturismo.
+
 
 \chapter{Preogettazione concettuale}
 \section{Schema scheletro}
