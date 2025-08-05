@@ -1,0 +1,111 @@
+\documentclass[a4paper,11pt]{report}
+
+% --- Encoding e lingua ---
+\usepackage[utf8]{inputenc}     % Per supporto UTF-8
+\usepackage[T1]{fontenc}        % Output font encoding
+\usepackage[italian]{babel}     % Lingua italiana
+
+% --- Margini della pagina ---
+\usepackage{geometry}
+
+% --- Font migliorato ---
+\usepackage{lmodern}            % Font Latin Modern (migliore leggibilità)
+
+% --- Grafica e immagini ---
+\usepackage{graphicx}           % Inserimento immagini
+\usepackage{float}              % Miglior controllo del posizionamento
+
+% --- Tabelle avanzate ---
+\usepackage{tabularx}           % Tabelle con larghezza automatica
+\usepackage[table]{xcolor}      % Colori nelle tabelle
+
+% --- Testo verbatim e codice ---
+\usepackage{fancyvrb}           % Codice con stile
+\usepackage{alltt}              % Verbatim con comandi LaTeX
+
+% --- Link cliccabili ---
+\usepackage{hyperref}           % Hyperlink nel PDF
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=false,
+    pdfborder={1 1 1},
+    linkbordercolor={1 0 0},
+    urlbordercolor={1 0 0},
+    citebordercolor={1 0 0},
+    pdftitle={Elaborato Basi di Dati},
+    pdfauthor={Maisam Noumi, Alessandro Rebosio, Filippo Ricciotti}
+}
+
+
+% --- Riferimenti intelligenti ---
+\usepackage[italian]{cleveref}  % Riferimenti automatici con label
+
+% \usepackage{showframe} % <-- utile per debugging margini (da lasciare commentato)
+
+\title{
+    \vspace*{2cm}
+    \Huge\textbf{Agriturismo} \\[0.5cm]
+    \LARGE Relazione per il corso di \\[0.2cm]
+    \textit{Basi di Dati} \\[2cm]
+}
+
+\author{
+    \Large
+    Maisam Noumi \\
+    Alessandro Rebosio \\
+    Filippo Ricciotti
+}
+
+\date{
+    \vspace{1cm}
+    \today \\[0.5cm]
+    Anno Accademico 2024-2025
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Analisi dei requisiti}
+
+\section{Intervista}
+
+\section{Estrazione dei concetti principali}
+
+\section{Sintesi dei concetti}
+
+\chapter{Preogettazione concettuale}
+\section{Schema scheletro}
+\section{Raffinamenti proposti}
+
+\section{Schema concettuale finale}
+
+
+\chapter{Progettazione logica}
+\section{Stima del volume dei dati}
+
+\section{Descrizione operazioni}
+
+\section{Analisi delle operazioni}
+
+\section{Analisi delle ridondanze}
+
+\section{Riepilogo operazioni}
+
+\section{Raffinamento dello schema}
+
+\section{Schema relazionale finale}
+
+\chapter{Progettazione della Base di Dati}
+\section{Traduzione delle operazioni}
+
+\chapter{Progettazione dell'applicazione}
+
+
+\end{document}
