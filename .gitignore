@@ -4,6 +4,14 @@
 # Ignore MacOS file
 .DS_Store
 
+# Ignore Python chace file
+__pycache__/
+*.pyc
+
+# Ignore Venv folder
+venv
+.env
+
 # Ingore LaTeX file
 report/*.toc
 report/*.synctex.gz
