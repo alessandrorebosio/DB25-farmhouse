@@ -1,30 +1,17 @@
 \documentclass[a4paper,11pt]{report}
 
-% --- Encoding e lingua ---
-\usepackage[utf8]{inputenc}     % Per supporto UTF-8
-\usepackage[T1]{fontenc}        % Output font encoding
-\usepackage[italian]{babel}     % Lingua italiana
-
-% --- Margini della pagina ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
 \usepackage{geometry}
-
-% --- Font migliorato ---
-\usepackage{lmodern}            % Font Latin Modern (migliore leggibilità)
-
-% --- Grafica e immagini ---
-\usepackage{graphicx}           % Inserimento immagini
-\usepackage{float}              % Miglior controllo del posizionamento
-
-% --- Tabelle avanzate ---
-\usepackage{tabularx}           % Tabelle con larghezza automatica
-\usepackage[table]{xcolor}      % Colori nelle tabelle
-
-% --- Testo verbatim e codice ---
-\usepackage{fancyvrb}           % Codice con stile
-\usepackage{alltt}              % Verbatim con comandi LaTeX
-
-% --- Link cliccabili ---
-\usepackage{hyperref}           % Hyperlink nel PDF
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{fancyvrb} 
+\usepackage{alltt}
+\usepackage{hyperref}
 
 \geometry{margin=1in}
 
@@ -38,11 +25,7 @@
     pdfauthor={Maisam Noumi, Alessandro Rebosio, Filippo Ricciotti}
 }
 
-
-
 \usepackage[italian]{cleveref}
-
-% \usepackage{showframe} % <-- utile per debugging margini (da lasciare commentato)
 
 \title{
     \vspace*{2cm}
@@ -159,18 +142,97 @@ una \underline{dashboard}, lo staff potrà monitorare in tempo reale le \underli
 
 
 \chapter{Preogettazione concettuale}
+In questo capitolo presenteremo lo schema ER, partendo da una versione iniziale e migliorandola passo dopo passo final ad arrivare a quella
+definitiva, attraverso dei raffinamenti
+
 \section{Schema scheletro}
+Dopo aver eseguito l'analisi del dominio iniziale, abbiamo creato uno schema di base con le entità e le relazioni principali,
+che sarà poi perfezionato nei passaggi successivi.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/scheletro.pdf}
+	\caption{Schema ER scheletro (versione iniziale)}
+	\label{fig:schema-scheletro}
+\end{figure}
+
 \section{Raffinamenti proposti}
+\subsection{Utente e Dipendente}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento ruolo.pdf}
+	\caption{Schema ER, raffinamento utente}
+	\label{fig:raffinamento-utente}
+\end{figure}
+
+\subsection{Servizi}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento servizi.pdf}
+	\caption{Schema ER, raffinamento servizi}
+	\label{fig:raffinamento-servizi}
+\end{figure}
+
+\subsection{Prodotti}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento prodotto.pdf}
+	\caption{Schema ER, raffinamento prodotto}
+	\label{fig:raffinamento-prodotto}
+\end{figure}
 
 \section{Schema concettuale finale}
 
-
 \chapter{Progettazione logica}
 \section{Stima del volume dei dati}
+Per poter far un'ottima progettazione, è stata creata una stima della qunatità dei dati, che il database dovrà gestire. La stima
+è stata calcolata considerando un agriturismo di medie dimensioni, con circa 20 camere, un ristorante e attività all'aperto.
+
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.15}
+	\begin{tabularx}{\textwidth}{|l|c|c|X|}
+		\hline
+		\rowcolor{gray!20}
+		\textbf{Tabella}     & \textbf{E/A} & \textbf{Stima record} & \textbf{Note}                                          \\
+		\hline
+		persona              & E            & 1000                  & Clienti e dipendenti storicizzati                      \\
+		utente               & E            & 500                   & Account di accesso (clienti e staff)                   \\
+		dipendente           & E            & 20                    & Dipendenti attivi e storici (subset di utente)         \\
+		ruolo                & E            & 5                     & Tipologie di ruolo (receptionist, amministratore, ...) \\
+		assegna ruolo        & A            & 30                    & Storico assegnazioni ruolo (associazione)              \\
+		pacchetto            & E            & 30                    & Pacchetti promozionali / stagionali                    \\
+		servizio             & E            & 50                    & Camere, tavoli, lettini, campi, attività               \\
+		camera               & E            & 20                    & Specializzazione di servizio: camere                   \\
+		tavolo               & E            & 10                    & Specializzazione di servizio: tavoli ristorante        \\
+		campo da gioco       & E            & 2                     & Specializzazione di servizio: campi sportivi           \\
+		lettino              & E            & 15                    & Specializzazione di servizio: lettini piscina          \\
+		attivita con animali & E            & 3                     & Attività guidate con animali                           \\
+		composto da          & A            & 100                   & Associazione pacchetto-servizio                        \\
+		\hline
+	\end{tabularx}
+	\caption{Stima del volume dei dati per le tabelle definite in farmhouse.sql}
+\end{table}
 
 \section{Descrizione operazioni}
+In questa sezione vengono riportate le principali operazioni che saranno svolte sulla base di dati.
+Si è stimata la frequenza con cui ogni operazione viene eseguita in media, nell'arco di una settimana,
+specificando anche il tipo di utente che la effettua e il tipo di accesso al DB (letture/scritture).
 
 \section{Analisi delle operazioni}
+Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
+
+\begin{enumerate}
+	\item Registrazione nuovo utente
+	\item Prenotazione servizi
+	\item Creazione pacchetto
+	\item Modifica/cancellazione prenotazione
+	\item Acquisto pacchetto
+	\item Inserimento recensione
+	\item Inserimento oridne prodotti
+	\item Iscrizione evento
+	\item Inserimento ordine prodotti
+\end{enumerate}
 
 \section{Analisi delle ridondanze}
 
