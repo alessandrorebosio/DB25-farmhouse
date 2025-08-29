@@ -61,12 +61,7 @@ pip install -r requirements.txt
 ### 4. Database Setup
 **Create MySQL Database:**
 ```bash
-mysql -u root -p
-```
-Than execute
-```bash
-CREATE DATABASE farmhouse CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-EXIT;
+mysql -u root -p < app/sql/createDB.sql
 ```
 
 ## 🚀 Running the Application
