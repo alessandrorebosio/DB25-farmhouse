@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{report}
+\documentclass[a4paper,12pt]{report}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -110,15 +110,16 @@ dell'arrivo. Per i servizi a tempo, come il campo da calcio, la cancellazione è
 \\ {\bf R:} “I pacchetti possono essere creati dallo staff con servizi predefiniti. Ogni pacchetto avrà un prezzo complessivo calcolato in base ai
 servizi inclusi, con eventuali sconti applicati.
 
+\newpage
 \section{Estrazione dei concetti principali}
 Dall'analisi svolta emergono le principali entità che il sistema dovrà gestire: \textbf{Cliente}, \textbf{Servizio}, \textbf{Prenotazione},
 \textbf{Pacchetto}, \textbf{Evento}, \textbf{Recensione} e \textbf{Staff}.
 
-Ogni \textbf{Cliente} potrà registrarsi fornendo i seguenti attributi: \underline{nome}, \underline{cognome}, \underline{codice fiscale},
+Ogni \textbf{Cliente} potrà registrarsi fornendo i seguenti attributi: \newline \underline{nome}, \underline{cognome}, \underline{codice fiscale},
 \underline{email} e \underline{numero di telefono}. All'atto della registrazione, verrà creato un account contenente \underline{username} e \underline{password}. Solo i clienti
 autenticati potranno effettuare prenotazioni. Ogni cliente avrà accesso al proprio \underline{storico prenotazioni} e potrà lasciare recensioni.
 
-I \textbf{Servizi} gestiti comprendono: \underline{camere}, \underline{tavoli ristorante}, \underline{lettini piscina}, \underline{attività con
+I \textbf{Servizi} gestiti comprendono: \underline{camere}, \underline{tavoli ristorante}, \newline \underline{lettini piscina}, \underline{attività con
 	animali} e \underline{campo da calcio}. Ogni servizio presenta regole specifiche: ad esempio, i lettini in piscina sono prenotabili a fasce orarie di
 due ore, mentre il campo da calcio è prenotabile per una o più ore. Per ciascun servizio devono essere definiti \underline{orari}, \underline{capacità massima},
 \underline{durata prenotabile} e \underline{penali in caso di cancellazione}.
@@ -150,37 +151,101 @@ Dopo aver eseguito l'analisi del dominio iniziale, abbiamo creato uno schema di 
 che sarà poi perfezionato nei passaggi successivi.
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/scheletro.pdf}
+	\includegraphics[width=\textwidth, trim=0 100pt 150pt 0 , clip]{./pdf/scheletro.pdf}
 	\caption{Schema ER scheletro (versione iniziale)}
 	\label{fig:schema-scheletro}
 \end{figure}
 
 \section{Raffinamenti proposti}
 \subsection{Utente e Dipendente}
+Nel modello concettuale iniziale \textbf{Persona} accorpava in sé tutte le possibili iterazioni con il sistema: iscrizione e creazione
+di eventi, acquisto di pacchetti, prenotazioni, ordini e recensioni. Questo apporccio, sebbene corretto sul piano logico, risultava poso chiaro
+perché attribuiva a un'unica entità responsabilità moltoterogenee.
+
+\vspace{\baselineskip}
+Per migliorare la rappresentazione è stato introdotto un rafinameto
+attraverso un'operazione di \textbf{generalizzazione/specializzazione}: la superclasse \textbf{Persona} è stata mantenuta
+per raccogliere gli attributi comuni (CF, nome, cognome), mentre le funzionalità specifiche sono state distribuite nei sottotipi
+\textbf{Cliente} e \textbf{Dipendente}.
+
+\vspace{\baselineskip}
+In questo modo i clienti gestiscono attività come acquisti, recensioni, ordini e iscrizioni agli eventi, mentre
+i dipendenti si occupano dellac creazione degli eventi e della gestione dei servizi. Tale raffinamento migliora
+la chiarezza semantica del modello, evita ambiguità e riflette meglio la separazione dei ruoli reali all'interno
+del dominio applicativo.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento ruolo.pdf}
+	\includegraphics[width=\textwidth, trim=0 250pt 300pt 0, clip]{./pdf/raffinamento utente.pdf}
 	\caption{Schema ER, raffinamento utente}
 	\label{fig:raffinamento-utente}
 \end{figure}
 
-\subsection{Servizi}
+\newpage
+\subsection{Servizi/Prenotazioni e Pacchetti}
+Nel modello iniziale i diversi tipi di servizi (camere, tavoli, lettini, campi da gioco, attività con animali) potevano essere
+rappresentati come entità distinte, con il rischio però di ridondanza e frammentazione dei dati.
+
+\vspace{\baselineskip}
+Con il raffinamento si è introdotta una \textbf{generalizzazione}: è stata creata la superclasse \textbf{Servizio}, che raccoglie gli attributi comuni (ID\_servizio,
+prezzo, tipo\_servizio, status), mentre ciascuna tipologia specifica di servizio (Camera, Tavolo, Lettino, Campo da gioco,
+Attività con animali) è modellata come sottoclasse.
+
+\vspace{\baselineskip}
+Inoltre, è stato introdotto il legame con l'entità \textbf{Prenotazione}, che consente di registrare le informazioni su data di inizio
+e fine e di associare ogni prenotazione a uno o più servizi specifici tramite la relazione con \textbf{Dettagli Prenotazione}. Questo
+raffinamento permette di gestire correttamente scenari in cui un utente prenota più servizi differenti nello stesso arco
+temporale.
+
+\vspace{\baselineskip}
+Infine, i \textbf{Pacchetti} offrono un ulteriore livello di astrazione: ciascun pacchetto è composto da uno o più servizi e può essere
+acquistato dall'utente come un'unica offerta integrata. L'introduzione dei pacchetti, combinata con le prenotazioni, permette
+di modellare sia l'acquisto di singoli servizi che la sottoscrizione di offerte composte, rendendo il sistema più flessibile e
+vicino a un contesto reale.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento servizi.pdf}
+	\includegraphics[width=\textwidth, trim=0 200pt 175pt 0, clip]{./pdf/raffinamento servizi.pdf}
 	\caption{Schema ER, raffinamento servizi}
 	\label{fig:raffinamento-servizi}
 \end{figure}
 
-\subsection{Prodotti}
+\newpage
+\subsection{Prodotti e ordini}
+Nel modello concettuale iniziale, la gestione degli ordini e dei prodotti risultava poco dettagliata: un ordine era
+semplicemente collegato a uno o più prodotti, senza possibilità di specificare informazioni aggiuntive come quantità o
+prezzo unitario.
+
+\vspace{\baselineskip}
+Con il raffinamento, è stata introdotta l'entità \textbf{Dettaglio Ordine}, che funge da associazione tra \textbf{Ordine}
+e \textbf{Prodotto}. Ogni dettaglio ordine consente di memorizzare, per ciascun prodotto incluso in un ordine, la quantità
+acquistata e il prezzo applicato. Questo permette di rappresentare in modo accurato scenari reali come ordini
+multiprodotto, applicazione di sconti o variazioni di prezzo nel tempo.
+
+\vspace{\baselineskip}
+Inoltre, viene mantenuta la generalizzazione tra \textbf{Persona} e \textbf{Utente}, già introdotta nei raffinamenti
+precedenti, per distinguere i dati anagrafici comuni da quelli specifici per l'accesso al sistema e la gestione degli
+ordini. Questo approccio migliora la flessibilità e la chiarezza del modello, consentendo una gestione più efficace
+delle informazioni relative agli acquisti.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 150pt 0 0, clip]{./pdf/raffinamento prodotto.pdf}
+	\includegraphics[width=\textwidth, trim=0 200pt 125pt 0, clip]{./pdf/raffinamento prodotto.pdf}
 	\caption{Schema ER, raffinamento prodotto}
 	\label{fig:raffinamento-prodotto}
 \end{figure}
 
+\newpage
 \section{Schema concettuale finale}
+Qui di seguito, è presente lo schema concettuale finale con tutti i raffinamenti.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 100pt 0 0, clip, angle=0]{./pdf/finale.pdf}
+	\caption{Schema ER, schema concettuale finale}
+	\label{fig:schema-finale}
+\end{figure}
+\newpage
 
 \chapter{Progettazione logica}
 \section{Stima del volume dei dati}
@@ -188,7 +253,6 @@ Per poter effettuare una corretta progettazione del database, è stata realizzat
 La stima è stata calcolata considerando un agriturismo di medie dimensioni, dotato di circa 20 camere, un ristorante e diverse attività all'aperto.
 A supporto delle analisi gestionali, si è scelto di mantenere uno storico dei dati con orizzante termporale pari a un anno.
 Nella tabella seguente vengono riportati i volumi stimati per entità e associazioni.
-
 \begin{table}[H]
 	\centering
 	\small
@@ -196,30 +260,30 @@ Nella tabella seguente vengono riportati i volumi stimati per entità e associaz
 	\begin{tabularx}{\textwidth}{|X|c|c|}
 		\hline
 		\rowcolor{gray!20}
-		\textbf{Tabella}      & \textbf{E/A} & \textbf{VOLUME STIMATO} \\
+		\textbf{Tabella}      & \textbf{VOLUME STIMATO} & \textbf{E/A} \\
 		\hline
-		PERSONA               & E            & 4500                    \\
-		UTENTE                & E            & 2500                    \\
-		DIPENDENTE            & E            & 25                      \\
-		RUOLO                 & E            & 5                       \\
-		PACCHETTO             & E            & 30                      \\
-		SERVIZIO              & E            & 200                     \\
-		CAMERA                & E            & 20                      \\
-		TAVOLO                & E            & 100                     \\
-		CAMPO DA GIOCO        & E            & 2                       \\
-		LETTINO               & E            & 45                      \\
-		ATTIVITÀ CON ANIMALI  & E            & 3                       \\
-		PRENOTAZIONE          & E            & 2000                    \\
-		RECENSIONE            & E            & 570                     \\
-		ORDINE                & E            & 5000                    \\
-		PRODOTTO              & E            & 150                     \\
-		EVENTO                & E            & 25                      \\
-		ASSEGNA RUOLO         & A            & 30                      \\
-		COMPOSTO DA           & A            & 90                      \\
-		ACQUISTA              & A            & 160                     \\
-		DETTAGLI PRENOTAZIONE & A            & 4000                    \\
-		DETTAGLI ORDINE       & A            & 15000                   \\
-		ISCRIVE               & A            & 500                     \\
+		PERSONA               & 4500                    & E            \\
+		UTENTE                & 2500                    & E            \\
+		DIPENDENTE            & 25                      & E            \\
+		RUOLO                 & 5                       & E            \\
+		PACCHETTO             & 30                      & E            \\
+		SERVIZIO              & 200                     & E            \\
+		CAMERA                & 20                      & E            \\
+		TAVOLO                & 100                     & E            \\
+		CAMPO DA GIOCO        & 2                       & E            \\
+		LETTINO               & 45                      & E            \\
+		ATTIVITÀ CON ANIMALI  & 3                       & E            \\
+		PRENOTAZIONE          & 2000                    & E            \\
+		RECENSIONE            & 570                     & E            \\
+		ORDINE                & 5000                    & E            \\
+		PRODOTTO              & 150                     & E            \\
+		EVENTO                & 25                      & E            \\
+		ASSEGNA RUOLO         & 30                      & A            \\
+		COMPOSTO DA           & 90                      & A            \\
+		ACQUISTA              & 160                     & A            \\
+		DETTAGLI PRENOTAZIONE & 4000                    & A            \\
+		DETTAGLI ORDINE       & 15000                   & A            \\
+		ISCRIVE               & 500                     & A            \\
 		\hline
 	\end{tabularx}
 	\caption{Stima del volume dei dati}
