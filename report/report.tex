@@ -184,9 +184,9 @@ che sarà poi perfezionato nei passaggi successivi.
 
 \chapter{Progettazione logica}
 \section{Stima del volume dei dati}
-Per poter effettuare una corretta progettazione del database, è stata realizzata una stima della quantità di dati che il sistema dovrà gestire. 
+Per poter effettuare una corretta progettazione del database, è stata realizzata una stima della quantità di dati che il sistema dovrà gestire.
 La stima è stata calcolata considerando un agriturismo di medie dimensioni, dotato di circa 20 camere, un ristorante e diverse attività all'aperto.
-A supporto delle analisi gestionali, si è scelto di mantenere uno storico dei dati con orizzante termporale pari a un anno. 
+A supporto delle analisi gestionali, si è scelto di mantenere uno storico dei dati con orizzante termporale pari a un anno.
 Nella tabella seguente vengono riportati i volumi stimati per entità e associazioni.
 
 \begin{table}[H]
@@ -196,33 +196,33 @@ Nella tabella seguente vengono riportati i volumi stimati per entità e associaz
 	\begin{tabularx}{\textwidth}{|X|c|c|}
 		\hline
 		\rowcolor{gray!20}
-		\textbf{Tabella}     & \textbf{E/A} & \textbf{VOLUME STIMATO} \\
+		\textbf{Tabella}      & \textbf{E/A} & \textbf{VOLUME STIMATO} \\
 		\hline
-		PERSONA				& E & 4500 \\
-		UTENTE				& E & 2500 \\
-		DIPENDENTE			& E & 25 \\ 
-		RUOLO 				& E & 5 \\
-		PACCHETTO 			& E & 30 \\
-		SERVIZIO 			& E & 200 \\
-		CAMERA 				& E & 20 \\
-		TAVOLO				& E & 100  \\
-		CAMPO DA GIOCO 		& E & 2 \\
-		LETTINO 			& E & 45 \\
-		ATTIVITÀ CON ANIMALI & E & 3 \\
-		PRENOTAZIONE 		& E & 2000 \\ 
-		RECENSIONE 			& E & 570 \\ 
-		ORDINE 				& E & 5000 \\ 
-		PRODOTTO 			& E & 150 \\
-		EVENTO 				& E & 25 \\
-		ASSEGNA RUOLO 		& A & 30 \\
-		COMPOSTO DA 		& A & 90 \\ 
-		ACQUISTA 			& A & 160 \\ 
-		DETTAGLI PRENOTAZIONE & A & 4000 \\ 
-		DETTAGLI ORDINE 	& A & 15000 \\
-		ISCRIVE				& A & 500 \\
+		PERSONA               & E            & 4500                    \\
+		UTENTE                & E            & 2500                    \\
+		DIPENDENTE            & E            & 25                      \\
+		RUOLO                 & E            & 5                       \\
+		PACCHETTO             & E            & 30                      \\
+		SERVIZIO              & E            & 200                     \\
+		CAMERA                & E            & 20                      \\
+		TAVOLO                & E            & 100                     \\
+		CAMPO DA GIOCO        & E            & 2                       \\
+		LETTINO               & E            & 45                      \\
+		ATTIVITÀ CON ANIMALI  & E            & 3                       \\
+		PRENOTAZIONE          & E            & 2000                    \\
+		RECENSIONE            & E            & 570                     \\
+		ORDINE                & E            & 5000                    \\
+		PRODOTTO              & E            & 150                     \\
+		EVENTO                & E            & 25                      \\
+		ASSEGNA RUOLO         & A            & 30                      \\
+		COMPOSTO DA           & A            & 90                      \\
+		ACQUISTA              & A            & 160                     \\
+		DETTAGLI PRENOTAZIONE & A            & 4000                    \\
+		DETTAGLI ORDINE       & A            & 15000                   \\
+		ISCRIVE               & A            & 500                     \\
 		\hline
 	\end{tabularx}
-	\caption{Stima del volume dei dati per le tabelle definite in farmhouse.sql}
+	\caption{Stima del volume dei dati}
 \end{table}
 
 \section{Descrizione operazioni}
