@@ -294,19 +294,79 @@ In questa sezione vengono riportate le principali operazioni che saranno svolte 
 Si è stimata la frequenza con cui ogni operazione viene eseguita in media, nell'arco di una settimana,
 specificando anche il tipo di utente che la effettua e il tipo di accesso al DB (letture/scritture).
 
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.12}
+	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
+		\hline
+		\rowcolor{gray!20}
+		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Op / 7gg} & \textbf{Tipo Utente}   \\
+		\hline
+		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 5--20             & Cliente                \\
+		\hline
+		2           & \hyperref[op2]{Autenticazione / login}                                 & 200--500          & Tutti (Clienti, Staff) \\
+		\hline
+		3           & \hyperref[op3]{Prenotazione servizio}                                  & 50--200           & Cliente / Reception    \\
+		\hline
+		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 10--80            & Cliente / Reception    \\
+		\hline
+		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 1--5              & Staff / Admin          \\
+		\hline
+		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 5--30             & Cliente                \\
+		\hline
+		7           & \hyperref[op7]{Inserimento recensione}                                 & 20--60            & Cliente                \\
+		\hline
+		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 2--20             & Staff                  \\
+		\hline
+		9           & \hyperref[op9]{Creazione evento}                                       & 0--3              & Staff / Admin          \\
+		\hline
+		10          & \hyperref[op10]{Iscrizione evento}                                     & 2--30             & Cliente                \\
+		\hline
+		11          & \hyperref[op11]{Inserimento ordine prodotti}                           & 5--50             & Cliente / Staff        \\
+		\hline
+		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              & 0--5              & Admin                  \\
+		\hline
+		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                & 30--70            & Reception              \\
+		\hline
+		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        & 20--40            & Staff operativo        \\
+		\hline
+		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      & 300--800          & Tutti                  \\
+		\hline
+		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  & 1--3              & Admin                  \\
+		\hline
+		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 2--10             & Staff / Admin          \\
+		\hline
+		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 1--7              & Admin                  \\
+		\hline
+	\end{tabularx}
+	\caption{Numero stimato di operazioni per settimana, con tipo di utente che le effettua}
+	\label{tab:operazioni-settimanali}
+\end{table}
+
+\newpage
 \section{Analisi delle operazioni}
 Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
 
 \begin{enumerate}
-	\item Registrazione nuovo utente
-	\item Prenotazione servizi
-	\item Creazione pacchetto
-	\item Modifica/cancellazione prenotazione
-	\item Acquisto pacchetto
-	\item Inserimento recensione
-	\item Inserimento oridne prodotti
-	\item Iscrizione evento
-	\item Inserimento ordine prodotti
+	\item \textbf{Registrazione nuovo utente} \label{op1}
+	\item \textbf{Autenticazione / login} \label{op2}
+	\item \textbf{Prenotazione servizio} \label{op3}
+	\item \textbf{Modifica / cancellazione prenotazione} \label{op4}
+	\item \textbf{Creazione / modifica pacchetto} \label{op5}
+	\item \textbf{Acquisto pacchetto} \label{op6}
+	\item \textbf{Inserimento recensione} \label{op7}
+	\item \textbf{Gestione inventario / prodotti} \label{op8}
+	\item \textbf{Creazione evento} \label{op9}
+	\item \textbf{Iscrizione evento} \label{op10}
+	\item \textbf{Inserimento ordine prodotti} \label{op11}
+	\item \textbf{Assegnazione / modifica ruolo dipendenti} \label{op12}
+	\item \textbf{Check-in / Check-out} \label{op13}
+	\item \textbf{Aggiornamento stato servizio} \label{op14}
+	\item \textbf{Controllo disponibilità servizi} \label{op15}
+	\item \textbf{Generazione report settimanali} \label{op16}
+	\item \textbf{Applicazione sconto / promozione} \label{op17}
+	\item \textbf{Pianificazione turni / orari dipendenti} \label{op18}
 \end{enumerate}
 
 \section{Analisi delle ridondanze}
