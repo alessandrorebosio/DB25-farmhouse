@@ -11,6 +11,7 @@
 \usepackage[table]{xcolor}
 \usepackage{fancyvrb} 
 \usepackage{alltt}
+\usepackage{amsmath}
 \usepackage{hyperref}
 
 \geometry{margin=1in}
@@ -333,41 +334,51 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 		\rowcolor{gray!20}
 		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Op / 7gg} & \textbf{Tipo Utente}   \\
 		\hline
-		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 5--20             & Cliente                \\
+		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 10             & Cliente                \\
 		\hline
-		2           & \hyperref[op2]{Autenticazione / login}                                 & 200--500          & Tutti (Clienti, Staff) \\
+		2           & \hyperref[op2]{Autenticazione / login}                                 & 350          & Tutti (Clienti, Staff) \\
 		\hline
-		3           & \hyperref[op3]{Prenotazione servizio}                                  & 50--200           & Cliente / Reception    \\
+		3           & \hyperref[op3]{Prenotazione servizio}                                  & 125           & Cliente / Reception    \\
 		\hline
-		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 10--80            & Cliente / Reception    \\
+		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 30            & Cliente / Reception    \\
 		\hline
-		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 1--5              & Staff / Admin          \\
+		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 3              & Staff / Admin          \\
 		\hline
-		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 5--30             & Cliente                \\
+		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 15             & Cliente                \\
 		\hline
-		7           & \hyperref[op7]{Inserimento recensione}                                 & 20--60            & Cliente                \\
+		7           & \hyperref[op7]{Inserimento recensione}                                 & 40            & Cliente                \\
 		\hline
-		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 2--20             & Staff                  \\
+		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 10             & Staff                  \\
 		\hline
-		9           & \hyperref[op9]{Creazione evento}                                       & 0--3              & Staff / Admin          \\
+		9           & \hyperref[op9]{Creazione evento}                                       & 1              & Staff / Admin          \\
 		\hline
-		10          & \hyperref[op10]{Iscrizione evento}                                     & 2--30             & Cliente                \\
+		10          & \hyperref[op10]{Iscrizione evento}                                     & 15             & Cliente                \\
 		\hline
-		11          & \hyperref[op11]{Inserimento ordine prodotti}                           & 5--50             & Cliente / Staff        \\
+		11          & \hyperref[op11]{Creazione ordine}                           & 25            & Cliente / Staff        \\
 		\hline
-		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              & 0--5              & Admin                  \\
+		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              & 1              & Admin                  \\
 		\hline
-		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                & 30--70            & Reception              \\
+		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                & 50            & Reception              \\
 		\hline
-		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        & 20--40            & Staff operativo        \\
+		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        & 30            & Staff operativo        \\
 		\hline
-		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      & 300--800          & Tutti                  \\
+		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      & 550          & Tutti                  \\
 		\hline
-		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  & 1--3              & Admin                  \\
+		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  & 1              & Admin                  \\
 		\hline
-		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 2--10             & Staff / Admin          \\
+		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 5             & Staff / Admin          \\
 		\hline
-		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 1--7              & Admin                  \\
+		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 3              & Admin                  \\
+		\hline
+		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 1              & Admin                  \\
+		\hline
+		20          & \hyperref[op20]{Analisi fasce orarie più richieste per i lettini}      & 1              & Admin / Staff          \\
+		\hline
+		21          & \hyperref[op21]{Individuazione pacchetto più richiesto}                & 1              & Admin                  \\
+		\hline
+		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 1              & Admin                  \\
+		\hline
+		23          & \hyperref[op23]{Analisi servizi più inclusi nei pacchetti}             & 1              & Admin                  \\
 		\hline
 	\end{tabularx}
 	\caption{Numero stimato di operazioni per settimana, con tipo di utente che le effettua}
@@ -377,26 +388,799 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 \newpage
 \section{Analisi delle operazioni}
 Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
+Per stimare il carico delle operazioni sul database si è deciso di introdurre i seguenti parametri:
+\begin{itemize}
+    \item $A_{lett}$ = numero di accessi in lettura (\textit{read}) effettuati durante l'operazione.
+    \item $A_{scr}$ = numero di accessi in scrittura (\textit{write}) effettuati durante l'operazione.
+    \item $Op_{set}$ = numero medio di volte in cui l'operazione viene eseguita in una settimana (dalla Tabella \ref{tab:operazioni-settimanali}).
+\end{itemize}
 
 \begin{enumerate}
-	\item \textbf{Registrazione nuovo utente} \label{op1}
-	\item \textbf{Autenticazione / login} \label{op2}
-	\item \textbf{Prenotazione servizio} \label{op3}
-	\item \textbf{Modifica / cancellazione prenotazione} \label{op4}
-	\item \textbf{Creazione / modifica pacchetto} \label{op5}
-	\item \textbf{Acquisto pacchetto} \label{op6}
-	\item \textbf{Inserimento recensione} \label{op7}
-	\item \textbf{Gestione inventario / prodotti} \label{op8}
-	\item \textbf{Creazione evento} \label{op9}
-	\item \textbf{Iscrizione evento} \label{op10}
-	\item \textbf{Inserimento ordine prodotti} \label{op11}
-	\item \textbf{Assegnazione / modifica ruolo dipendenti} \label{op12}
-	\item \textbf{Check-in / Check-out} \label{op13}
-	\item \textbf{Aggiornamento stato servizio} \label{op14}
-	\item \textbf{Controllo disponibilità servizi} \label{op15}
-	\item \textbf{Generazione report settimanali} \label{op16}
-	\item \textbf{Applicazione sconto / promozione} \label{op17}
-	\item \textbf{Pianificazione turni / orari dipendenti} \label{op18}
+	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
+	
+	In questa operazione viene gestita la creazione di un nuovo utente del sistema.
+	
+	\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        \hline
+        PERSONA & E & 1 & S \\
+        \hline
+        UTENTE & E & 1 & S \\
+        \hline
+    \end{tabularx}
+	\end{table}
+
+	Il flusso dunque si articola in tre parti principali:
+	\begin{enumerate}
+	\item Verificare che l'\texttt{username} ed l'\texttt{email} non siano già presenti in \texttt{UTENTE}, al fine di evitare quindi duplicati.
+	\item Inserimento dei dati anagrafici della nuova persona in \texttt{PERSONA}.
+	\item Creazione dell'utente vero e proprio in \texttt{UTENTE}, collegato alla relativa persona.
+	\end{enumerate}
+
+	Sono dunque presenti $A_{lettura}=1$ e $A_{scrittura}=2$.
+	
+	Pertanto il \textbf{costo settimanale} è dato da:
+	\begin{align*}
+	C_{tot} &= O_{settimana} \cdot (A_{lett} + 2 \cdot A_{scr}) \\
+			&= 10 \cdot (1 + 2 \cdot 2) \\
+			&= 10 \cdot 5 = \mathbf{50}
+	\end{align*}
+	
+
+	\item {\large \textbf{Autenticazione / login}} \label{op2}
+    
+    $$
+	{Op}_{sett} = 350
+	$$
+    
+	\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi si ha una sola operazione di lettura.
+    Pertanto $C_{tot} = 350 \cdot 1 = \mathbf{350}$
+	
+    \item {\large \textbf{Prenotazione servizio}} \label{op3}
+    $$
+    {Op}_{sett}=125
+    $$
+	In media ogni prenotazione è associata a $2$ servizi, 
+	pertanto per ogni operazione di prenotazione si accede a $2$ record in \texttt{SERVIZIO} 
+	e si scrivono $2$ record in \texttt{DETTAGLI\_PRENOTAZIONE}.
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        PRENOTAZIONE & E & 1 & S\\
+        SERVIZIO & E & 2  & L \\
+        DETTAGLI\_PRENOTAZIONE & E & 2 & S\\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi in totale si hanno $A_{lett}=3$ e $A_{scr}=3$. \\
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 125 \cdot (3+6)=\mathbf{1125}$$ 
+    
+    
+    
+	\item {\large \textbf{Modifica / cancellazione prenotazione}} \label{op4}
+    
+    $$
+    {Op}_{sett} = 30
+    $$
+    In media si hanno $\frac{4000}{2000}=2$ \textbf{servizi per prenotazione}.
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE & E & 1 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & L\\
+        PRENOTAZIONE & E & 1 & S \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & S\\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi in totale si hanno $A_{lett}=3$ e $A_{scr}=3$, questo perché:
+    \begin{itemize}
+        \item Si accede alla tabella \texttt{PRENOTAZIONE} per trovare la prenotazione da modificare.
+        \item Si leggono i \texttt{DETTAGLI\_PRENOTAZIONE} collegati (che sono in media 2 per prenotazione).
+        \item Infine si aggiorna o si elimina la prenotazione (se viene cancellata, si devono rimuovere anche i relativi dettagli).
+    \end{itemize}
+
+    Pertanto, il costo settimanale è:
+    $$
+    \mathbf{C_{tot}} = 30 \cdot (3 + 2 \cdot 3) = \mathbf{270}
+    $$
+
+        
+	\item {\large \textbf{Creazione / modifica pacchetto} \label{op5}}
+    
+    In questa operazione, un membro dello staff oppure un amministratore crea/modifica un pacchetto, ovvero un insieme di servizi offerti ad un prezzo promozionale.
+    
+    $$
+    {Op}_{set}=3
+    $$
+    
+    In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PACCHETTO & E & 1 & S \\
+        SERVIZIO & E & 3 & L\\
+        COMPOSTO\_DA & A & 3 & L \\
+        \hline
+    \end{tabularx}
+	\end{table}
+    Si hanno dunque $A_{lett}=3$ e $A_{scr}=4$. \\
+    Questo perché:
+	\begin{itemize}
+    \item si inserisce o aggiorna il record del \texttt{PACCHETTO};
+    \item si leggono in media 3 record di \texttt{SERVIZIO} per verificare la loro esistenza;
+    \item si scrivono in media 3 record nella relazione \texttt{COMPOSTO\_DA}, che collega i 	servizi al pacchetto.
+  \end{itemize}
+
+  	Pertanto il costo settimanale è:
+    $$
+    C_{tot} = 3 \cdot (3 + 2 \cdot 4) = 33
+    $$
+    
+    \item {\large \textbf{Acquisto pacchetto}} \label{op6}
+
+    $$
+    {Op}_{sett} = 15
+    $$
+
+	In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.85\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        PACCHETTO & E & 1 & L \\
+        ACQUISTA & A & 1 & S \\
+        SERVIZIO & E & 3 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 3 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=5$ e $A_{scr}=4$.
+
+    Questo perché:
+    \begin{itemize}
+    \item si effettua in \texttt{UTENTE} una lettura per verificare chi effettua l’acquisto;
+    \item si legge il \texttt{PACCHETTO} scelto;
+    \item si scrive la relazione \texttt{ACQUISTA} per collegare utente e pacchetto;
+    \item si leggono i \texttt{SERVIZI} contenuti nel pacchetto;
+    \item si inseriscono i corrispondenti record in \texttt{DETTAGLI\_PRENOTAZIONE}.
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    \[
+    \mathbf{C_{tot}} = 15 \cdot (5 + 2 \cdot 4) = \mathbf{195}
+    \]
+
+    
+	\item {\large \textbf{Inserimento recensione}} \label{op7}
+	
+    $$
+    {Op}_{sett} = 40
+    $$
+
+    In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        SERVIZIO & E & 1 & L \\
+        RECENSIONE & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=2$ e $A_{scr}=1$.
+
+    Questo perché:
+    \begin{itemize}
+        \item si legge l’\texttt{UTENTE} che lascia la recensione;
+        \item si verifica il \texttt{SERVIZIO} a cui si riferisce;
+        \item si inserisce un record in \texttt{RECENSIONE}.
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 40 \cdot (2 + 2 \cdot 1) = \mathbf{160}$$
+    
+
+	\item {\large \textbf{Gestione inventario / prodotti}} \label{op8}
+	
+	Per gestione inventario si intende l'aggiornamento dei prodotti del ristorante/bar da parte dello staff.
+    $$
+    {Op}_{sett} = 10
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRODOTTO & E & 1 & L \\
+        PRODOTTO & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=1$ e $A_{scr}=1$.
+
+    Questo perché:
+    \begin{itemize}
+        \item prima leggiamo il record del \texttt{PRODOTTO} per verificare l'esistenza di dati attuali
+        \item per poi aggiornarlo (se esiste) o inserirlo
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 10 \cdot (1 + 2 \cdot 1) = \mathbf{30}$$
+
+	\item {\large \textbf{Creazione evento}} \label{op9}
+
+    $$
+    {Op}_{sett} = 1
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        EVENTO & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perchè l’operazione comporta semplicemente l’inserimento di un nuovo \texttt{EVENTO}.
+
+    Quindi si ha solamente un'operazione di scrittura: 
+	$$
+    \mathbf{C_{tot}} = 1 \cdot (0 + 2 \cdot 1) = \mathbf{1}
+    $$
+
+	\item {\large \textbf{Iscrizione evento}} \label{op10}
+
+    $$
+    {Op}_{sett} = 15
+    $$
+
+    In media ad un evento si iscrivono $\frac{500}{25}=20$ \textbf{iscritti}
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.9\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        EVENTO & E & 1 & L \\
+        ISCRIVE & A & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:
+    \begin{itemize}
+        \item si legge l’\texttt{UTENTE} che si iscrive;
+        \item si legge l’\texttt{EVENTO} scelto;
+        \item si inserisce un nuovo record nella \texttt{ISCRIVE}.
+    \end{itemize}
+
+    Quindi: $A_{lett}=2$, $A_{scr}=1$.  
+	Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 15 \cdot (2 + 2 \cdot 1) = \mathbf{60}$$
+  
+
+	\item {\large \textbf{Creazione Ordine}} \label{op11}
+
+    $$
+    {Op}_{sett} = 25
+    $$
+
+    In media ogni ordine contiene $\frac{15000}{5000}=3$ \textbf{prodotti}.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.9\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        ORDINE & E & 1 & S \\
+        PRODOTTO & E & 3 & L \\
+        DETTAGLI\_ORDINE & A & 3 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:
+    \begin{itemize}
+        \item si legge l’\texttt{UTENTE} che effettua l’ordine;
+        \item si inserisce un nuovo record in \texttt{ORDINE};
+        \item si leggono in media 3 \texttt{PRODOTTI};
+        \item e si scrivono 3 record in \texttt{DETTAGLI\_ORDINE}.
+    \end{itemize}
+
+    Quindi: $A_{lett}=4$, $A_{scr}=4$.  
+	Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 25 \cdot (4 + 2 \cdot 4) = \mathbf{300}$$
+
+    
+    
+	\item {\large \textbf{Assegnazione / modifica ruolo dipendenti}} \label{op12}
+    $$
+    Op_{sett} = 1
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        DIPENDENTE & E & 1 & L \\
+        RUOLO & E & 1 & L \\
+        ASSEGNA\_RUOLO & A & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    In questa operazione si assegna o modifica il ruolo di un dipendente:
+    \begin{itemize}
+      \item Si legge il \texttt{DIPENDENTE}.
+      \item Si legge il \texttt{RUOLO}.
+      \item Si inserisce/aggiorna l’associazione in \texttt{ASSEGNA\_RUOLO}.
+    \end{itemize}
+
+    Totale: $A_{lett}=2$, $A_{scr}=1$. \\
+    \[
+    C_{tot} = 1 \cdot (2 + 2 \cdot 1) = 4
+    \]
+    
+    
+	\item {\large \textbf{Check-in / Check-out}} \label{op13}
+    
+    Questa operazione gestisce l'arrivo o la partenza di un cliente.
+    $$
+    Op_{sett} = 50
+    $$
+    
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE & E & 1 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item Si legge la \texttt{PRENOTAZIONE}.
+      \item Si leggono i \texttt{DETTAGLI\_PRENOTAZIONE} collegati (in media ci sono 2).
+      \item Si aggiornano gli stessi dettagli con lo stato di check-in/check-out.
+    \end{itemize}
+
+    Quindi ci sono $A_{lett}=3$ e $A_{scr}=2$. \\
+    Pertanto il costo settimanale è dato da:
+    $$
+    \mathbf{C_{tot}} = 50 \cdot (3 + 2 \cdot 2) = \mathbf{350}
+    $$
+
+	\item {\large \textbf{Aggiornamento stato servizio}} \label{op14}
+    
+    Questa operazione spiega quante volte lo staff aggiorna lo stato di un servizio.
+    $$
+    Op_{sett} = 30
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        SERVIZIO & E & 1 & L \\
+        SERVIZIO & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item Si legge il \texttt{SERVIZIO}.
+      \item Si aggiorna lo stato (es. disponibile, in manutenzione, occupato).
+    \end{itemize}
+
+    Quindi ci sono $A_{lett}=1$ e $A_{scr}=1$. \\
+   	$$\mathbf{C_{tot}} = 30 \cdot (1 + 2 \cdot 1) = \mathbf{90}$$
+
+	\item {\large \textbf{Controllo disponibilità servizi}} \label{op15}
+    
+    Un utente o lo staff verificano la disponibilità di un servizio in un dato periodo.
+    Si assume che gli utenti guardino in media 3 servizi e che, quindi, non consultino solamente uno.
+    
+    $$
+    Op_{sett} = 550
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        SERVIZIO & E & 3 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item Gli utenti ricercano tra più \texttt{SERVIZI} (camere, tavoli, attività, ecc.).
+      \item Operazione di sola lettura.
+    \end{itemize}
+
+    Quindi solamente $A_{lett}=3$. \\
+
+    
+    $$\mathbf{C_{tot}} = 550 \cdot 3 = \mathbf{1650}$$
+    
+	\item {\large \textbf{Generazione report settimanali}} \label{op16}
+    
+    Lo staff genera report riassuntivi sulle prenotazioni e sugli ordini.
+    In media un report include 20 prenotazioni e 10 ordini.
+    $$
+    Op_{sett} = 1
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE & E & 20 & L \\
+        ORDINE & E & 10 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item L’admin richiede statistiche (occupazione, ricavi).
+      \item Molte letture, nessuna scrittura.
+    \end{itemize}
+
+    L'operazione è di sola lettura perché consiste nell'estrarre dati da più entità per creare il report. \\
+    $$\mathbf{C_{tot}} = 1 \cdot (30) = \mathbf{30}$$
+    
+    
+	\item {\large \textbf{Applicazione sconto / promozione}} \label{op17}
+    Un amministratore o un membro dello staff inserisce o modifica una promozione su pacchetti o servizi.
+    $$
+    Op_{sett} = 5
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE / ORDINE & E & 1 & L \\
+        PRENOTAZIONE / ORDINE & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item Si legge la prenotazione o l’ordine.
+      \item Si aggiorna applicando sconto o promozione.
+    \end{itemize}
+
+    Quindi si ha $A_{lett}=1$ e $A_{scr}=1$. \\
+    $$\mathbf{C_{tot}} = 5 \cdot (1 + 2 \cdot 1) = \mathbf{15}$$
+
+	\item {\large \textbf{Pianificazione turni / orari dipendenti}} \label{op18}
+    $$
+    Op_{sett} = 3
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        DIPENDENTE & E & 1 & L \\
+        ORARIO\_TURNO & A & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{itemize}
+      \item Si leggono i dipendenti.
+      \item Si inserisce/aggiorna la pianificazione in \texttt{ORARIO\_TURNO}.
+    \end{itemize}
+
+    Totale: $A_{lett}=1$, $A_{scr}=1$. \\
+    $$C_{tot} = 3 \cdot (1 + 2 \cdot 1) = 9$$
+    
+    
+	\item {\large \textbf{Calcolo tasso di occupazione camere mensile}} \label{op19}
+   $$
+   {Op}_{sett} = 1
+   $$
+    È un'operazione gestionale volta ad individuare i mesi/scenari a bassa occupazione e pianificare promozioni mirate. 
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE & E & 2000 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 4000 & L \\
+        CAMERA & E & 20 & L \\
+        SERVIZIO & E & 200 & L \\
+        UTENTE & E & 2000 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:  
+    \begin{itemize}
+        \item si leggono tutte le \texttt{PRENOTAZIONI} effettuate,  
+        \item si consultano i \texttt{DETTAGLI\_PRENOTAZIONE} per sapere quali camere sono state usate,  
+        \item si leggono le entità \texttt{CAMERA} e \texttt{SERVIZIO} per filtrare i soli servizi di tipo “camera”,  
+        \item si accede agli \texttt{UTENTI} collegati per fini di reportistica (segmentazione per tipologia di cliente).  
+    \end{itemize}
+
+    Si hanno quindi: $A_{\text{lett}} = 2000 + 4000 + 20 + 200 + 2000 = 8220$  
+    Pertanto il costo settimanale è dato da:
+    $$
+    \mathbf{C_{tot}} = 1 \cdot (8220 + 0) = \mathbf{8220}
+    $$    
+
+
+    \item {\large \textbf{Analisi fasce orarie più richieste per i lettini}} \label{op20}
+
+    È un'operazione volta a dimensionare i turni del personale sui picchi di domanda, al fine di migliorare il servizio e gestire al meglio le risorse.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        DETTAGLI\_PRENOTAZIONE & A & 4000 & L \\
+        LETTINO & E & 45 & L \\
+        PRENOTAZIONE & E & 2000 & L \\
+        UTENTE & E & 2000 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:  
+    \begin{itemize}
+        \item i \texttt{DETTAGLI\_PRENOTAZIONE} permettono di risalire a quali lettini sono stati richiesti e quando,  
+        \item la tabella \texttt{LETTINO} serve a distinguere i diversi lettini,  
+        \item da \texttt{PRENOTAZIONE} si ricavano le date/ore di utilizzo,  
+        \item si leggono gli \texttt{UTENTI} per distinguere tipologie di clientela (es. ospiti giornalieri vs soggiornanti).  
+    \end{itemize}
+
+    Si ha quindi $A_{\text{lett}} = 4000 + 45 + 2000 + 2000 = 8045$  
+    $$\mathbf{C_{tot}} = 1 \cdot (8045 + 0) = \mathbf{8045}$$
+
+
+    \item {\large \textbf{Individuazione pacchetto più richiesto}} \label{op21}
+   $$
+   {Op}_{sett} = 1
+   $$
+    Per promuovere l’esperienza più popolare e migliorare i servizi collegati. 
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        ACQUISTA & A & 160 & L \\
+        PACCHETTO & E & 30 & L \\
+        UTENTE & E & 160 & L \\
+        COMPOSTO\_DA & A & 90 & L \\
+        SERVIZIO & E & 200 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:  
+    \begin{itemize}
+        \item si leggono le relazioni \texttt{ACQUISTA} per sapere quanti pacchetti sono stati acquistati,  
+        \item da \texttt{PACCHETTO} si individuano i pacchetti specifici,  
+        \item gli \texttt{UTENTI} permettono di segmentare la clientela,  
+        \item da \texttt{COMPOSTO\_DA} e \texttt{SERVIZIO} si vedono i contenuti del pacchetto più richiesto.  
+    \end{itemize}
+
+    Si ha $A_{\text{lett}} = 160 + 30 + 160 + 90 + 200 = 640$  
+    $$\mathbf{C_{tot}} = 1 \cdot (640 + 0) = \mathbf{640}$$
+
+
+      \item {\large \textbf{Calcolo fatturato per servizio}} \label{op22}
+      $$
+      {Op}_{sett} = 1
+      $$
+      Per valutare la redditività dei singoli servizi e riallocare il budget.
+
+      \begin{table}[H]
+      \centering
+      \small
+      \renewcommand{\arraystretch}{1.15}
+      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+          \hline
+          \rowcolor{gray!20}
+          \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+          \hline
+          ORDINE & E & 5000 & L \\
+          DETTAGLI\_ORDINE & A & 15000 & L \\
+          SERVIZIO & E & 200 & L \\
+          PRODOTTO & E & 500 & L \\
+          UTENTE & E & 5000 & L \\
+          \hline
+      \end{tabularx}
+      \end{table}
+
+    Questo perché:  
+    \begin{itemize}
+        \item si leggono gli \texttt{ORDINI} registrati,  
+        \item da \texttt{DETTAGLI\_ORDINE} si ottiene la quantità/prezzo dei prodotti acquistati,  
+        \item da \texttt{SERVIZIO} si mappa l’ordine a uno specifico servizio (es. ristorante, spa),  
+        \item i \texttt{PRODOTTI} collegati aiutano a distinguere la parte di ricavi da beni materiali,  
+        \item gli \texttt{UTENTI} permettono di segmentare la clientela in termini di spesa.  
+    \end{itemize}
+
+    Si hanno quindi $A_{\text{lett}} = 5000 + 15000 + 200 + 500 + 5000 = 25700$  
+    $$\mathbf{C_{tot}} = 1 \cdot (25700 + 0) = \mathbf{25700}$$
+
+
+    \item {\large \textbf{Analisi servizi più inclusi nei pacchetti}} \label{op23}
+   $$
+   {Op}_{sett} = 1
+   $$
+    Questa operazione è necessaria a capire le combinazioni preferite e progettare nuovi pacchetti garantendo i servizi più richiesti.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PACCHETTO & E & 30 & L \\
+        SERVIZIO & E & 200 & L \\
+        COMPOSTO\_DA & A & 90 & L \\
+        ACQUISTA & A & 160 & L \\
+        UTENTE & E & 160 & L \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:  
+    \begin{itemize}
+        \item si leggono i \texttt{PACCHETTI} definiti,  
+        \item si consultano i \texttt{SERVIZI} inclusi tramite la relazione \texttt{COMPOSTO\_DA},  
+        \item la relazione \texttt{ACQUISTA} mostra quali pacchetti sono effettivamente scelti,  
+        \item si leggono gli \texttt{UTENTI} per analizzare preferenze della clientela.  
+    \end{itemize}
+
+    Si ha $A_{\text{lett}} = 30 + 200 + 90 + 160 + 160 = 640$  
+    $$\mathbf{C_{tot}} = 1 \cdot (640 + 0) = \mathbf{640}$$
 \end{enumerate}
 
 \section{Analisi delle ridondanze}
