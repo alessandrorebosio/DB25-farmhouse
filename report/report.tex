@@ -370,6 +370,102 @@ Di seguito viene riportata un'analisi per alcune delle operazioni principali sul
 \end{enumerate}
 
 \section{Analisi delle ridondanze}
+In questa sezione vengono analizzate le rindondaze individuate nello schema concettuale valutandone l'impatto sul
+costo delle operazioni e decidendo se mantenerle o meno.
+
+\begin{itemize}
+	\item \textbf{prezzo unitario} in DETTAGLIO ORDINE
+	\item \textbf{prezzo} in DETTAGLIO ORDINE
+	\item \textbf{quantità} in DETTAGLI ORDINE
+	\item \textbf{tipo servizio} in RECENSIONE
+	\item \textbf{status} in SERVIZIO
+\end{itemize}
+
+\subsection{Analisi attributo prezzo unitario in DETTAGLI ORDINE}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Operazione}                          & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+		\hline
+		Visualizzazione dettagli di un ordine        & 500                     & 1000                      \\
+		Riepilogo storico ordini con prezzi corretti & 1000                    & 2000                      \\
+		\hline
+		\textbf{Totale}                              & 1500                    & 3000                      \\
+		\hline
+	\end{tabular}
+	\caption{Analisi attributo \texttt{prezzo\_unitario} in DETTAGLI\_ORDINE}
+\end{table}
+
+\subsection{Analisi attributo prezzo in DETTAGLIO ORDINE}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Operazione}             & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+		\hline
+		Calcolo totale di un ordine     & 1                       & 2                         \\
+		Statistiche incassi settimanali & 100                     & 200                       \\
+		\hline
+		\textbf{Totale}                 & 101                     & 202                       \\
+		\hline
+	\end{tabular}
+	\caption{Analisi attributo \texttt{prezzo} in DETTAGLIO\_ORDINE}
+\end{table}
+
+\subsection{Analisi attributo quantià in DETTAGLI ORDINE}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Operazione}                  & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+		\hline
+		Inserimento prodotto in un ordine    & 1                       & n (una tupla per unità)   \\
+		Visualizzazione ordine multiprodotto & 1                       & n                         \\
+		\hline
+		\textbf{Totale}                      & 2                       & 2n                        \\
+		\hline
+	\end{tabular}
+	\caption{Analisi attributo \texttt{quantità} in DETTAGLIO\_ORDINE}
+\end{table}
+
+\subsection{Analisi attributo tipo servizio in RECENSIONE}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Operazione}                 & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+		\hline
+		Media voti per tipologia            & 200                     & 400                       \\
+		Statistiche recensioni per servizio & 300                     & 600                       \\
+		\hline
+		\textbf{Totale}                     & 500                     & 1000                      \\
+		\hline
+	\end{tabular}
+	\caption{Analisi attributo \texttt{tipo\_servizio} in RECENSIONE}
+\end{table}
+
+
+\subsection{Analisi attributo status in SERVIZIO}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Operazione}                     & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+		\hline
+		Visualizzazione disponibilità servizi   & 50                      & 100                       \\
+		Controllo stato in fase di prenotazione & 100                     & 200                       \\
+		\hline
+		\textbf{Totale}                         & 150                     & 300                       \\
+		\hline
+	\end{tabular}
+	\caption{Analisi attributo \texttt{status} in SERVIZIO}
+\end{table}
 
 \section{Riepilogo operazioni}
 
