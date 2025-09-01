@@ -310,19 +310,19 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 		\hline
 		3           & \hyperref[op3]{Prenotazione servizio}                                  & 125           & Cliente / Reception    \\
 		\hline
-		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 10--80            & Cliente / Reception    \\
+		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 30            & Cliente / Reception    \\
 		\hline
-		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 1--5              & Staff / Admin          \\
+		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 3              & Staff / Admin          \\
 		\hline
-		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 5--30             & Cliente                \\
+		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 15             & Cliente                \\
 		\hline
-		7           & \hyperref[op7]{Inserimento recensione}                                 & 20--60            & Cliente                \\
+		7           & \hyperref[op7]{Inserimento recensione}                                 & 40            & Cliente                \\
 		\hline
-		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 2--20             & Staff                  \\
+		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 10             & Staff                  \\
 		\hline
-		9           & \hyperref[op9]{Creazione evento}                                       & 0--3              & Staff / Admin          \\
+		9           & \hyperref[op9]{Creazione evento}                                       & 1              & Staff / Admin          \\
 		\hline
-		10          & \hyperref[op10]{Iscrizione evento}                                     & 2--30             & Cliente                \\
+		10          & \hyperref[op10]{Iscrizione evento}                                     & 15             & Cliente                \\
 		\hline
 		11          & \hyperref[op11]{Inserimento ordine prodotti}                           & 5--50             & Cliente / Staff        \\
 		\hline
@@ -359,7 +359,9 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
 	
 	In questa operazione viene gestita la creazione di un nuovo utente del sistema.
-	
+	$$
+	{Op}_{set} = 10
+	$$
 	\begin{table}[H]
     \centering
     \small
@@ -487,6 +489,7 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 
         
 	\item {\large \textbf{Creazione / modifica pacchetto} \label{op5}}
+    
     In questa operazione, un membro dello staff oppure un amministratore crea/modifica un pacchetto, ovvero un insieme di servizi offerti ad un prezzo promozionale.
     
     $$
@@ -522,11 +525,181 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
     $$
     C_{tot} = 3 \cdot (3 + 2 \cdot 4) = 33
     $$
-	\item \textbf{Acquisto pacchetto} \label{op6}
-	\item \textbf{Inserimento recensione} \label{op7}
-	\item \textbf{Gestione inventario / prodotti} \label{op8}
-	\item \textbf{Creazione evento} \label{op9}
-	\item \textbf{Iscrizione evento} \label{op10}
+    
+    \item {\large \textbf{Acquisto pacchetto}} \label{op6}
+
+    $$
+    {Op}_{sett} = 15
+    $$
+
+	In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.85\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        PACCHETTO & E & 1 & L \\
+        ACQUISTA & A & 1 & S \\
+        SERVIZIO & E & 3 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 3 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=5$ e $A_{scr}=4$.
+
+    Questo perché:
+    \begin{itemize}
+    \item si effettua in \texttt{UTENTE} una lettura per verificare chi effettua l’acquisto;
+    \item si legge il \texttt{PACCHETTO} scelto;
+    \item si scrive la relazione \texttt{ACQUISTA} per collegare utente e pacchetto;
+    \item si leggono i \texttt{SERVIZI} contenuti nel pacchetto;
+    \item si inseriscono i corrispondenti record in \texttt{DETTAGLI\_PRENOTAZIONE}.
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    \[
+    \mathbf{C_{tot}} = 15 \cdot (5 + 2 \cdot 4) = \mathbf{195}
+    \]
+
+    
+	\item {\large \textbf{Inserimento recensione}} \label{op7}
+	
+    $$
+    {Op}_{sett} = 40
+    $$
+
+    In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}.
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        SERVIZIO & E & 1 & L \\
+        RECENSIONE & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=2$ e $A_{scr}=1$.
+
+    Questo perché:
+    \begin{itemize}
+        \item si legge l’\texttt{UTENTE} che lascia la recensione;
+        \item si verifica il \texttt{SERVIZIO} a cui si riferisce;
+        \item si inserisce un record in \texttt{RECENSIONE}.
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 40 \cdot (2 + 2 \cdot 1) = \mathbf{160}$$
+    
+
+	\item {\large \textbf{Gestione inventario / prodotti}} \label{op8}
+	
+	Per gestione inventario si intende l'aggiornamento dei prodotti del ristorante/bar da parte dello staff.
+    $$
+    {Op}_{sett} = 10
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRODOTTO & E & 1 & L \\
+        PRODOTTO & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Quindi in totale si hanno $A_{lett}=1$ e $A_{scr}=1$.
+
+    Questo perché:
+    \begin{itemize}
+        \item prima leggiamo il record del \texttt{PRODOTTO} per verificare l'esistenza di dati attuali
+        \item per poi aggiornarlo (se esiste) o inserirlo
+    \end{itemize}
+
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 10 \cdot (1 + 2 \cdot 1) = \mathbf{30}$$
+
+	\item {\large \textbf{Creazione evento}} \label{op9}
+
+    $$
+    {Op}_{sett} = 1
+    $$
+
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        EVENTO & E & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perchè l’operazione comporta semplicemente l’inserimento di un nuovo \texttt{EVENTO}.
+
+    Quindi si ha solamente un'operazione di scrittura: 
+	$$
+    \mathbf{C_{tot}} = 1 \cdot (0 + 2 \cdot 1) = \mathbf{1}
+    $$
+
+	\item {\large \textbf{Iscrizione evento}} \label{op10}
+
+    $$
+    {Op}_{sett} = 15
+    $$
+
+    In media ad un evento si iscrivono $\frac{500}{25}=20$ \textbf{iscritti}
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.9\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        EVENTO & E & 1 & L \\
+        ISCRIVE & A & 1 & S \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    Questo perché:
+    \begin{itemize}
+        \item si legge l’\texttt{UTENTE} che si iscrive;
+        \item si legge l’\texttt{EVENTO} scelto;
+        \item si inserisce un nuovo record nella \texttt{ISCRIVE}.
+    \end{itemize}
+
+    Quindi: $A_{lett}=2$, $A_{scr}=1$.  
+	Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 15 \cdot (2 + 2 \cdot 1) = \mathbf{60}$$
 	\item \textbf{Inserimento ordine prodotti} \label{op11}
 	\item \textbf{Assegnazione / modifica ruolo dipendenti} \label{op12}
 	\item \textbf{Check-in / Check-out} \label{op13}
