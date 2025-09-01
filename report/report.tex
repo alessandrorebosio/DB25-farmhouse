@@ -11,6 +11,7 @@
 \usepackage[table]{xcolor}
 \usepackage{fancyvrb} 
 \usepackage{alltt}
+\usepackage{amsmath}
 \usepackage{hyperref}
 
 \geometry{margin=1in}
@@ -303,11 +304,11 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 		\rowcolor{gray!20}
 		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Op / 7gg} & \textbf{Tipo Utente}   \\
 		\hline
-		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 5--20             & Cliente                \\
+		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 10             & Cliente                \\
 		\hline
-		2           & \hyperref[op2]{Autenticazione / login}                                 & 200--500          & Tutti (Clienti, Staff) \\
+		2           & \hyperref[op2]{Autenticazione / login}                                 & 350          & Tutti (Clienti, Staff) \\
 		\hline
-		3           & \hyperref[op3]{Prenotazione servizio}                                  & 50--200           & Cliente / Reception    \\
+		3           & \hyperref[op3]{Prenotazione servizio}                                  & 125           & Cliente / Reception    \\
 		\hline
 		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 10--80            & Cliente / Reception    \\
 		\hline
@@ -347,13 +348,180 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 \newpage
 \section{Analisi delle operazioni}
 Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
+Per stimare il carico delle operazioni sul database si è deciso di introdurre i seguenti parametri:
+\begin{itemize}
+    \item $A_{lett}$ = numero di accessi in lettura (\textit{read}) effettuati durante l'operazione.
+    \item $A_{scr}$ = numero di accessi in scrittura (\textit{write}) effettuati durante l'operazione.
+    \item $Op_{set}$ = numero medio di volte in cui l'operazione viene eseguita in una settimana (dalla Tabella \ref{tab:operazioni-settimanali}).
+\end{itemize}
 
 \begin{enumerate}
-	\item \textbf{Registrazione nuovo utente} \label{op1}
-	\item \textbf{Autenticazione / login} \label{op2}
-	\item \textbf{Prenotazione servizio} \label{op3}
-	\item \textbf{Modifica / cancellazione prenotazione} \label{op4}
-	\item \textbf{Creazione / modifica pacchetto} \label{op5}
+	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
+	
+	In questa operazione viene gestita la creazione di un nuovo utente del sistema.
+	
+	\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        \hline
+        PERSONA & E & 1 & S \\
+        \hline
+        UTENTE & E & 1 & S \\
+        \hline
+    \end{tabularx}
+	\end{table}
+
+	Il flusso dunque si articola in tre parti principali:
+	\begin{enumerate}
+	\item Verificare che l'\texttt{username} ed l'\texttt{email} non siano già presenti in \texttt{UTENTE}, al fine di evitare quindi duplicati.
+	\item Inserimento dei dati anagrafici della nuova persona in \texttt{PERSONA}.
+	\item Creazione dell'utente vero e proprio in \texttt{UTENTE}, collegato alla relativa persona.
+	\end{enumerate}
+
+	Sono dunque presenti $A_{lettura}=1$ e $A_{scrittura}=2$.
+	
+	Pertanto il \textbf{costo settimanale} è dato da:
+	\begin{align*}
+	C_{tot} &= O_{settimana} \cdot (A_{lett} + 2 \cdot A_{scr}) \\
+			&= 10 \cdot (1 + 2 \cdot 2) \\
+			&= 10 \cdot 5 = \mathbf{50}
+	\end{align*}
+	
+
+	\item {\large \textbf{Autenticazione / login}} \label{op2}
+    
+    $$
+	{Op}_{sett} = 350
+	$$
+    
+	\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi si ha una sola operazione di lettura.
+    Pertanto $C_{tot} = 350 \cdot 1 = \mathbf{350}$
+	
+    \item {\large \textbf{Prenotazione servizio}} \label{op3}
+    $$
+    {Op}_{sett}=125
+    $$
+	In media ogni prenotazione è associata a $2$ servizi, 
+	pertanto per ogni operazione di prenotazione si accede a $2$ record in \texttt{SERVIZIO} 
+	e si scrivono $2$ record in \texttt{DETTAGLI\_PRENOTAZIONE}.
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        UTENTE & E & 1 & L \\
+        PRENOTAZIONE & E & 1 & S\\
+        SERVIZIO & E & 2  & L \\
+        DETTAGLI\_PRENOTAZIONE & E & 2 & S\\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi in totale si hanno $A_{lett}=3$ e $A_{scr}=3$. \\
+    Pertanto il costo settimanale è:
+    $$\mathbf{C_{tot}} = 125 \cdot (3+6)=\mathbf{1125}$$ 
+    
+    
+    
+	\item {\large \textbf{Modifica / cancellazione prenotazione}} \label{op4}
+    
+    $$
+    {Op}_{sett} = 30
+    $$
+    In media si hanno $\frac{4000}{2000}=2$ \textbf{servizi per prenotazione}.
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PRENOTAZIONE & E & 1 & L \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & L\\
+        PRENOTAZIONE & E & 1 & S \\
+        DETTAGLI\_PRENOTAZIONE & A & 2 & S\\
+        \hline
+    \end{tabularx}
+	\end{table}
+    
+    Quindi in totale si hanno $A_{lett}=3$ e $A_{scr}=3$, questo perché:
+    \begin{itemize}
+        \item Si accede alla tabella \texttt{PRENOTAZIONE} per trovare la prenotazione da modificare.
+        \item Si leggono i \texttt{DETTAGLI\_PRENOTAZIONE} collegati (che sono in media 2 per prenotazione).
+        \item Infine si aggiorna o si elimina la prenotazione (se viene cancellata, si devono rimuovere anche i relativi dettagli).
+    \end{itemize}
+
+    Pertanto, il costo settimanale è:
+    $$
+    \mathbf{C_{tot}} = 30 \cdot (3 + 2 \cdot 3) = \mathbf{270}
+    $$
+
+        
+	\item {\large \textbf{Creazione / modifica pacchetto} \label{op5}}
+    In questa operazione, un membro dello staff oppure un amministratore crea/modifica un pacchetto, ovvero un insieme di servizi offerti ad un prezzo promozionale.
+    
+    $$
+    {Op}_{set}=3
+    $$
+    
+    In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}
+    
+    \begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+        \hline
+        \rowcolor{gray!20}
+        \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+        \hline
+        PACCHETTO & E & 1 & S \\
+        SERVIZIO & E & 3 & L\\
+        COMPOSTO\_DA & A & 3 & L \\
+        \hline
+    \end{tabularx}
+	\end{table}
+    Si hanno dunque $A_{lett}=3$ e $A_{scr}=4$. \\
+    Questo perché:
+	\begin{itemize}
+    \item si inserisce o aggiorna il record del \texttt{PACCHETTO};
+    \item si leggono in media 3 record di \texttt{SERVIZIO} per verificare la loro esistenza;
+    \item si scrivono in media 3 record nella relazione \texttt{COMPOSTO\_DA}, che collega i 	servizi al pacchetto.
+  \end{itemize}
+
+  	Pertanto il costo settimanale è:
+    $$
+    C_{tot} = 3 \cdot (3 + 2 \cdot 4) = 33
+    $$
 	\item \textbf{Acquisto pacchetto} \label{op6}
 	\item \textbf{Inserimento recensione} \label{op7}
 	\item \textbf{Gestione inventario / prodotti} \label{op8}
