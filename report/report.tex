@@ -398,6 +398,8 @@ costo delle operazioni e decidendo se mantenerle o meno.
 	\caption{Analisi attributo \texttt{prezzo\_unitario} in DETTAGLI\_ORDINE}
 \end{table}
 
+A fronte di questa analisi decidiamo di mantere l'attributo prezzo\_unitario.
+
 \subsection{Analisi attributo prezzo in DETTAGLIO ORDINE}
 
 \begin{table}[H]
@@ -414,6 +416,8 @@ costo delle operazioni e decidendo se mantenerle o meno.
 	\end{tabular}
 	\caption{Analisi attributo \texttt{prezzo} in DETTAGLIO\_ORDINE}
 \end{table}
+
+A fronte di questa analisi decidiamo di mantere l'attributo prezzo.
 
 \subsection{Analisi attributo quantià in DETTAGLI ORDINE}
 
@@ -432,6 +436,8 @@ costo delle operazioni e decidendo se mantenerle o meno.
 	\caption{Analisi attributo \texttt{quantità} in DETTAGLIO\_ORDINE}
 \end{table}
 
+A fronte di questa analisi decidiamo di mantere l'attributo quantità.
+
 \subsection{Analisi attributo tipo servizio in RECENSIONE}
 
 \begin{table}[H]
@@ -449,6 +455,7 @@ costo delle operazioni e decidendo se mantenerle o meno.
 	\caption{Analisi attributo \texttt{tipo\_servizio} in RECENSIONE}
 \end{table}
 
+A fronte di questa analisi decidiamo di mantere l'attributo tipo\_servizio.
 
 \subsection{Analisi attributo status in SERVIZIO}
 
@@ -467,7 +474,59 @@ costo delle operazioni e decidendo se mantenerle o meno.
 	\caption{Analisi attributo \texttt{status} in SERVIZIO}
 \end{table}
 
+A fronte di questa analisi decidiamo di mantere l'attributo status.
+
 \section{Riepilogo operazioni}
+
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.12}
+	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
+		\hline
+		\rowcolor{gray!20}
+		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Costo tot. / 7gg} & \textbf{Tipo Utente}   \\
+		\hline
+		1           & \hyperref[op1]{Registrazione nuovo utente}                             &                           & Cliente                \\
+		\hline
+		2           & \hyperref[op2]{Autenticazione / login}                                 &                           & Tutti (Clienti, Staff) \\
+		\hline
+		3           & \hyperref[op3]{Prenotazione servizio}                                  &                           & Cliente / Reception    \\
+		\hline
+		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  &                           & Cliente / Reception    \\
+		\hline
+		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         &                           & Staff / Admin          \\
+		\hline
+		6           & \hyperref[op6]{Acquisto pacchetto}                                     &                           & Cliente                \\
+		\hline
+		7           & \hyperref[op7]{Inserimento recensione}                                 &                           & Cliente                \\
+		\hline
+		8           & \hyperref[op8]{Gestione inventario / prodotti}                         &                           & Staff                  \\
+		\hline
+		9           & \hyperref[op9]{Creazione evento}                                       &                           & Staff / Admin          \\
+		\hline
+		10          & \hyperref[op10]{Iscrizione evento}                                     &                           & Cliente                \\
+		\hline
+		11          & \hyperref[op11]{Inserimento ordine prodotti}                           &                           & Cliente / Staff        \\
+		\hline
+		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              &                           & Admin                  \\
+		\hline
+		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                &                           & Reception              \\
+		\hline
+		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        &                           & Staff operativo        \\
+		\hline
+		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      &                           & Tutti                  \\
+		\hline
+		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  &                           & Admin                  \\
+		\hline
+		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} &                           & Staff / Admin          \\
+		\hline
+		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  &                           & Admin                  \\
+		\hline
+	\end{tabularx}
+	\caption{Costo totale delle operazioni stimato per 7 giorni}
+	\label{tab:riepilogo-operazioni-settimanali}
+\end{table}
 
 \section{Raffinamento dello schema}
 
