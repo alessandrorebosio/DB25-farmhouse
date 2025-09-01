@@ -182,6 +182,36 @@ del dominio applicativo.
 \end{figure}
 
 \newpage
+
+\subsection{Ruolo e Turno}
+Nel modello concettuale iniziale i ruoli dei dipendenti erano descritti in maniera statica:\\
+un \textbf{Dipendente} poteva ricoprire uno o più \textbf{Ruoli}, ma non era possibile rappresentare
+in modo chiaro la distribuzione temporale delle attività lavorative.\\
+
+\vspace{\baselineskip}
+Per migliorare la rappresentazione è stato introdotto un raffinamento attraverso
+l’aggiunta dell’entità \textbf{Turno}, caratterizzata da attributi come giorno della settimana,\\
+orario di inizio e fine, ed una descrizione testuale. In questo modo diventa possibile
+modellare i turni di lavoro ricorrenti e collegarli direttamente ai ruoli che li richiedono.\\
+
+\vspace{\baselineskip}
+La relazione molti-a-molti tra \textbf{Ruolo} e \textbf{Turno} consente di esprimere sia il fatto
+che un ruolo può prevedere più turni (ad esempio il ruolo di cameriere con turni mattutini e serali),\\
+sia che un turno possa essere condiviso tra più ruoli (ad esempio un turno diurno valido sia
+per i camerieri che per i receptionist).\\
+Questa scelta arricchisce la chiarezza semantica del modello, riflette la gestione organizzativa reale
+e fornisce maggiore flessibilità nella pianificazione delle attività.\\
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, trim=0 250pt 300pt 0, clip]{./pdf/raffinamento turno.pdf}
+	\caption{Schema ER, raffinamento turno}
+	\label{fig:raffinamento-turno}
+\end{figure}
+
+\newpage
+
+
 \subsection{Servizi/Prenotazioni e Pacchetti}
 Nel modello iniziale i diversi tipi di servizi (camere, tavoli, lettini, campi da gioco, attività con animali) potevano essere
 rappresentati come entità distinte, con il rischio però di ridondanza e frammentazione dei dati.
