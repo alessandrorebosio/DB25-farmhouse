@@ -1348,6 +1348,72 @@ il costo totale per ogni operazione.
 Definiti gli attributi da mantenere nella base dati, si passerà a perfezionare lo schema ER, ridefinendo gli elementi non
 traducibili immediatamente nel modello relazionale. Lavoreremo per tappe fino a raggiungere lo schema logico corrispondente.
 
+\subsection{Rimozione gerarchie}
+
+\subsubsection*{Gerarchia di Servizio}
+Lo schema presenta una gerarchia \textbf{totale ed esclusiva} dell'entità \texttt{SERVIZIO} nelle sottoclassi \texttt{CAMERA}, \texttt{TAVOLO}, \texttt{LETTINO}, \texttt{CAMPO\_DA\_GIOCO}, \texttt{ATTIVITA\_CON\_ANIMALI}. \\
+Optiamo per un \textbf{collasso verso il basso} mantenendo l'entità padre \texttt{SERVIZIO} come tabella contenente gli attributi comuni, mentre le sottoclassi diventano tabelle separate collegate tramite chiave esterna. Questa scelta preserva l'integrità referenziale e permette di mantenere le specificità di ogni tipo di servizio.
+
+La struttura risultante sarà:
+\begin{itemize}
+    \item \texttt{SERVIZIO(ID\_servizio, prezzo, tipo\_servizio, status)}
+    \item \texttt{CAMERA(ID\_servizio, cod\_camera, max\_capienza)}
+    \item \texttt{TAVOLO(ID\_servizio, cod\_tavolo, max\_capienza)}
+    \item \texttt{LETTINO(ID\_servizio, cod\_lettino)}
+    \item \texttt{CAMPO\_DA\_GIOCO(ID\_servizio, cod\_campo, max\_capienza)}
+    \item \texttt{ATTIVITA\_CON\_ANIMALI(ID\_servizio, cod\_attività)}
+\end{itemize}
+
+Dove \texttt{ID\_servizio} nella tabella \texttt{SERVIZIO} funge da chiave primaria e come chiave esterna in tutte le tabelle figlie.
+
+\subsubsection*{Gerarchia di Persona}
+L'entità \texttt{PERSONA} è generalizzata in \texttt{UTENTE} e \texttt{DIPENDENTE}. \\
+Scegliamo di mantenere le tre tabelle collegate tramite chiavi esterne, utilizzando \texttt{username} come identificatore principale per \texttt{DIPENDENTE}:
+
+\begin{itemize}
+    \item \texttt{PERSONA(CF, nome, cognome)}
+    \item \texttt{UTENTE(username, password, email, CF\_persona)}
+    \item \texttt{DIPENDENTE(username, CF\_persona, data\_assunzione)}
+\end{itemize}
+
+Questa scelta permette di:
+\begin{itemize}
+    \item Utilizzare \texttt{username} come identificatore univoco per tutti gli utenti del sistema
+    \item Mantenere il codice fiscale come dato anagrafico nella tabella \texttt{PERSONA}
+    \item Evitare duplicati e semplificare le operazioni di login e autenticazione
+\end{itemize}
+
+\subsection{Reificazione associazioni molti-a-molti}
+
+Le seguenti associazioni molti-a-molti sono state reificate in tabelle:
+
+\begin{itemize}
+    \item \texttt{COMPOSTO\_DA} tra \texttt{PACCHETTO} e \texttt{SERVIZIO} diventa la tabella \texttt{COMPOSTO\_DA(ID\_pacchetto, ID\_servizio)}
+    \item \texttt{ACQUISTA} tra \texttt{UTENTE} e \texttt{PACCHETTO} diventa la tabella \texttt{ACQUISTA(username, ID\_pacchetto, data)}
+    \item \texttt{ISCRIVE} tra \texttt{UTENTE} e \texttt{EVENTO} diventa la tabella \texttt{ISCRIVE(username, ID\_evento, data)}
+    \item \texttt{ASSEGNA\_RUOLO} tra \texttt{DIPENDENTE} e \texttt{RUOLO} è già reificata come entità nel modello ER
+\end{itemize}
+
+\subsection{Scelta degli identificatori principali}
+
+Per semplificare le query e garantire consistenza, abbiamo scelto i seguenti identificatori:
+
+\begin{itemize}
+    \item \texttt{SERVIZIO}: \texttt{ID\_servizio} (surrogato)
+    \item \texttt{PERSONA}: \texttt{CF} (naturale)
+    \item \texttt{UTENTE}: \texttt{username} (naturale)
+    \item \texttt{DIPENDENTE}: \texttt{username} (naturale, da UTENTE)
+    \item \texttt{PRENOTAZIONE}: \texttt{ID\_prenotazione} (surrogato)
+    \item \texttt{ORDINE}: \texttt{ID\_ordine} (surrogato)
+    \item \texttt{RECENSIONE}: \texttt{ID\_recensione} (surrogato)
+    \item \texttt{EVENTO}: \texttt{ID\_evento} (surrogato)
+    \item \texttt{PACCHETTO}: \texttt{ID\_pacchetto} (surrogato)
+    \item \texttt{PRODOTTO}: \texttt{ID\_prodotto} (surrogato)
+    \item \texttt{RUOLO}: \texttt{ID\_ruolo} (surrogato)
+    \item \texttt{TURNO}: \texttt{ID\_turno} (surrogato)
+\end{itemize}
+
+Gli identificatori surrogati sono stati preferiti laddove non esisteva un identificatore naturale stabile. Per le entità con codici fissi (es. \texttt{CAMERA}, \texttt{TAVOLO}) è stato mantenuto l'identificatore naturale come attributo, ma la chiave primaria rimane \texttt{ID\_servizio} ereditata dalla tabella padre.
 \section{Schema relazionale finale}
 La fase di riorganizzazione è ora conclusa e lo schema ottenuto è immediatamente traducibile
 in relazioni relazionali. Di seguito presentiamo lo schema logico nelle due rappresentazioni, grafica e testuale.
