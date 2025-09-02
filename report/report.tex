@@ -111,7 +111,7 @@ La \textbf{Prenotazione} sarà associata a un cliente e a uno o più servizi, e 
 	partecipanti} e \underline{stato}. La cancellazione sarà possibile secondo i termini previsti (es. 48 ore per le camere, 24 per servizi a tempo). In caso di
 mancata presentazione, potrà essere applicata una \underline{penale}, mentre per eventi speciali sarà richiesto un \underline{acconto non rimborsabile}.
 
-Il sistema gestirà anche \textbf{Pacchetti}, ovvero combinazioni \newline di più servizi, con un \underline{prezzo complessivo},
+Il sistema gestirà anche \textbf{Pacchetti}, ovvero combinazioni di più servizi, con un\newline \underline{prezzo complessivo},
 eventuali \underline{sconti promozionali} e possibilità \newline di \underline{personalizzazione}. I pacchetti potranno essere creati dallo staff o richiesti dai clienti.
 
 Per quanto riguarda gli \textbf{Eventi}, come tornei o laboratori, saranno definiti con \underline{nome}, \newline \underline{descrizione}, \underline{data},
@@ -135,7 +135,7 @@ che sarà poi perfezionato nei passaggi successivi.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth, trim=0 100pt 150pt 0 , clip]{./pdf/scheletro.pdf}
-	\caption{Schema ER scheletro (versione iniziale)}
+	\caption{Schema ER scheletro}
 	\label{fig:schema-scheletro}
 \end{figure}
 
@@ -151,8 +151,8 @@ Per migliorare la rappresentazione è stato introdotto un raffinamento mediante 
 ai sottotipi \textbf{Cliente} e \textbf{Dipendente}.
 
 \vspace{\baselineskip}
-La relazione \textbf{ospita} tra \textbf{Utente} e \textbf{Persona} ci permette di associare ad un utente più ospiti, evitando di dover creare un account utente per ogni cliente, un utile comodità nei casi dei gruppi famigliari.
-
+La relazione \textbf{ospita} tra \textbf{Utente} e \textbf{Persona} ci permette di associare ad un utente più ospiti, evitando di dover creare
+un account utente per ogni cliente, un utile comodità nei casi dei gruppi famigliari.
 
 \vspace{\baselineskip}
 In questo modo i clienti gestiscono attività come acquisti, recensioni, ordini e iscrizioni agli eventi, mentre
@@ -163,7 +163,7 @@ del dominio applicativo.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth, trim=0 250pt 300pt 0, clip]{./pdf/raffinamento utente.pdf}
-	\caption{Schema ER, raffinamento utente}
+	\caption{Schema ER, raffinamento utente e dipendente}
 	\label{fig:raffinamento-utente}
 \end{figure}
 
@@ -265,10 +265,9 @@ Qui di seguito, è presente lo schema concettuale finale con tutti i raffinament
 
 \chapter{Progettazione logica}
 \section{Stima del volume dei dati}
-Per poter effettuare una corretta progettazione del database, è stata realizzata una stima della quantità di dati che il sistema dovrà gestire.
-La stima è stata calcolata considerando un agriturismo di medie dimensioni, dotato di circa 20 camere, un ristorante e diverse attività all'aperto.
-A supporto delle analisi gestionali, si è scelto di mantenere uno storico dei dati con orizzante termporale pari a un anno.
-Nella tabella seguente vengono riportati i volumi stimati per entità e associazioni.
+Per progettare il database sono stati stimati i volumi di dati gestiti in un anno da un agriturismo
+medio (20 camere, ristorante, attività varie). La tabella seguente riporta i valori stimati per entità
+e associazioni.
 \begin{table}[H]
 	\centering
 	\small
@@ -300,6 +299,7 @@ Nella tabella seguente vengono riportati i volumi stimati per entità e associaz
 		DETTAGLI PRENOTAZIONE & 4000                    & A            \\
 		DETTAGLI ORDINE       & 15000                   & A            \\
 		ISCRIVE               & 500                     & A            \\
+		OSPITA                & 100                     & A            \\
 		\hline
 	\end{tabularx}
 	\caption{Stima del volume dei dati}
@@ -1356,7 +1356,8 @@ Optiamo per un \textbf{collasso verso il basso} mantenendo l'entità padre \text
 attributi comuni, mentre le sottoclassi diventano tabelle separate collegate tramite chiave esterna. Questa scelta preserva
 l'integrità referenziale e permette di mantenere le specificità di ogni tipo di servizio.
 
-La struttura risultante sarà:
+\vspace{\baselineskip}
+\noindent La struttura risultante sarà:
 \begin{itemize}
 	\item \texttt{SERVIZIO(\underline{ID\_servizio}, prezzo, tipo\_servizio, status)}
 	\item \texttt{CAMERA(\underline{ID\_servizio}, cod\_camera, max\_capienza)}
@@ -1366,35 +1367,35 @@ La struttura risultante sarà:
 	\item \texttt{ATTIVITA\_CON\_ANIMALI(\underline{ID\_servizio}, cod\_attività)}
 \end{itemize}
 
-Dove \texttt{ID\_servizio} nella tabella \texttt{SERVIZIO} funge da chiave primaria e come chiave esterna in tutte le tabelle figlie.
+Dove \texttt{ID\_servizio} nella tabella \texttt{SERVIZIO} funge da chiave primaria e come chiave esterna in tutte le
+tabelle figlie.
 
 \subsubsection*{Gerarchia di Persona}
 L'entità \texttt{PERSONA} è generalizzata in \texttt{UTENTE} e \texttt{DIPENDENTE}. Scegliamo di mantenere le tre tabelle
-collegate tramite chiavi esterne, utilizzando \texttt{username} come identificatore principale per \texttt{DIPENDENTE}:
+collegate tramite chiavi esterne, utilizzando \texttt{CF} come chiave primaria e rendendo \texttt{username} univoco in \texttt{UTENTE} e \texttt{DIPENDENTE}:
 
 \begin{itemize}
 	\item \texttt{PERSONA(\underline{CF}, nome, cognome)}
-	\item \texttt{UTENTE(\underline{username}, password, email, CF)}
-	\item \texttt{DIPENDENTE(\underline{username}, CF, data\_assunzione)}
-\end{itemize} 
+	\item \texttt{UTENTE(\underline{CF} : PERSONA, username~UNIQUE, password, email)}
+	\item \texttt{DIPENDENTE(\underline{CF} : PERSONA, username~UNIQUE, data\_assunzione)}
+\end{itemize}
+
 \vspace{\baselineskip}
-Questa scelta permette di:
+\noindent Questa scelta permette di:
 \begin{itemize}
-	\item Utilizzare \texttt{username} come identificatore univoco per tutti gli utenti del sistema
-	\item Mantenere il codice fiscale come dato anagrafico nella tabella \texttt{PERSONA}
-	\item Evitare duplicati e semplificare le operazioni di login e autenticazione
+	\item Utilizzare \texttt{CF} come identificatore univoco per tutte le persone del sistema
+	\item Garantire l'unicità di \texttt{username} per le operazioni di login e autenticazione
 \end{itemize}
 
 \subsection{Reificazione associazioni molti-a-molti}
 
-Le seguenti associazioni molti-a-molti sono state reificate in tabelle, poiché le associazioni di 
+Le seguenti associazioni molti-a-molti sono state reificate in tabelle, poiché le associazioni di
 questo tipo non possono essere rappresentate direttamente negli schemi relazionali:
 
 \begin{itemize}
 	\item \texttt{COMPOSTO\_DA(ID\_pacchetto, ID\_servizio)}
 	\item \texttt{ACQUISTA(username, ID\_pacchetto, data)}
 	\item \texttt{ISCRIVE(username, ID\_evento, data)}
-	\item \texttt{ASSEGNA\_RUOLO} tra \texttt{DIPENDENTE} e \texttt{RUOLO} è già reificata come entità nel modello ER
 \end{itemize}
 
 \subsection{Scelta degli identificatori principali}
@@ -1415,62 +1416,51 @@ Per semplificare le query e garantire consistenza, abbiamo scelto i seguenti ide
 	\item \texttt{TURNO}: \texttt{ID\_turno} (surrogato)
 \end{itemize}
 
-Gli identificatori surrogati sono stati preferiti laddove non esisteva un identificatore naturale stabile. Per le entità con codici fissi (es. \texttt{CAMERA}, \texttt{TAVOLO}) è stato mantenuto l'identificatore naturale come attributo, ma la chiave primaria rimane \texttt{ID\_servizio} ereditata dalla tabella padre.
+Gli identificatori surrogati sono stati preferiti laddove non esisteva un identificatore
+naturale stabile. Per le entità con codici fissi (es. \texttt{CAMERA}, \texttt{TAVOLO}) è stato
+mantenuto l'identificatore naturale come attributo, ma la chiave primaria rimane \texttt{ID\_servizio}
+ereditata dalla tabella padre.
 
+\newpage
 \section{Schema relazionale finale}
 La fase di riorganizzazione è ora conclusa e lo schema ottenuto è immediatamente traducibile
-in relazioni relazionali. Di seguito presentiamo lo schema logico nelle due rappresentazioni, grafica e testuale.
+in relazioni relazionali. Di seguito presentiamo lo schema logico.
+
+\subsection{Schema relazionale (grafico)}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 75pt 120pt 0 , clip]{./pdf/finale logico.pdf}
+	\includegraphics[width=\textwidth, trim=0 75pt 0 0 , clip]{./pdf/finale logico.pdf}
 	\caption{Schema logico, schema relazionale finale}
 	\label{fig:schema-logico}
 \end{figure}
-\subsection{Schema relazionale (grafico)}
 
 \subsection{Schema relazionale (testuale)}
 Di seguito viene riportata la traduzione in schema relazionale delle entità e relazioni progettate.
-Le chiavi primarie sono indicate con attributi sottolineati; le chiavi esterne sono sottolineate e seguite da ``: NOME\_TABELLA''.
 
 \begin{description}
-	\item\texttt{\textbf{UTENTE} \\
-		      (\underline{username}, password, email)}
-	\item\texttt{\textbf{PERSONA} \\
-		      (\underline{CF}, nome, cognome)}
-	\item\texttt{\textbf{DIPENDENTE} \\
-		      (\underline{CF} : PERSONA, data\_assunzione)}
-	\item\texttt{\textbf{RUOLO} \\
-		      (\underline{ID\_ruolo}, tipo\_ruolo)}
-	\item\texttt{\textbf{ASSEGNA\_RUOLO} \\
-		      (\underline{CF} : DIPENDENTE, \underline{ID\_ruolo} : RUOLO, \underline{data\_inizio}, data\_fine)}
-	\item\texttt{\textbf{SERVIZIO} \\
-		      (\underline{ID\_servizio}, tipo\_servizio, prezzo, status)}
-	\item\texttt{\textbf{RECENSIONE} \\
-		      (\underline{ID\_recensione}, voto, descrizione, tipo\_servizio, \underline{username} \newline : UTENTE, \underline{ID\_servizio} : SERVIZIO)}
-	\item\texttt{\textbf{PRODOTTO} \\
-		      (\underline{ID\_prodotto}, nome, prezzo)}
-	\item\texttt{\textbf{ORDINE} \\
-		      (\underline{ID\_ordine}, data, \underline{username} : UTENTE)}
-	\item\texttt{\textbf{DETTAGLI\_ORDINE} \\
-		      (\underline{ID\_ordine} : ORDINE, \underline{ID\_prodotto} : PRODOTTO, quantita, \newline prezzo\_unitario, prezzo)}
-	\item\texttt{\textbf{PRENOTAZIONE} \\
-		      (\underline{ID\_prenotazione}, \underline{username} : UTENTE)}
-	\item\texttt{\textbf{DETTAGLI\_PRENOTAZIONE} \\
-		      (\underline{ID\_prenotazione} : PRENOTAZIONE, \underline{ID\_servizio} : SERVIZIO, \newline \underline{data\_inizio}, data\_fine)}
-	\item\texttt{\textbf{PACCHETTO} \\
-		      (\underline{ID\_pacchetto}, nome, descrizione)}
-	\item\texttt{\textbf{EVENTO} \\
-		      (\underline{ID\_evento}, descrizione, max\_partecipanti)}
-	\item\texttt{\textbf{TAVOLO} \\
-		      (\underline{cod\_tavolo}, max\_capienza)}
-	\item\texttt{\textbf{CAMERA} \\
-		      (\underline{cod\_camera}, max\_capienza)}
-	\item\texttt{\textbf{LETTINO} \\
-		      (\underline{cod\_lettino})}
-	\item\texttt{\textbf{CAMPO\_DA\_GIOCO} \\
-		      (\underline{cod\_campo}, max\_capienza)}
-	\item\texttt{\textbf{ATTIVITA\_CON\_ANIMALI} \\
-		      (\underline{cod\_attivita})}
+	\item\texttt{\textbf{PERSONA} (\underline{CF}, nome, cognome)}
+	\item\texttt{\textbf{OSPITA} (\underline{CF\_ospite} : UTENTE, \underline{CF\_utente} : PERSONA, \underline{data\_ospitazione})}
+	\item\texttt{\textbf{UTENTE} (\underline{CF} : PERSONA, username, password, email)}
+	\item\texttt{\textbf{TURNO} (\underline{ID\_turno}, giorno, ora\_inizio, ora\_fine, descrizione)}
+	\item\texttt{\textbf{TAVOLO} (\underline{ID\_servizio} : SERVIZIO, cod\_tavolo, max\_capienza)}
+	\item\texttt{\textbf{SVOLGE} (\underline{ID\_ruolo} : RUOLO, \underline{ID\_turno} : TURNO)}
+	\item\texttt{\textbf{SERVIZIO} (\underline{ID\_servizio}, status, prezzo, tipo\_servizio)}
+	\item\texttt{\textbf{RUOLO} (\underline{ID\_ruolo}, tipo\_ruolo)}
+	\item\texttt{\textbf{RECENSIONE} (\underline{ID\_recensione} : PRENOTAZIONE, tipo\_servizio, voto, \newline descrizione, \underline{CF} : PERSONA)}
+	\item\texttt{\textbf{PRODOTTO} (\underline{ID\_prodotto}, nome, prezzo)}
+	\item\texttt{\textbf{PRENOTAZIONE} (\underline{ID\_prenotazione}, \underline{CF} : PERSONA)}
+	\item\texttt{\textbf{PACCHETTO} (\underline{ID\_pacchetto}, descrizione, nome)}
+	\item\texttt{\textbf{ORDINE} (\underline{ID\_ordine}, data, \underline{CF} : PERSONA)}
+	\item\texttt{\textbf{ISCRIVE} (\underline{ID\_evento} : EVENTO, \underline{CF} : PERSONA)}
+	\item\texttt{\textbf{LETTINO} (cod\_lettino : LETTINO, \underline{ID\_servizio} : SERVIZIO)}
+	\item\texttt{\textbf{EVENTO} (\underline{ID\_evento}, max\_partecipanti, descrizione, \underline{CF} : PERSONA)}
+	\item\texttt{\textbf{DIPENDENTE} (\underline{CF} : PERSONA, data\_assunzione)}
+	\item\texttt{\textbf{DETTAGLI\_PRENOTAZIONE} (\underline{ID\_prenotazione} : PRENOTAZIONE, data\_inizio, \newline data\_fine, \underline{ID\_servizio} : SERVIZIO)}
+	\item\texttt{\textbf{DETTAGLI\_ORDINE} (\underline{ID\_prodotto} : PRODOTTO, quantita, prezzo\_unitario, \newline \underline{ID\_ordine} : ORDINE)}
+	\item\texttt{\textbf{COMPOSTO\_DA} (\underline{ID\_pacchetto} : PACCHETTO, \underline{ID\_servizio} : SERVIZIO)}
+	\item\texttt{\textbf{CAMPO\_DA\_GIOCO} (\underline{ID\_servizio} : SERVIZIO, max\_capienza, \newline cod\_campo : CAMPO\_DA\_GIOCO)}
+	\item\texttt{\textbf{CAMERA} (\underline{ID\_servizio} : SERVIZIO, max\_capienza, cod\_camera : CAMERA)}
+	\item\texttt{\textbf{ATTIVITA\_CON\_ANIMALI} (\underline{ID\_servizio} : SERVIZIO, \newline cod\_attivita : ATTIVITA\_CON\_ANIMALI)}
 \end{description}
 
 \chapter{Progettazione della Base di Dati}
