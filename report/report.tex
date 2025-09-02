@@ -1345,6 +1345,54 @@ traducibili immediatamente nel modello relazionale. Lavoreremo per tappe fino a 
 La fase di riorganizzazione è ora conclusa e lo schema ottenuto è immediatamente traducibile
 in relazioni relazionali. Di seguito presentiamo lo schema logico nelle due rappresentazioni, grafica e testuale.
 
+\subsection{Schema relazionale (grafico)}
+
+
+\subsection{Schema relazionale (testuale)}
+Di seguito viene riportata la traduzione in schema relazionale delle entità e relazioni progettate.
+Le chiavi primarie sono indicate con attributi sottolineati; le chiavi esterne sono sottolineate e seguite da ``: NOME\_TABELLA''.
+
+\begin{description}
+	\item\texttt{\textbf{UTENTE} \\
+		      (\underline{username}, password, email)}
+	\item\texttt{\textbf{PERSONA} \\
+		      (\underline{CF}, nome, cognome)}
+	\item\texttt{\textbf{DIPENDENTE} \\
+		      (\underline{CF} : PERSONA, data\_assunzione)}
+	\item\texttt{\textbf{RUOLO} \\
+		      (\underline{ID\_ruolo}, tipo\_ruolo)}
+	\item\texttt{\textbf{ASSEGNA\_RUOLO} \\
+		      (\underline{CF} : DIPENDENTE, \underline{ID\_ruolo} : RUOLO, \underline{data\_inizio}, data\_fine)}
+	\item\texttt{\textbf{SERVIZIO} \\
+		      (\underline{ID\_servizio}, tipo\_servizio, prezzo, status)}
+	\item\texttt{\textbf{RECENSIONE} \\
+		      (\underline{ID\_recensione}, voto, descrizione, tipo\_servizio, \underline{username} \newline : UTENTE, \underline{ID\_servizio} : SERVIZIO)}
+	\item\texttt{\textbf{PRODOTTO} \\
+		      (\underline{ID\_prodotto}, nome, prezzo)}
+	\item\texttt{\textbf{ORDINE} \\
+		      (\underline{ID\_ordine}, data, \underline{username} : UTENTE)}
+	\item\texttt{\textbf{DETTAGLI\_ORDINE} \\
+		      (\underline{ID\_ordine} : ORDINE, \underline{ID\_prodotto} : PRODOTTO, quantita, \newline prezzo\_unitario, prezzo)}
+	\item\texttt{\textbf{PRENOTAZIONE} \\
+		      (\underline{ID\_prenotazione}, \underline{username} : UTENTE)}
+	\item\texttt{\textbf{DETTAGLI\_PRENOTAZIONE} \\
+		      (\underline{ID\_prenotazione} : PRENOTAZIONE, \underline{ID\_servizio} : SERVIZIO, \newline \underline{data\_inizio}, data\_fine)}
+	\item\texttt{\textbf{PACCHETTO} \\
+		      (\underline{ID\_pacchetto}, nome, descrizione)}
+	\item\texttt{\textbf{EVENTO} \\
+		      (\underline{ID\_evento}, descrizione, max\_partecipanti)}
+	\item\texttt{\textbf{TAVOLO} \\
+		      (\underline{cod\_tavolo}, max\_capienza)}
+	\item\texttt{\textbf{CAMERA} \\
+		      (\underline{cod\_camera}, max\_capienza)}
+	\item\texttt{\textbf{LETTINO} \\
+		      (\underline{cod\_lettino})}
+	\item\texttt{\textbf{CAMPO\_DA\_GIOCO} \\
+		      (\underline{cod\_campo}, max\_capienza)}
+	\item\texttt{\textbf{ATTIVITA\_CON\_ANIMALI} \\
+		      (\underline{cod\_attivita})}
+\end{description}
+
 \chapter{Progettazione della Base di Dati}
 Ora che abbiamo creato la nostra base di dati, mappiamo le nostre realzioni in tabelle, per poi utilizzarle nel nostro
 
