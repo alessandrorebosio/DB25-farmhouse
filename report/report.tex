@@ -126,8 +126,8 @@ una \underline{dashboard}, lo staff potrà monitorare in tempo reale le \underli
 
 
 \chapter{Preogettazione concettuale}
-In questo capitolo presenteremo lo schema ER, partendo da una versione iniziale e migliorandola passo dopo passo final ad arrivare a quella
-definitiva, attraverso dei raffinamenti
+In questo capitolo presenteremo lo schema ER, partendo da una versione iniziale e migliorandola passo dopo passo ad arrivare a quella
+definitiva, attraverso dei raffinamenti.
 
 \section{Schema scheletro}
 Dopo aver eseguito l'analisi del dominio iniziale, abbiamo creato uno schema di base con le entità e le relazioni principali,
@@ -141,20 +141,19 @@ che sarà poi perfezionato nei passaggi successivi.
 
 \section{Raffinamenti proposti}
 \subsection{Utente e Dipendente}
-Nel modello concettuale iniziale \textbf{Persona} accorpava in sé tutte le possibili iterazioni con il sistema: iscrizione e creazione
-di eventi, acquisto di pacchetti, prenotazioni, ordini e recensioni. Questo apporccio, sebbene corretto sul piano logico, risultava poso chiaro
-perché attribuiva a un'unica entità responsabilità moltoterogenee.
+Nel modello concettuale iniziale la \textbf{Persona} raggruppava tutte le possibili interazioni con il sistema: iscrizione, creazione
+di eventi, acquisto di pacchetti, prenotazioni, ordini e recensioni. Questo approccio, sebbene corretto dal punto di vista logico, risultava poco chiaro
+perché attribuiva a un'unica entità responsabilità molto eterogenee.
 
 \vspace{\baselineskip}
-Per migliorare la rappresentazione è stato introdotto un rafinameto
-attraverso un'operazione di \textbf{generalizzazione/specializzazione}: la superclasse \textbf{Persona} è stata mantenuta
-per raccogliere gli attributi comuni (CF, nome, cognome), mentre le funzionalità specifiche sono state distribuite nei sottotipi
-\textbf{Cliente} e \textbf{Dipendente}.
+Per migliorare la rappresentazione è stato introdotto un raffinamento mediante generalizzazione/specializzazione: la superclasse
+\textbf{Persona} è stata mantenuta per raccogliere gli attributi comuni (CF, nome, cognome), mentre le funzionalità specifiche sono state assegnate
+ai sottotipi \textbf{Cliente} e \textbf{Dipendente}.
 
 \vspace{\baselineskip}
 In questo modo i clienti gestiscono attività come acquisti, recensioni, ordini e iscrizioni agli eventi, mentre
-i dipendenti si occupano dellac creazione degli eventi e della gestione dei servizi. Tale raffinamento migliora
-la chiarezza semantica del modello, evita ambiguità e riflette meglio la separazione dei ruoli reali all'interno
+i dipendenti si occupano della creazione degli eventi e della gestione dei servizi. Tale raffinamento migliora
+la chiarezza semantica del modello, riduce le ambiguità e riflette meglio la separazione dei ruoli reali all'interno
 del dominio applicativo.
 
 \begin{figure}[H]
@@ -1273,6 +1272,7 @@ A fronte di questa analisi decidiamo di mantere l'attributo tipo\_servizio.
 
 A fronte di questa analisi decidiamo di mantere l'attributo status.
 
+\newpage
 \section{Riepilogo operazioni}
 Nella tabella qui sotto, riprendiamo l'analisi delle operazioni, facendone un riepilogo, aggiungendo
 il costo totale per ogni operazione.
@@ -1337,6 +1337,7 @@ il costo totale per ogni operazione.
 	\label{tab:costo-operazioni-settimanali}
 \end{table}
 
+\newpage
 \section{Raffinamento dello schema}
 Definiti gli attributi da mantenere nella base dati, si passerà a perfezionare lo schema ER, ridefinendo gli elementi non
 traducibili immediatamente nel modello relazionale. Lavoreremo per tappe fino a raggiungere lo schema logico corrispondente.
@@ -1344,75 +1345,79 @@ traducibili immediatamente nel modello relazionale. Lavoreremo per tappe fino a 
 \subsection{Rimozione gerarchie}
 
 \subsubsection*{Gerarchia di Servizio}
-Lo schema presenta una gerarchia \textbf{totale ed esclusiva} dell'entità \texttt{SERVIZIO} nelle sottoclassi \texttt{CAMERA}, \texttt{TAVOLO}, \texttt{LETTINO}, \texttt{CAMPO\_DA\_GIOCO}, \texttt{ATTIVITA\_CON\_ANIMALI}. \\
-Optiamo per un \textbf{collasso verso il basso} mantenendo l'entità padre \texttt{SERVIZIO} come tabella contenente gli attributi comuni, mentre le sottoclassi diventano tabelle separate collegate tramite chiave esterna. Questa scelta preserva l'integrità referenziale e permette di mantenere le specificità di ogni tipo di servizio.
+Lo schema presenta una gerarchia \textbf{totale ed esclusiva} dell'entità \texttt{SERVIZIO} nelle sottoclassi
+\texttt{CAMERA}, \texttt{TAVOLO}, \texttt{LETTINO}, \texttt{CAMPO\_DA\_GIOCO}, \texttt{ATTIVITA\_CON\_ANIMALI}.
+
+Optiamo per un \textbf{collasso verso il basso} mantenendo l'entità padre \texttt{SERVIZIO} come tabella contenente gli
+attributi comuni, mentre le sottoclassi diventano tabelle separate collegate tramite chiave esterna. Questa scelta preserva
+l'integrità referenziale e permette di mantenere le specificità di ogni tipo di servizio.
 
 La struttura risultante sarà:
 \begin{itemize}
-    \item \texttt{SERVIZIO(ID\_servizio, prezzo, tipo\_servizio, status)}
-    \item \texttt{CAMERA(ID\_servizio, cod\_camera, max\_capienza)}
-    \item \texttt{TAVOLO(ID\_servizio, cod\_tavolo, max\_capienza)}
-    \item \texttt{LETTINO(ID\_servizio, cod\_lettino)}
-    \item \texttt{CAMPO\_DA\_GIOCO(ID\_servizio, cod\_campo, max\_capienza)}
-    \item \texttt{ATTIVITA\_CON\_ANIMALI(ID\_servizio, cod\_attività)}
+	\item \texttt{SERVIZIO(\underline{ID\_servizio}, prezzo, tipo\_servizio, status)}
+	\item \texttt{CAMERA(\underline{ID\_servizio}, cod\_camera, max\_capienza)}
+	\item \texttt{TAVOLO(\underline{ID\_servizio}, cod\_tavolo, max\_capienza)}
+	\item \texttt{LETTINO(\underline{ID\_servizio}, cod\_lettino)}
+	\item \texttt{CAMPO\_DA\_GIOCO(\underline{ID\_servizio}, cod\_campo, max\_capienza)}
+	\item \texttt{ATTIVITA\_CON\_ANIMALI(\underline{ID\_servizio}, cod\_attività)}
 \end{itemize}
 
 Dove \texttt{ID\_servizio} nella tabella \texttt{SERVIZIO} funge da chiave primaria e come chiave esterna in tutte le tabelle figlie.
 
 \subsubsection*{Gerarchia di Persona}
-L'entità \texttt{PERSONA} è generalizzata in \texttt{UTENTE} e \texttt{DIPENDENTE}. \\
-Scegliamo di mantenere le tre tabelle collegate tramite chiavi esterne, utilizzando \texttt{username} come identificatore principale per \texttt{DIPENDENTE}:
+L'entità \texttt{PERSONA} è generalizzata in \texttt{UTENTE} e \texttt{DIPENDENTE}. Scegliamo di mantenere le tre tabelle
+collegate tramite chiavi esterne, utilizzando \texttt{username} come identificatore principale per \texttt{DIPENDENTE}:
 
 \begin{itemize}
-    \item \texttt{PERSONA(CF, nome, cognome)}
-    \item \texttt{UTENTE(username, password, email, CF\_persona)}
-    \item \texttt{DIPENDENTE(username, CF\_persona, data\_assunzione)}
-\end{itemize}
-
+	\item \texttt{PERSONA(\underline{CF}, nome, cognome)}
+	\item \texttt{UTENTE(\underline{username}, password, email, CF)}
+	\item \texttt{DIPENDENTE(\underline{username}, CF, data\_assunzione)}
+\end{itemize} 
+\vspace{\baselineskip}
 Questa scelta permette di:
 \begin{itemize}
-    \item Utilizzare \texttt{username} come identificatore univoco per tutti gli utenti del sistema
-    \item Mantenere il codice fiscale come dato anagrafico nella tabella \texttt{PERSONA}
-    \item Evitare duplicati e semplificare le operazioni di login e autenticazione
+	\item Utilizzare \texttt{username} come identificatore univoco per tutti gli utenti del sistema
+	\item Mantenere il codice fiscale come dato anagrafico nella tabella \texttt{PERSONA}
+	\item Evitare duplicati e semplificare le operazioni di login e autenticazione
 \end{itemize}
 
 \subsection{Reificazione associazioni molti-a-molti}
 
-Le seguenti associazioni molti-a-molti sono state reificate in tabelle:
+Le seguenti associazioni molti-a-molti sono state reificate in tabelle, poiché le associazioni di 
+questo tipo non possono essere rappresentate direttamente negli schemi relazionali:
 
 \begin{itemize}
-    \item \texttt{COMPOSTO\_DA} tra \texttt{PACCHETTO} e \texttt{SERVIZIO} diventa la tabella \texttt{COMPOSTO\_DA(ID\_pacchetto, ID\_servizio)}
-    \item \texttt{ACQUISTA} tra \texttt{UTENTE} e \texttt{PACCHETTO} diventa la tabella \texttt{ACQUISTA(username, ID\_pacchetto, data)}
-    \item \texttt{ISCRIVE} tra \texttt{UTENTE} e \texttt{EVENTO} diventa la tabella \texttt{ISCRIVE(username, ID\_evento, data)}
-    \item \texttt{ASSEGNA\_RUOLO} tra \texttt{DIPENDENTE} e \texttt{RUOLO} è già reificata come entità nel modello ER
+	\item \texttt{COMPOSTO\_DA(ID\_pacchetto, ID\_servizio)}
+	\item \texttt{ACQUISTA(username, ID\_pacchetto, data)}
+	\item \texttt{ISCRIVE(username, ID\_evento, data)}
+	\item \texttt{ASSEGNA\_RUOLO} tra \texttt{DIPENDENTE} e \texttt{RUOLO} è già reificata come entità nel modello ER
 \end{itemize}
 
 \subsection{Scelta degli identificatori principali}
-
 Per semplificare le query e garantire consistenza, abbiamo scelto i seguenti identificatori:
 
 \begin{itemize}
-    \item \texttt{SERVIZIO}: \texttt{ID\_servizio} (surrogato)
-    \item \texttt{PERSONA}: \texttt{CF} (naturale)
-    \item \texttt{UTENTE}: \texttt{username} (naturale)
-    \item \texttt{DIPENDENTE}: \texttt{username} (naturale, da UTENTE)
-    \item \texttt{PRENOTAZIONE}: \texttt{ID\_prenotazione} (surrogato)
-    \item \texttt{ORDINE}: \texttt{ID\_ordine} (surrogato)
-    \item \texttt{RECENSIONE}: \texttt{ID\_recensione} (surrogato)
-    \item \texttt{EVENTO}: \texttt{ID\_evento} (surrogato)
-    \item \texttt{PACCHETTO}: \texttt{ID\_pacchetto} (surrogato)
-    \item \texttt{PRODOTTO}: \texttt{ID\_prodotto} (surrogato)
-    \item \texttt{RUOLO}: \texttt{ID\_ruolo} (surrogato)
-    \item \texttt{TURNO}: \texttt{ID\_turno} (surrogato)
+	\item \texttt{SERVIZIO}: \texttt{ID\_servizio} (surrogato)
+	\item \texttt{PERSONA}: \texttt{CF} (naturale)
+	\item \texttt{UTENTE}: \texttt{username} (naturale)
+	\item \texttt{DIPENDENTE}: \texttt{username} (naturale, da UTENTE)
+	\item \texttt{PRENOTAZIONE}: \texttt{ID\_prenotazione} (surrogato)
+	\item \texttt{ORDINE}: \texttt{ID\_ordine} (surrogato)
+	\item \texttt{RECENSIONE}: \texttt{ID\_recensione} (surrogato)
+	\item \texttt{EVENTO}: \texttt{ID\_evento} (surrogato)
+	\item \texttt{PACCHETTO}: \texttt{ID\_pacchetto} (surrogato)
+	\item \texttt{PRODOTTO}: \texttt{ID\_prodotto} (surrogato)
+	\item \texttt{RUOLO}: \texttt{ID\_ruolo} (surrogato)
+	\item \texttt{TURNO}: \texttt{ID\_turno} (surrogato)
 \end{itemize}
 
 Gli identificatori surrogati sono stati preferiti laddove non esisteva un identificatore naturale stabile. Per le entità con codici fissi (es. \texttt{CAMERA}, \texttt{TAVOLO}) è stato mantenuto l'identificatore naturale come attributo, ma la chiave primaria rimane \texttt{ID\_servizio} ereditata dalla tabella padre.
+
 \section{Schema relazionale finale}
 La fase di riorganizzazione è ora conclusa e lo schema ottenuto è immediatamente traducibile
 in relazioni relazionali. Di seguito presentiamo lo schema logico nelle due rappresentazioni, grafica e testuale.
 
 \subsection{Schema relazionale (grafico)}
-
 
 \subsection{Schema relazionale (testuale)}
 Di seguito viene riportata la traduzione in schema relazionale delle entità e relazioni progettate.
