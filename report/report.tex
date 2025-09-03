@@ -221,7 +221,7 @@ vicino a un contesto reale.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 200pt 175pt 0, clip]{./pdf/raffinamento servizi.pdf}
+	\includegraphics[width=\textwidth, trim=0 175pt 175pt 0, clip]{./pdf/raffinamento servizi.pdf}
 	\caption{Schema ER, raffinamento servizi}
 	\label{fig:raffinamento-servizi}
 \end{figure}
@@ -1376,7 +1376,7 @@ collegate tramite chiavi esterne, utilizzando \texttt{CF} come chiave primaria e
 
 \begin{itemize}
 	\item \texttt{PERSONA(\underline{CF}, nome, cognome)}
-	\item \texttt{UTENTE(\underline{CF} : PERSONA, username~UNIQUE, password, email)}
+	\item \texttt{UTENTE(\underline{username} : PERSONA, username~UNIQUE, password, email)}
 	\item \texttt{DIPENDENTE(\underline{CF} : PERSONA, username~UNIQUE, data\_assunzione)}
 \end{itemize}
 
