@@ -353,7 +353,7 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 		\hline
 		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 5                 & Staff / Admin          \\
 		\hline
-		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 3                 & Admin                  \\
+		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}  & 3                 & Admin                  \\
 		\hline
 		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 1                 & Admin                  \\
 		\hline
@@ -959,33 +959,36 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 	      Quindi si ha $A_{lett}=1$ e $A_{scr}=1$.
 	      $$\mathbf{C_{tot}} = 5 \cdot (1 + 2 \cdot 1) = \mathbf{15}$$
 
-	\item {\large \textbf{Pianificazione turni / orari dipendenti}} \label{op18}
+	\item {\large \textbf{Pianificazione turno esistente per dipendente}} \label{op18}
 	      $$
 		      Op_{sett} = 3
 	      $$
 
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      DIPENDENTE    & E             & 1                       & L            \\
-			      ORARIO\_TURNO & A             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
+		\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.15}
+		\begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+				\hline
+				\rowcolor{gray!20}
+				\textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+				\hline
+				DIPENDENTE & E & 1 & L \\
+				SVOLGE     & A & 1 & S \\
+				TURNO      & E & 1 & L \\
+				\hline
+			\end{tabularx}
+		\end{table}
 
+		
+		  Questo perché:
 	      \begin{itemize}
-		      \item Si leggono i dipendenti.
-		      \item Si inserisce/aggiorna la pianificazione in \texttt{ORARIO\_TURNO}.
+		      \item \texttt{SVOLGE} è l'associazione che collega il dipendente al turno.
+		      \item \texttt{TURNO} è l'entità interna che rappresenta l'unità di pianificazione.
 	      \end{itemize}
 
-	      Totale: $A_{lett}=1$, $A_{scr}=1$.
-	      $$C_{tot} = 3 \cdot (1 + 2 \cdot 1) = \mathbf{9}$$
+	      Quindi si hanno: $A_{lett}=2$, $A_{scr}=1$.
+	      $$C_{tot} = 3 \cdot (2 + 2 \cdot 1) = \mathbf{12}$$
 
 
 	\item {\large \textbf{Calcolo tasso di occupazione camere mensile}} \label{op19}
@@ -1324,7 +1327,7 @@ il costo totale per ogni operazione.
 		\hline
 		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 15                        & Staff / Admin          \\
 		\hline
-		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 9                         & Admin                  \\
+		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}  & 12                         & Admin                  \\
 		\hline
 		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 8220                      & Admin                  \\
 		\hline
