@@ -372,14 +372,14 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 
 \newpage
 \section{Analisi delle operazioni}
-Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
+Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo. \\
 Per stimare il carico delle operazioni sul database si è deciso di introdurre i seguenti parametri:
 \begin{itemize}
 	\item $A_{lett}$ = numero di accessi in lettura effettuati durante l'operazione. (\textit{read})
 	\item $A_{scr}$ = numero di accessi in scrittura effettuati durante l'operazione. (\textit{write})
 	\item $Op_{set}$ = numero medio di volte in cui l'operazione viene eseguita in una settimana (dalla Tabella \ref{tab:operazioni-settimanali}).
 \end{itemize}
-
+Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittura, rispetto a quelli in lettura
 \begin{enumerate}
 	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
 
@@ -991,7 +991,7 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 	      $$C_{tot} = 3 \cdot (2 + 2 \cdot 1) = \mathbf{12}$$
 
 
-	\item {\large \textbf{Calcolo tasso di occupazione camere mensile}} \label{op19}
+	\item {\large \textbf{Calcolo tasso di occupazione camere}} \label{op19}
 	      $$
 		      {Op}_{sett} = 1
 	      $$
@@ -1101,7 +1101,7 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 
 	\item {\large \textbf{Calcolo fatturato per servizio}} \label{op22}
 	      $$
-		      {Op}_{sett} = 1
+		      {Op}_{sett} = 0.25
 	      $$
 	      Per valutare la redditività dei singoli servizi e riallocare il budget.
 
@@ -1335,7 +1335,7 @@ il costo totale per ogni operazione.
 		\hline
 		21          & \hyperref[op21]{Individuazione pacchetto più richiesto}                & 640                       & Admin                  \\
 		\hline
-		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 25700                     & Admin                  \\
+		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 6425                     & Admin                  \\
 		\hline
 		23          & \hyperref[op23]{Analisi servizi più inclusi nei pacchetti}             & 640                       & Admin                  \\
 		\hline
@@ -1343,6 +1343,23 @@ il costo totale per ogni operazione.
 	\caption{Coste delle operazioni per settimana, con tipo di utente che le effettua}
 	\label{tab:costo-operazioni-settimanali}
 \end{table}
+
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.12}
+	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
+		\hline
+		\rowcolor{gray!20}
+		\textbf{\#} & \textbf{Operazione} & \textbf{Costo tot. / 1 mese} & \textbf{Tipo Utente} \\
+		\hline
+		22 & Calcolo fatturato mensile per servizio & 25.700 & Admin \\
+		\hline
+	\end{tabularx}
+	\caption{Costi delle operazioni mensili, con tipo di utente che le effettua}
+	\label{tab:costo-operazioni-mensili}
+\end{table}
+
 
 \newpage
 \section{Raffinamento dello schema}
@@ -1467,7 +1484,8 @@ Di seguito viene riportata la traduzione in schema relazionale delle entità e r
 \end{description}
 
 \chapter{Progettazione della Base di Dati}
-Ora che abbiamo creato la nostra base di dati, mappiamo le nostre realzioni in tabelle, per poi utilizzarle nel nostro
+Ora che abbiamo creato la nostra base di dati, mappiamo le nostre relazioni in tabelle, per poi utilizzarle nel nostro
+
 
 \section{Traduzione delle operazioni}
 
