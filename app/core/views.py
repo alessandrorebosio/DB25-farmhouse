@@ -1,55 +1,99 @@
-"""Core views for the application.
+"""
+Core views for the application.
 
-Provides simple homepage, login and logout views. The login view uses Django's
-AuthenticationForm to validate credentials and redirects to the 'next' GET
-parameter (if present) or to the site root ('/') on success.
+This module exposes simple views used by the app:
+- homepage: renders the site landing page.
+- register_view: handles user registration (creates PersonModel and UserModel).
+- login_view: displays & processes the authentication form.
+- profile_view: shows data for the currently logged-in user.
+- logout_view: logs out the current user.
+
+Notes:
+- Templates used by these views are under core/auth/ and user/.
+- register_view relies on RegisterForm from .forms which encapsulates
+  validation and persistence of PersonModel and UserModel.
+- profile_view expects UserModel to relate to PersonModel via the CF FK.
 """
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+
 from .models import PersonModel, UserModel
+from .forms import RegisterForm
 
 
 def homepage(request: HttpRequest) -> HttpResponse:
-    """Render the site homepage.
+    """
+    Render the site homepage.
 
-    Args:
-        request: Django HttpRequest instance.
+    URL: /
+    Methods: GET
 
-    Returns:
-        HttpResponse rendering 'index.html'.
+    Template: index.html
+    Context: none
+
+    Returns a simple HttpResponse rendering the homepage template.
     """
     return render(request, "index.html")
 
 
 def register_view(request: HttpRequest) -> HttpResponse:
-    """Render the site register.
-
-    Args:
-        request: Django HttpRequest instance.
-
-    Returns:
-        HttpResponse rendering 'register.html'.
     """
-    return render(request, "user/register.html")
+    Registration view (create PersonModel if missing and a linked UserModel).
+
+    URL: /register/ (example)
+    Methods: GET, POST
+
+    GET:
+      - Instantiate an empty RegisterForm and render the registration template.
+
+    POST:
+      - Bind RegisterForm(request.POST). If valid, call form.save() which:
+         * creates PersonModel if missing (does NOT update an existing person),
+         * creates UserModel with hashed password.
+      - On success redirect to the login page (name="login").
+      - On validation error re-render the form with errors.
+
+    Template: core/auth/register.html
+    Context:
+      - form: RegisterForm instance
+
+    Important:
+      - RegisterForm.save() must only be called when form.is_valid() is True.
+      - This view does not log the user in after registration; it redirects to login.
+    """
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = RegisterForm()
+
+    return render(request, "core/auth/register.html", {"form": form})
 
 
 def login_view(request: HttpRequest) -> HttpResponse:
-    """Display and process the login form.
+    """
+    Display and process the login form.
 
-    Uses Django's AuthenticationForm to authenticate users. On POST, if the
-    form is valid, logs the user in and redirects to the 'next' GET parameter
-    or to the root path ('/'). On GET, renders the login form.
+    Uses Django's AuthenticationForm to validate credentials.
 
-    Args:
-        request: Django HttpRequest instance.
+    GET:
+      - Renders core/auth/login.html with an empty AuthenticationForm.
 
-    Returns:
-        HttpResponse rendering 'login.html' with the form, or a redirect after
-        successful login.
+    POST:
+      - Binds AuthenticationForm(request, data=request.POST).
+      - If valid logs the user in and redirects to:
+          request.GET.get('next') if present, otherwise '/'.
+      - If invalid re-renders the form with errors.
+
+    Template: core/auth/login.html
+    Context:
+      - form: AuthenticationForm instance
     """
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -59,15 +103,30 @@ def login_view(request: HttpRequest) -> HttpResponse:
             return redirect(request.GET.get("next") or "/")
     else:
         form = AuthenticationForm(request)
-    return render(request, "user/login.html", {"form": form})
+    return render(request, "core/auth/login.html", {"form": form})
 
 
 @login_required
 def profile_view(request: HttpRequest) -> HttpResponse:
     """
-    Get logged user's related PersonModel via the FK on UserModel.
-    Uses select_related for one query and passes 'person' to the template.
-    Also passes a small debug dict so you can inspect values in the template.
+    Show profile information for the logged-in user.
+
+    URL: /profile/ (example)
+    Methods: GET
+
+    Behavior:
+      - Uses request.user.username to locate the corresponding UserModel row.
+      - Uses select_related on the FK to PersonModel to avoid extra queries when possible.
+      - Passes `person` (PersonModel instance or None) to the template along with
+        a small debug dict for development.
+
+    Template: user/profile.html
+    Context:
+      - person: PersonModel instance (or None)
+      - debug: dict with diagnostic values (can be removed in production)
+
+    Security:
+      - Protected with @login_required so only authenticated users can access it.
     """
     person = None
     debug = {"request_user": request.user.username}
@@ -78,22 +137,31 @@ def profile_view(request: HttpRequest) -> HttpResponse:
         debug["user_CF_obj"] = (
             None
             if person is None
-            else {"CF": person.CF, "nome": person.nome, "cognome": person.cognome}
+            else {
+                "CF": getattr(person, "CF", None),
+                "nome": getattr(person, "nome", None),
+                "cognome": getattr(person, "cognome", None),
+            }
         )
     except UserModel.DoesNotExist:
         debug["error"] = "UserModel.DoesNotExist"
 
-    return render(request, "profile.html", {"person": person, "debug": debug})
+    return render(request, "user/profile.html", {"person": person, "debug": debug})
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
-    """Log out the current user and redirect to the homepage ('/').
+    """
+    Log out the current user and redirect to the homepage ('/').
 
-    Args:
-        request: Django HttpRequest instance.
+    URL: /logout/ (example)
+    Methods: GET or POST depending on how you wire it (POST recommended for safety).
 
-    Returns:
-        HttpResponseRedirect to '/'.
+    Behavior:
+      - Calls django.contrib.auth.logout(request).
+      - Redirects to '/'.
+
+    Note:
+      - Prefer POST-based logout to protect against CSRF; ensure templates use a form with {% csrf_token %}.
     """
     logout(request)
     return redirect("/")

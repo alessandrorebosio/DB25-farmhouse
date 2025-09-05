@@ -1,0 +1,59 @@
+{% extends "core/base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<main class="hero">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-8">
+                {% if user.is_authenticated %}
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                style="width:56px;height:56px;font-weight:700;font-size:20px;">
+                                {{ user.username|slice:":1"|upper }}
+                            </div>
+                            <div class="ms-3 text-start">
+                                <h5 class="mb-0">{{ person.nome }} {{ person.cognome }}</h5>
+                                <small class="text-muted">{{ user.username }}</small>
+                            </div>
+                        </div>
+
+                        <dl class="row mb-0">
+
+                            <dt class="col-sm-4 text-muted small text-start">Email</dt>
+                            <dd class="col-sm-8 text-end">{{ user.email|default:"—" }}</dd>
+
+                            <dt class="col-sm-4 text-muted small text-start">Joined</dt>
+                            <dd class="col-sm-8 text-end">{{ user.date_joined|date:"F j, Y H:i" }}</dd>
+
+                        </dl>
+
+                    </div>
+                    <div
+                        class="card-footer bg-transparent border-top d-flex align-items-center justify-content-between py-2 px-3">
+                        {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="text-muted small mb-0">Admin console</a>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'logout' %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link text-danger btn-sm p-0">Sign out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You are not signed in. <a href="{% url 'login' %}">Sign in</a> or <a
+                    href="{% url 'register' %}">register</a>.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+</main>
+{% endblock %}
