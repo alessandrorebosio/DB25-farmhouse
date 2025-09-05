@@ -61,7 +61,7 @@ pip install -r requirements.txt
 ### 4. Database Setup
 **Create MySQL Database:**
 ```bash
-mysql -u root -p < app/sql/createDB.sql
+mysql -u root -p < app/sql/db.sql
 ```
 
 ## 🚀 Running the Application
