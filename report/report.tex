@@ -1208,7 +1208,7 @@ Mantendo la \textbf{ridondanza} il prezzo verrebbe letto direttamente dalla riga
 \noindent
 A fronte di questa analisi, decidiamo di mantenere l’attributo con la ridondanza perché dimezza i costi e preserva i prezzi storici degli ordini.
 
-\subsection{Analisi attributo \texttt{quantità} in \texttt{DETTAGLIO\_ORDINE}}
+\subsection{Analisi attributo \texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}}
 La quantità è ridondante perché si potrebbero inserire $q$ tuple identiche.  
 Mantenendo \textbf{la ridondanza}, si salverebbe un solo record con il campo \texttt{quantita}, 
 \textbf{Senza ridondanza} occorrerebbe invece replicare ogni voce d’ordine $q$ volte, aumentando linearmente i costi con $\bar{q}$.
@@ -1361,22 +1361,6 @@ il costo totale per ogni operazione.
 	\label{tab:costo-operazioni-settimanali}
 \end{table}
 
-\begin{table}[H]
-	\centering
-	\small
-	\renewcommand{\arraystretch}{1.12}
-	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
-		\hline
-		\rowcolor{gray!20}
-		\textbf{\#} & \textbf{Operazione} & \textbf{Costo tot. / 1 mese} & \textbf{Tipo Utente} \\
-		\hline
-		22 & Calcolo fatturato mensile per servizio & 25.700 & Admin \\
-		\hline
-	\end{tabularx}
-	\caption{Costi delle operazioni mensili, con tipo di utente che le effettua}
-	\label{tab:costo-operazioni-mensili}
-\end{table}
-
 
 \newpage
 \section{Raffinamento dello schema}
@@ -1503,10 +1487,224 @@ Di seguito viene riportata la traduzione in schema relazionale delle entità e r
 \chapter{Progettazione della Base di Dati}
 Ora che abbiamo creato la nostra base di dati, mappiamo le nostre relazioni in tabelle, per poi utilizzarle nel nostro
 
+\section{Check}
+
+\section{Viste}
+
+\section{Stored Procedures}
+
+\section{Trigger}
+
+\section{Eventi}
 
 \section{Traduzione delle operazioni}
 
+In questa sezione vengono riportate le principali operazioni del sistema
+e la relativa traduzione in query SQL.  
+Per ciascuna operazione viene fornita una breve spiegazione del funzionamento seguita dalla query SQL corrispondente.
+
+\subsection*{1) Registrazione nuovo utente}
+L’operazione inserisce un nuovo utente nella piattaforma.
+\begin{verbatim}
+INSERT INTO UTENTE (username, password, email)
+VALUES (:username, :password, :email);
+\end{verbatim}
+
+\subsection*{2) Autenticazione / login}
+Quest'operazione verifica che le credenziali inserite corrispondano ad un utente registrato.
+\begin{verbatim}
+SELECT *
+FROM UTENTE
+WHERE username = :username
+  AND password = :password;
+\end{verbatim}
+
+\subsection*{3) Prenotazione servizio}
+L'operazione crea una prenotazione e i relativi dettagli sui servizi scelti.
+\begin{verbatim}
+INSERT INTO PRENOTAZIONE (ID_prenotazione, username)
+VALUES (:id_prenotazione, :username);
+
+INSERT INTO DETTAGLIO_PRENOTAZIONE (ID_prenotazione, ID_servizio, data_inizio, data_fine)
+VALUES (:id_prenotazione, :id_servizio, :data_inizio, :data_fine);
+\end{verbatim}
+
+\subsection*{4) Modifica / cancellazione prenotazione}
+L'operazione consente di rimuovere una prenotazione esistente e i relativi dettagli.
+\begin{verbatim}
+DELETE FROM DETTAGLIO_PRENOTAZIONE
+WHERE ID_prenotazione = :id_prenotazione;
+
+DELETE FROM PRENOTAZIONE
+WHERE ID_prenotazione = :id_prenotazione;
+\end{verbatim}
+
+\subsection*{5) Creazione / modifica pacchetto}
+L'operazione inserisce un nuovo pacchetto e ne definisce i servizi inclusi.
+\begin{verbatim}
+INSERT INTO PACCHETTO (ID_pacchetto, nome, descrizione)
+VALUES (:id_pacchetto, :nome, :descrizione);
+
+INSERT INTO COMPOSTO (ID_pacchetto, ID_servizio)
+VALUES (:id_pacchetto, :id_servizio);
+\end{verbatim}
+
+\subsection*{6) Acquisto pacchetto}
+L'operazione registra l’acquisto di un pacchetto da parte di un utente.
+\begin{verbatim}
+INSERT INTO ACQUISTA (username, ID_pacchetto)
+VALUES (:username, :id_pacchetto);
+\end{verbatim}
+
+\subsection*{7) Inserimento recensione}
+Quest'operazione permette ad un utente di lasciare una recensione per un servizio.
+\begin{verbatim}
+INSERT INTO RECENSIONE (ID_recensione, username, ID_prenotazione, tipo_servizio, voto, descrizione)
+VALUES (:id_recensione, :username, :id_prenotazione, :tipo_servizio, :voto, :descrizione);
+\end{verbatim}
+
+\subsection*{8) Gestione inventario / prodotti}
+L'operazione aggiorna i dati di un prodotto esistente, come il prezzo o nome.
+\begin{verbatim}
+UPDATE PRODOTTO
+SET nome = :nome, prezzo = :prezzo
+WHERE ID_prodotto = :id_prodotto;
+\end{verbatim}
+
+\subsection*{9) Creazione evento}
+L'operazione crea un nuovo evento con nome, data e descrizione.
+\begin{verbatim}
+INSERT INTO EVENTO (ID_evento, max_partecipanti, descrizione, username)
+VALUES (:id_evento, :max_partecipanti, :descrizione, :username);
+\end{verbatim}
+
+\subsection*{10) Iscrizione evento}
+L'operazione registra l’iscrizione di un utente ad un evento.
+\begin{verbatim}
+INSERT INTO ISCRIVE (ID_evento, username)
+VALUES (:id_evento, :username);
+\end{verbatim}
+
+\subsection*{11) Creazione ordine}
+Tale operazione crea un ordine e i relativi dettagli dei prodotti acquistati.
+\begin{verbatim}
+INSERT INTO ORDINE (ID_ordine, data, username)
+VALUES (:id_ordine, :data, :username);
+
+INSERT INTO DETTAGLIO_ORDINE (ID_ordine, ID_prodotto, quantita, prezzo_unitario)
+VALUES (:id_ordine, :id_prodotto, :quantita, :prezzo_unitario);
+\end{verbatim}
+
+\subsection*{12) Assegnazione / modifica ruolo dipendenti}
+Quest'operazione attribuisce un ruolo ad un dipendente.
+\begin{verbatim}
+INSERT INTO ASSEGNA_RUOLO (username, ID_ruolo)
+VALUES (:username, :id_ruolo);
+\end{verbatim}
+
+\subsection*{13) Check-in / Check-out}
+Quest'operazione aggiorna lo stato della prenotazione al momento dell’arrivo o della partenza.
+\begin{verbatim}
+-- Query ancora da definire
+\end{verbatim}
+
+\subsection*{14) Aggiornamento stato servizio}
+Quest'operazione modifica lo stato di un servizio (es. disponibile, in manutenzione).
+\begin{verbatim}
+UPDATE SERVIZIO
+SET status = :status
+WHERE ID_servizio = :id_servizio;
+\end{verbatim}
+
+\subsection*{15) Controllo disponibilità servizi}
+Quest'operazione elenca i servizi attivi e disponibili alla prenotazione.
+\begin{verbatim}
+SELECT *
+FROM SERVIZIO
+WHERE status = 'ATTIVO';
+\end{verbatim}
+
+\subsection*{16) Generazione report settimanali}
+Quest'operazione conta le prenotazioni per ciascun servizio in un determinato intervallo.
+\begin{verbatim}
+SELECT s.ID_servizio, COUNT(*) AS num_prenotazioni
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+WHERE dp.data_inizio BETWEEN :data_inizio AND :data_fine
+GROUP BY s.ID_servizio;
+\end{verbatim}
+
+\subsection*{17) Applicazione sconto/promozione}
+L'operazione che applica uno sconto a una prenotazione o ad un ordine.
+\begin{verbatim}
+UPDATE PRENOTAZIONE
+SET sconto = :sconto
+WHERE ID_prenotazione = :id_prenotazione;
+
+UPDATE ORDINE
+SET sconto = :sconto
+WHERE ID_ordine = :id_ordine;
+\end{verbatim}
+
+\subsection*{18) Pianificazione turno esistente per dipendente}
+L'operazione inserisce un turno pianificato per un dipendente.
+\begin{verbatim}
+INSERT INTO SVOLGE (username, ID_turno, data_inizio)
+VALUES (:username, :id_turno, :data_inizio);
+\end{verbatim}
+
+\subsection*{19) Calcolo tasso di occupazione camere}
+L'operazione che calcola la percentuale di camere occupate in un certo periodo.
+\begin{verbatim}
+SELECT COUNT(DISTINCT dp.riguarda) * 100.0 / COUNT(*) AS tasso_occupazione
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+JOIN CAMERA c ON c.cod_camera = s.ID_servizio
+WHERE s.tipo = 'CAMERA';
+\end{verbatim}
+
+\subsection*{20) Analisi fasce orarie più richieste per i lettini}
+Quest'operazione restituisce le ore più richieste per le prenotazioni dei lettini.
+\begin{verbatim}
+SELECT EXTRACT(HOUR FROM dp.data_inizio) AS ora, COUNT(*) AS num_prenotazioni
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+WHERE s.tipo = 'LETTINO'
+GROUP BY ora
+ORDER BY num_prenotazioni DESC;
+\end{verbatim}
+
+\subsection*{21) Individuazione pacchetto più richiesto}
+Quest'operazione ha lo scopo di individuare il pacchetto acquistato più volte.
+\begin{verbatim}
+SELECT p.ID_pacchetto, COUNT(*) AS num_acquisti
+FROM PACCHETTO p
+JOIN ACQUISTA a ON p.ID_pacchetto = a.ID_pacchetto
+GROUP BY p.ID_pacchetto
+ORDER BY num_acquisti DESC
+LIMIT 1;
+\end{verbatim}
+
+\subsection*{22) Calcolo fatturato mensile per servizio}
+L'operazione somma i ricavi mensili per ciascun servizio.
+
+\begin{verbatim}
+-- Query ancora da definire
+\end{verbatim}
+
+\subsection*{23) Analisi servizi più inclusi nei pacchetti}
+Quest'operazione conta il numero di volte che ciascun servizio compare nei pacchetti.
+\begin{verbatim}
+SELECT s.ID_servizio, COUNT(*) AS frequenza
+FROM COMPOSTO_DA c
+JOIN SERVIZIO s ON c.ID_servizio = s.ID_servizio
+GROUP BY s.ID_servizio
+ORDER BY frequenza DESC;
+\end{verbatim}
+
+
 \chapter{Progettazione dell'applicazione}
+
 
 
 \end{document}
