@@ -353,7 +353,7 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 		\hline
 		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 5                 & Staff / Admin          \\
 		\hline
-		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 3                 & Admin                  \\
+		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}  & 3                 & Admin                  \\
 		\hline
 		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 1                 & Admin                  \\
 		\hline
@@ -372,14 +372,14 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 
 \newpage
 \section{Analisi delle operazioni}
-Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo.
+Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo. \\
 Per stimare il carico delle operazioni sul database si è deciso di introdurre i seguenti parametri:
 \begin{itemize}
 	\item $A_{lett}$ = numero di accessi in lettura effettuati durante l'operazione. (\textit{read})
 	\item $A_{scr}$ = numero di accessi in scrittura effettuati durante l'operazione. (\textit{write})
 	\item $Op_{set}$ = numero medio di volte in cui l'operazione viene eseguita in una settimana (dalla Tabella \ref{tab:operazioni-settimanali}).
 \end{itemize}
-
+Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittura, rispetto a quelli in lettura
 \begin{enumerate}
 	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
 
@@ -959,36 +959,39 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 	      Quindi si ha $A_{lett}=1$ e $A_{scr}=1$.
 	      $$\mathbf{C_{tot}} = 5 \cdot (1 + 2 \cdot 1) = \mathbf{15}$$
 
-	\item {\large \textbf{Pianificazione turni / orari dipendenti}} \label{op18}
+	\item {\large \textbf{Pianificazione turno esistente per dipendente}} \label{op18}
 	      $$
 		      Op_{sett} = 3
 	      $$
 
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      DIPENDENTE    & E             & 1                       & L            \\
-			      ORARIO\_TURNO & A             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
+		\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.15}
+		\begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
+				\hline
+				\rowcolor{gray!20}
+				\textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
+				\hline
+				DIPENDENTE & E & 1 & L \\
+				SVOLGE     & A & 1 & S \\
+				TURNO      & E & 1 & L \\
+				\hline
+			\end{tabularx}
+		\end{table}
 
+		
+		  Questo perché:
 	      \begin{itemize}
-		      \item Si leggono i dipendenti.
-		      \item Si inserisce/aggiorna la pianificazione in \texttt{ORARIO\_TURNO}.
+		      \item \texttt{SVOLGE} è l'associazione che collega il dipendente al turno.
+		      \item \texttt{TURNO} è l'entità interna che rappresenta l'unità di pianificazione.
 	      \end{itemize}
 
-	      Totale: $A_{lett}=1$, $A_{scr}=1$.
-	      $$C_{tot} = 3 \cdot (1 + 2 \cdot 1) = \mathbf{9}$$
+	      Quindi si hanno: $A_{lett}=2$, $A_{scr}=1$.
+	      $$C_{tot} = 3 \cdot (2 + 2 \cdot 1) = \mathbf{12}$$
 
 
-	\item {\large \textbf{Calcolo tasso di occupazione camere mensile}} \label{op19}
+	\item {\large \textbf{Calcolo tasso di occupazione camere}} \label{op19}
 	      $$
 		      {Op}_{sett} = 1
 	      $$
@@ -1098,7 +1101,7 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 
 	\item {\large \textbf{Calcolo fatturato per servizio}} \label{op22}
 	      $$
-		      {Op}_{sett} = 1
+		      {Op}_{sett} = 0.25
 	      $$
 	      Per valutare la redditività dei singoli servizi e riallocare il budget.
 
@@ -1170,111 +1173,128 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 \end{enumerate}
 
 \section{Analisi delle ridondanze}
-In questa sezione vengono analizzate le rindondaze individuate nello schema concettuale valutandone l'impatto sul
-costo delle operazioni e decidendo se mantenerle o meno.
 
+Nel modello ER definitivo sono state individuate quattro ridondanze:
 \begin{itemize}
-	\item \textbf{prezzo unitario} in DETTAGLIO ORDINE
-	\item \textbf{prezzo} in DETTAGLIO ORDINE
-	\item \textbf{quantità} in DETTAGLI ORDINE
-	\item \textbf{tipo servizio} in RECENSIONE
-	\item \textbf{status} in SERVIZIO
+    \item \texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}
+    \item \texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}
+    \item \texttt{tipo\_servizio} in \texttt{RECENSIONE}
+    \item \texttt{status} in \texttt{SERVIZIO}
+\end{itemize}  
+
+\subsection{Analisi attributo \texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}}
+L’attributo \texttt{prezzo\_unitario} è ridondante perché il prezzo è già presente in \texttt{PRODOTTO}.
+Mantendo la \textbf{ridondanza} il prezzo verrebbe letto direttamente dalla riga di \texttt{DETTAGLIO\_ORDINE}.
+\textbf{Senza ridondanza} ad ogni dettaglio d’ordine occorrerebbe un join con \texttt{PRODOTTO}, raddoppiando i costi di accesso.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+11 & Creazione ordine (sett.) & 300 & 600 \\
+16 & Report settimanali (sett.) & 30 & 60 \\
+22 & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425 & 12\,850 \\
+\hline
+\textbf{Totale} & & \textbf{6\,755} & \textbf{13\,510} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{prezzo\_unitario}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, decidiamo di mantenere l’attributo con la ridondanza perché dimezza i costi e preserva i prezzi storici degli ordini.
+
+\subsection{Analisi attributo \texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}}
+La quantità è ridondante perché si potrebbero inserire $q$ tuple identiche.  
+Mantenendo \textbf{la ridondanza}, si salverebbe un solo record con il campo \texttt{quantita}, 
+\textbf{Senza ridondanza} occorrerebbe invece replicare ogni voce d’ordine $q$ volte, aumentando linearmente i costi con $\bar{q}$.
+
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+11 & Creazione ordine (sett.) & 300 & $300 \times \bar{q}$ \\
+16 & Report settimanali (sett.) & 30 & $30 \times \bar{q}$ \\
+22 & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425 & $6\,425 \times \bar{q}$ \\
+\hline
+\textbf{Totale} & & \textbf{6\,755} & $\gg 6\,755$ \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{quantita}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, conviene mantenere la ridondanza perché riduce drasticamente il volume dei dati.
+
+\subsection{Analisi attributo \texttt{tipo\_servizio} in \texttt{RECENSIONE}}
+Il tipo del servizio è già recuperabile da \texttt{SERVIZIO}.  
+Mediante la \textbf{ridondanza} la query sulle recensioni accede direttamente all’attributo.
+\textbf{Senza ridondanza} servirebbe un join tra \texttt{RECENSIONE} e \texttt{SERVIZIO}, raddoppiando i costi.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+7 & Inserimento recensione (sett.) & 160 & 320 \\
+20 & Analisi fasce orarie (sett.) & 8\,045 & 16\,090 \\
+23 & Analisi pacchetti (sett.) & 640 & 1\,280 \\
+\hline
+\textbf{Totale} & & \textbf{8\,845} & \textbf{17\,690} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{tipo\_servizio}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, decidiamo di mantenere la ridondanza perché evita join costosi nelle query statistiche.
+
+\subsection{Analisi attributo \texttt{status} in \texttt{SERVIZIO}}
+La disponibilità di un servizio può essere calcolata dalle prenotazioni.  
+Con la \textbf{ridondanza} si legge direttamente l’attributo \texttt{status} in \texttt{SERVIZIO}.
+Invece, \textbf{senza ridondanza} occorre cercare nelle prenotazioni attive di \texttt{DETTAGLIO\_PRENOTAZIONE}, con più join e accessi.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+3 & Prenotazione servizio (sett.) & 1\,125 & 2\,250 \\
+13 & Check-in / Check-out (sett.) & 350 & 700 \\
+14 & Aggiornamento stato (sett.) & 90 & 180 \\
+15 & Controllo disponibilità (sett.) & 1\,650 & 3\,300 \\
+\hline
+\textbf{Totale} & & \textbf{3\,215} & \textbf{6\,430} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{status}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, ci conviene mantenere la ridondanza perché dimezza i costi delle operazioni più frequenti del sistema.
+
+\subsection*{Riepilogo analisi delle ridondanze}
+Tutte le ridondanze vengono mantenute poiché:
+\begin{itemize}
+    \item \texttt{prezzo\_unitario} e \texttt{quantita} assicurano efficienza e storicità degli ordini.
+    \item \texttt{tipo\_servizio} evita join costosi sulle recensioni.
+    \item \texttt{status} riduce drasticamente i costi delle prenotazioni e dei controlli disponibilità.
 \end{itemize}
-
-\subsection{Analisi attributo prezzo unitario in DETTAGLI ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                          & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Visualizzazione dettagli di un ordine        & 500                     & 1000                      \\
-		Riepilogo storico ordini con prezzi corretti & 1000                    & 2000                      \\
-		\hline
-		\textbf{Totale}                              & 1500                    & 3000                      \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{prezzo\_unitario} in DETTAGLI\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo prezzo\_unitario.
-
-\subsection{Analisi attributo prezzo in DETTAGLIO ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}             & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Calcolo totale di un ordine     & 1                       & 2                         \\
-		Statistiche incassi settimanali & 100                     & 200                       \\
-		\hline
-		\textbf{Totale}                 & 101                     & 202                       \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{prezzo} in DETTAGLIO\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo prezzo.
-
-\subsection{Analisi attributo quantià in DETTAGLI ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                  & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Inserimento prodotto in un ordine    & 1                       & n (una tupla per unità)   \\
-		Visualizzazione ordine multiprodotto & 1                       & n                         \\
-		\hline
-		\textbf{Totale}                      & 2                       & 2n                        \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{quantità} in DETTAGLIO\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo quantità.
-
-\subsection{Analisi attributo tipo servizio in RECENSIONE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                 & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Media voti per tipologia            & 200                     & 400                       \\
-		Statistiche recensioni per servizio & 300                     & 600                       \\
-		\hline
-		\textbf{Totale}                     & 500                     & 1000                      \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{tipo\_servizio} in RECENSIONE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo tipo\_servizio.
-
-\subsection{Analisi attributo status in SERVIZIO}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                     & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Visualizzazione disponibilità servizi   & 50                      & 100                       \\
-		Controllo stato in fase di prenotazione & 100                     & 200                       \\
-		\hline
-		\textbf{Totale}                         & 150                     & 300                       \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{status} in SERVIZIO}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo status.
 
 \newpage
 \section{Riepilogo operazioni}
@@ -1324,7 +1344,7 @@ il costo totale per ogni operazione.
 		\hline
 		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 15                        & Staff / Admin          \\
 		\hline
-		18          & \hyperref[op18]{Pianificazione turni / assegnazione orari dipendenti}  & 9                         & Admin                  \\
+		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}  & 12                         & Admin                  \\
 		\hline
 		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 8220                      & Admin                  \\
 		\hline
@@ -1332,7 +1352,7 @@ il costo totale per ogni operazione.
 		\hline
 		21          & \hyperref[op21]{Individuazione pacchetto più richiesto}                & 640                       & Admin                  \\
 		\hline
-		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 25700                     & Admin                  \\
+		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 6425                     & Admin                  \\
 		\hline
 		23          & \hyperref[op23]{Analisi servizi più inclusi nei pacchetti}             & 640                       & Admin                  \\
 		\hline
@@ -1340,6 +1360,7 @@ il costo totale per ogni operazione.
 	\caption{Coste delle operazioni per settimana, con tipo di utente che le effettua}
 	\label{tab:costo-operazioni-settimanali}
 \end{table}
+
 
 \newpage
 \section{Raffinamento dello schema}
@@ -1464,11 +1485,226 @@ Di seguito viene riportata la traduzione in schema relazionale delle entità e r
 \end{description}
 
 \chapter{Progettazione della Base di Dati}
-Ora che abbiamo creato la nostra base di dati, mappiamo le nostre realzioni in tabelle, per poi utilizzarle nel nostro
+Ora che abbiamo creato la nostra base di dati, mappiamo le nostre relazioni in tabelle, per poi utilizzarle nel nostro
+
+\section{Check}
+
+\section{Viste}
+
+\section{Stored Procedures}
+
+\section{Trigger}
+
+\section{Eventi}
 
 \section{Traduzione delle operazioni}
 
+In questa sezione vengono riportate le principali operazioni del sistema
+e la relativa traduzione in query SQL.  
+Per ciascuna operazione viene fornita una breve spiegazione del funzionamento seguita dalla query SQL corrispondente.
+
+\subsection*{1) Registrazione nuovo utente}
+L’operazione inserisce un nuovo utente nella piattaforma.
+\begin{verbatim}
+INSERT INTO UTENTE (username, password, email)
+VALUES (:username, :password, :email);
+\end{verbatim}
+
+\subsection*{2) Autenticazione / login}
+Quest'operazione verifica che le credenziali inserite corrispondano ad un utente registrato.
+\begin{verbatim}
+SELECT *
+FROM UTENTE
+WHERE username = :username
+  AND password = :password;
+\end{verbatim}
+
+\subsection*{3) Prenotazione servizio}
+L'operazione crea una prenotazione e i relativi dettagli sui servizi scelti.
+\begin{verbatim}
+INSERT INTO PRENOTAZIONE (ID_prenotazione, username)
+VALUES (:id_prenotazione, :username);
+
+INSERT INTO DETTAGLIO_PRENOTAZIONE (ID_prenotazione, ID_servizio, data_inizio, data_fine)
+VALUES (:id_prenotazione, :id_servizio, :data_inizio, :data_fine);
+\end{verbatim}
+
+\subsection*{4) Modifica / cancellazione prenotazione}
+L'operazione consente di rimuovere una prenotazione esistente e i relativi dettagli.
+\begin{verbatim}
+DELETE FROM DETTAGLIO_PRENOTAZIONE
+WHERE ID_prenotazione = :id_prenotazione;
+
+DELETE FROM PRENOTAZIONE
+WHERE ID_prenotazione = :id_prenotazione;
+\end{verbatim}
+
+\subsection*{5) Creazione / modifica pacchetto}
+L'operazione inserisce un nuovo pacchetto e ne definisce i servizi inclusi.
+\begin{verbatim}
+INSERT INTO PACCHETTO (ID_pacchetto, nome, descrizione)
+VALUES (:id_pacchetto, :nome, :descrizione);
+
+INSERT INTO COMPOSTO (ID_pacchetto, ID_servizio)
+VALUES (:id_pacchetto, :id_servizio);
+\end{verbatim}
+
+\subsection*{6) Acquisto pacchetto}
+L'operazione registra l’acquisto di un pacchetto da parte di un utente.
+\begin{verbatim}
+INSERT INTO ACQUISTA (username, ID_pacchetto)
+VALUES (:username, :id_pacchetto);
+\end{verbatim}
+
+\subsection*{7) Inserimento recensione}
+Quest'operazione permette ad un utente di lasciare una recensione per un servizio.
+\begin{verbatim}
+INSERT INTO RECENSIONE (ID_recensione, username, ID_prenotazione, tipo_servizio, voto, descrizione)
+VALUES (:id_recensione, :username, :id_prenotazione, :tipo_servizio, :voto, :descrizione);
+\end{verbatim}
+
+\subsection*{8) Gestione inventario / prodotti}
+L'operazione aggiorna i dati di un prodotto esistente, come il prezzo o nome.
+\begin{verbatim}
+UPDATE PRODOTTO
+SET nome = :nome, prezzo = :prezzo
+WHERE ID_prodotto = :id_prodotto;
+\end{verbatim}
+
+\subsection*{9) Creazione evento}
+L'operazione crea un nuovo evento con nome, data e descrizione.
+\begin{verbatim}
+INSERT INTO EVENTO (ID_evento, max_partecipanti, descrizione, username)
+VALUES (:id_evento, :max_partecipanti, :descrizione, :username);
+\end{verbatim}
+
+\subsection*{10) Iscrizione evento}
+L'operazione registra l’iscrizione di un utente ad un evento.
+\begin{verbatim}
+INSERT INTO ISCRIVE (ID_evento, username)
+VALUES (:id_evento, :username);
+\end{verbatim}
+
+\subsection*{11) Creazione ordine}
+Tale operazione crea un ordine e i relativi dettagli dei prodotti acquistati.
+\begin{verbatim}
+INSERT INTO ORDINE (ID_ordine, data, username)
+VALUES (:id_ordine, :data, :username);
+
+INSERT INTO DETTAGLIO_ORDINE (ID_ordine, ID_prodotto, quantita, prezzo_unitario)
+VALUES (:id_ordine, :id_prodotto, :quantita, :prezzo_unitario);
+\end{verbatim}
+
+\subsection*{12) Assegnazione / modifica ruolo dipendenti}
+Quest'operazione attribuisce un ruolo ad un dipendente.
+\begin{verbatim}
+INSERT INTO ASSEGNA_RUOLO (username, ID_ruolo)
+VALUES (:username, :id_ruolo);
+\end{verbatim}
+
+\subsection*{13) Check-in / Check-out}
+Quest'operazione aggiorna lo stato della prenotazione al momento dell’arrivo o della partenza.
+\begin{verbatim}
+-- Query ancora da definire
+\end{verbatim}
+
+\subsection*{14) Aggiornamento stato servizio}
+Quest'operazione modifica lo stato di un servizio (es. disponibile, in manutenzione).
+\begin{verbatim}
+UPDATE SERVIZIO
+SET status = :status
+WHERE ID_servizio = :id_servizio;
+\end{verbatim}
+
+\subsection*{15) Controllo disponibilità servizi}
+Quest'operazione elenca i servizi attivi e disponibili alla prenotazione.
+\begin{verbatim}
+SELECT *
+FROM SERVIZIO
+WHERE status = 'ATTIVO';
+\end{verbatim}
+
+\subsection*{16) Generazione report settimanali}
+Quest'operazione conta le prenotazioni per ciascun servizio in un determinato intervallo.
+\begin{verbatim}
+SELECT s.ID_servizio, COUNT(*) AS num_prenotazioni
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+WHERE dp.data_inizio BETWEEN :data_inizio AND :data_fine
+GROUP BY s.ID_servizio;
+\end{verbatim}
+
+\subsection*{17) Applicazione sconto/promozione}
+L'operazione che applica uno sconto a una prenotazione o ad un ordine.
+\begin{verbatim}
+UPDATE PRENOTAZIONE
+SET sconto = :sconto
+WHERE ID_prenotazione = :id_prenotazione;
+
+UPDATE ORDINE
+SET sconto = :sconto
+WHERE ID_ordine = :id_ordine;
+\end{verbatim}
+
+\subsection*{18) Pianificazione turno esistente per dipendente}
+L'operazione inserisce un turno pianificato per un dipendente.
+\begin{verbatim}
+INSERT INTO SVOLGE (username, ID_turno, data_inizio)
+VALUES (:username, :id_turno, :data_inizio);
+\end{verbatim}
+
+\subsection*{19) Calcolo tasso di occupazione camere}
+L'operazione che calcola la percentuale di camere occupate in un certo periodo.
+\begin{verbatim}
+SELECT COUNT(DISTINCT dp.riguarda) * 100.0 / COUNT(*) AS tasso_occupazione
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+JOIN CAMERA c ON c.cod_camera = s.ID_servizio
+WHERE s.tipo = 'CAMERA';
+\end{verbatim}
+
+\subsection*{20) Analisi fasce orarie più richieste per i lettini}
+Quest'operazione restituisce le ore più richieste per le prenotazioni dei lettini.
+\begin{verbatim}
+SELECT EXTRACT(HOUR FROM dp.data_inizio) AS ora, COUNT(*) AS num_prenotazioni
+FROM DETTAGLIO_PRENOTAZIONE dp
+JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+WHERE s.tipo = 'LETTINO'
+GROUP BY ora
+ORDER BY num_prenotazioni DESC;
+\end{verbatim}
+
+\subsection*{21) Individuazione pacchetto più richiesto}
+Quest'operazione ha lo scopo di individuare il pacchetto acquistato più volte.
+\begin{verbatim}
+SELECT p.ID_pacchetto, COUNT(*) AS num_acquisti
+FROM PACCHETTO p
+JOIN ACQUISTA a ON p.ID_pacchetto = a.ID_pacchetto
+GROUP BY p.ID_pacchetto
+ORDER BY num_acquisti DESC
+LIMIT 1;
+\end{verbatim}
+
+\subsection*{22) Calcolo fatturato mensile per servizio}
+L'operazione somma i ricavi mensili per ciascun servizio.
+
+\begin{verbatim}
+-- Query ancora da definire
+\end{verbatim}
+
+\subsection*{23) Analisi servizi più inclusi nei pacchetti}
+Quest'operazione conta il numero di volte che ciascun servizio compare nei pacchetti.
+\begin{verbatim}
+SELECT s.ID_servizio, COUNT(*) AS frequenza
+FROM COMPOSTO_DA c
+JOIN SERVIZIO s ON c.ID_servizio = s.ID_servizio
+GROUP BY s.ID_servizio
+ORDER BY frequenza DESC;
+\end{verbatim}
+
+
 \chapter{Progettazione dell'applicazione}
+
 
 
 \end{document}
