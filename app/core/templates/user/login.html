@@ -1,0 +1,36 @@
+{% extends "core/auth/base.html" %}
+
+{% block title %}Sign in{% endblock %}
+{% block heading %}Welcome back{% endblock %}
+{% block subheading %}{% endblock %}
+
+{% block form_fields %}
+<div class="mb-3">
+    <label for="{{ form.username.id_for_label }}" class="form-label small">Username</label>
+    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
+        class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+        value="{{ form.username.value|default:'' }}" autocomplete="username" autofocus />
+    {% if form.username.errors %}
+    <div class="invalid-feedback small">
+        {{ form.username.errors|join:" " }}
+    </div>
+    {% endif %}
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.password.id_for_label }}" class="form-label small">Password</label>
+    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+        class="form-control {% if form.password.errors %}is-invalid{% endif %}" autocomplete="current-password" />
+    {% if form.password.errors %}
+    <div class="invalid-feedback small">
+        {{ form.password.errors|join:" " }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block submit_label %}Sign in{% endblock %}
+
+{% block extra_links %}
+<a href="{% url 'register' %}" class="text-decoration-none">Register</a>
+{% endblock %}
