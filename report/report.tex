@@ -1173,111 +1173,128 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 \end{enumerate}
 
 \section{Analisi delle ridondanze}
-In questa sezione vengono analizzate le rindondaze individuate nello schema concettuale valutandone l'impatto sul
-costo delle operazioni e decidendo se mantenerle o meno.
 
+Nel modello ER definitivo sono state individuate quattro ridondanze:
 \begin{itemize}
-	\item \textbf{prezzo unitario} in DETTAGLIO ORDINE
-	\item \textbf{prezzo} in DETTAGLIO ORDINE
-	\item \textbf{quantità} in DETTAGLI ORDINE
-	\item \textbf{tipo servizio} in RECENSIONE
-	\item \textbf{status} in SERVIZIO
+    \item \texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}
+    \item \texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}
+    \item \texttt{tipo\_servizio} in \texttt{RECENSIONE}
+    \item \texttt{status} in \texttt{SERVIZIO}
+\end{itemize}  
+
+\subsection{Analisi attributo \texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}}
+L’attributo \texttt{prezzo\_unitario} è ridondante perché il prezzo è già presente in \texttt{PRODOTTO}.
+Mantendo la \textbf{ridondanza} il prezzo verrebbe letto direttamente dalla riga di \texttt{DETTAGLIO\_ORDINE}.
+\textbf{Senza ridondanza} ad ogni dettaglio d’ordine occorrerebbe un join con \texttt{PRODOTTO}, raddoppiando i costi di accesso.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+11 & Creazione ordine (sett.) & 300 & 600 \\
+16 & Report settimanali (sett.) & 30 & 60 \\
+22 & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425 & 12\,850 \\
+\hline
+\textbf{Totale} & & \textbf{6\,755} & \textbf{13\,510} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{prezzo\_unitario}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, decidiamo di mantenere l’attributo con la ridondanza perché dimezza i costi e preserva i prezzi storici degli ordini.
+
+\subsection{Analisi attributo \texttt{quantità} in \texttt{DETTAGLIO\_ORDINE}}
+La quantità è ridondante perché si potrebbero inserire $q$ tuple identiche.  
+Mantenendo \textbf{la ridondanza}, si salverebbe un solo record con il campo \texttt{quantita}, 
+\textbf{Senza ridondanza} occorrerebbe invece replicare ogni voce d’ordine $q$ volte, aumentando linearmente i costi con $\bar{q}$.
+
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+11 & Creazione ordine (sett.) & 300 & $300 \times \bar{q}$ \\
+16 & Report settimanali (sett.) & 30 & $30 \times \bar{q}$ \\
+22 & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425 & $6\,425 \times \bar{q}$ \\
+\hline
+\textbf{Totale} & & \textbf{6\,755} & $\gg 6\,755$ \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{quantita}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, conviene mantenere la ridondanza perché riduce drasticamente il volume dei dati.
+
+\subsection{Analisi attributo \texttt{tipo\_servizio} in \texttt{RECENSIONE}}
+Il tipo del servizio è già recuperabile da \texttt{SERVIZIO}.  
+Mediante la \textbf{ridondanza} la query sulle recensioni accede direttamente all’attributo.
+\textbf{Senza ridondanza} servirebbe un join tra \texttt{RECENSIONE} e \texttt{SERVIZIO}, raddoppiando i costi.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+7 & Inserimento recensione (sett.) & 160 & 320 \\
+20 & Analisi fasce orarie (sett.) & 8\,045 & 16\,090 \\
+23 & Analisi pacchetti (sett.) & 640 & 1\,280 \\
+\hline
+\textbf{Totale} & & \textbf{8\,845} & \textbf{17\,690} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{tipo\_servizio}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, decidiamo di mantenere la ridondanza perché evita join costosi nelle query statistiche.
+
+\subsection{Analisi attributo \texttt{status} in \texttt{SERVIZIO}}
+La disponibilità di un servizio può essere calcolata dalle prenotazioni.  
+Con la \textbf{ridondanza} si legge direttamente l’attributo \texttt{status} in \texttt{SERVIZIO}.
+Invece, \textbf{senza ridondanza} occorre cercare nelle prenotazioni attive di \texttt{DETTAGLIO\_PRENOTAZIONE}, con più join e accessi.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|c|c|}
+\hline
+\rowcolor{gray!20}
+\textbf{Op.} & \textbf{Descrizione} & \textbf{Con rid.} & \textbf{Senza rid.} \\
+\hline
+3 & Prenotazione servizio (sett.) & 1\,125 & 2\,250 \\
+13 & Check-in / Check-out (sett.) & 350 & 700 \\
+14 & Aggiornamento stato (sett.) & 90 & 180 \\
+15 & Controllo disponibilità (sett.) & 1\,650 & 3\,300 \\
+\hline
+\textbf{Totale} & & \textbf{3\,215} & \textbf{6\,430} \\
+\hline
+\end{tabular}
+\caption{Analisi ridondanza \texttt{status}}
+\end{table}
+
+\noindent
+A fronte di questa analisi, ci conviene mantenere la ridondanza perché dimezza i costi delle operazioni più frequenti del sistema.
+
+\subsection*{Riepilogo analisi delle ridondanze}
+Tutte le ridondanze vengono mantenute poiché:
+\begin{itemize}
+    \item \texttt{prezzo\_unitario} e \texttt{quantita} assicurano efficienza e storicità degli ordini.
+    \item \texttt{tipo\_servizio} evita join costosi sulle recensioni.
+    \item \texttt{status} riduce drasticamente i costi delle prenotazioni e dei controlli disponibilità.
 \end{itemize}
-
-\subsection{Analisi attributo prezzo unitario in DETTAGLI ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                          & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Visualizzazione dettagli di un ordine        & 500                     & 1000                      \\
-		Riepilogo storico ordini con prezzi corretti & 1000                    & 2000                      \\
-		\hline
-		\textbf{Totale}                              & 1500                    & 3000                      \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{prezzo\_unitario} in DETTAGLI\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo prezzo\_unitario.
-
-\subsection{Analisi attributo prezzo in DETTAGLIO ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}             & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Calcolo totale di un ordine     & 1                       & 2                         \\
-		Statistiche incassi settimanali & 100                     & 200                       \\
-		\hline
-		\textbf{Totale}                 & 101                     & 202                       \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{prezzo} in DETTAGLIO\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo prezzo.
-
-\subsection{Analisi attributo quantià in DETTAGLI ORDINE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                  & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Inserimento prodotto in un ordine    & 1                       & n (una tupla per unità)   \\
-		Visualizzazione ordine multiprodotto & 1                       & n                         \\
-		\hline
-		\textbf{Totale}                      & 2                       & 2n                        \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{quantità} in DETTAGLIO\_ORDINE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo quantità.
-
-\subsection{Analisi attributo tipo servizio in RECENSIONE}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                 & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Media voti per tipologia            & 200                     & 400                       \\
-		Statistiche recensioni per servizio & 300                     & 600                       \\
-		\hline
-		\textbf{Totale}                     & 500                     & 1000                      \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{tipo\_servizio} in RECENSIONE}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo tipo\_servizio.
-
-\subsection{Analisi attributo status in SERVIZIO}
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{|l|c|c|}
-		\hline
-		\textbf{Operazione}                     & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
-		\hline
-		Visualizzazione disponibilità servizi   & 50                      & 100                       \\
-		Controllo stato in fase di prenotazione & 100                     & 200                       \\
-		\hline
-		\textbf{Totale}                         & 150                     & 300                       \\
-		\hline
-	\end{tabular}
-	\caption{Analisi attributo \texttt{status} in SERVIZIO}
-\end{table}
-
-A fronte di questa analisi decidiamo di mantere l'attributo status.
 
 \newpage
 \section{Riepilogo operazioni}
