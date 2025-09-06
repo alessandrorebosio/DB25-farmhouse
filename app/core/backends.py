@@ -80,7 +80,8 @@ class UserBackend(BaseBackend):
             try:
                 d = StaffModel.objects.get(username=username)
                 user.is_staff = True
-                user.is_superuser = getattr(d, "ruolo", "").lower() == "admin"
+                user.is_superuser = True
+                # user.is_superuser = getattr(d, "ruolo", "").lower() == "admin"
             except StaffModel.DoesNotExist:
                 user.is_staff = False
                 user.is_superuser = False

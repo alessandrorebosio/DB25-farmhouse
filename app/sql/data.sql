@@ -11,12 +11,12 @@ INSERT INTO PERSONA (CF, nome, cognome, telefono, citta) VALUES
 ('MSTLNZ99F06J234V','Paolo','Mast','3336667777','Roma');
 
 INSERT INTO UTENTE (username, CF, password, email) VALUES
-('mrossi','RSSMRA80A01H501U','$2y$xx','mario@example.com'),
-('lbianchi','BNCLRD85B02F205X','$2y$xx','luca@example.com'),
-('averdi','VRDLNZ90C03G345Y','$2y$xx','anna@example.com'),
-('sneri','NTRSFR92D04H678Z','$2y$xx','sara@example.com'),
-('mtapi','TPLROR75E05I901W','$2y$xx','marco@example.com'),
-('pmast','MSTLNZ99F06J234V','$2y$xx','paolo@example.com');
+('mrossi','RSSMRA80A01H501U','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','mario@example.com'),
+('lbianchi','BNCLRD85B02F205X','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','luca@example.com'),
+('averdi','VRDLNZ90C03G345Y','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','anna@example.com'),
+('sneri','NTRSFR92D04H678Z','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','sara@example.com'),
+('mtapi','TPLROR75E05I901W','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','marco@example.com'),
+('pmast','MSTLNZ99F06J234V','pbkdf2_sha256$1000000$YBihCaRMRFKsgmUJPnaR70$+ZQ29axYaZe0aJ7usxHfqltidP79FMcIH0+T2NiOmYQ=','paolo@example.com');
 
 -- 2) DIPENDENTE e ruoli storici
 INSERT INTO DIPENDENTE (username, data_assunzione, data_licenziamento) VALUES

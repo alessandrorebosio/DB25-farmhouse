@@ -140,7 +140,7 @@ class StaffAdmin(admin.ModelAdmin):
     """
 
     form = StaffForm
-    list_display = ("username", "ruolo", "data_assunzione", "data_licenziamento")
+    list_display = ("username", "data_assunzione", "data_licenziamento")
     search_fields = ("username",)
 
     def get_fields(self, request, obj=None):

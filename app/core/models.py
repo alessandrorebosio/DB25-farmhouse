@@ -81,7 +81,6 @@ class StaffModel(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
-    ruolo = models.CharField(max_length=50)
     data_assunzione = models.DateField()
     data_licenziamento = models.DateField(null=True)
 
