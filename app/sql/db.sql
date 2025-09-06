@@ -309,6 +309,17 @@ BEGIN
     END IF;
 END$$
 
+-- Trigger: che incrementa il numero di posti rimasti dell'evento in base al numero di partecipanti che hanno cancellato l'iscrizione
+CREATE TRIGGER trg_iscrive_delete
+AFTER DELETE ON ISCRIVE
+FOR EACH ROW
+BEGIN
+  UPDATE EVENTO
+  SET posti = posti + OLD.partecipanti
+  WHERE ID_evento = OLD.ID_evento;
+END;
+
+
 -- Trigger: che si assicura che un utente abbia usufruito del servizio che vuole recensire
 CREATE TRIGGER trg_recensione_valida
 BEFORE INSERT ON RECENSIONE

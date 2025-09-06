@@ -213,3 +213,21 @@ def iscrizione_evento(request, evento_id):
         return redirect("eventi-list")
 
     return redirect("eventi-list")
+  
+@login_required
+def cancella_iscrizione(request, evento_id):
+    """
+    Cancella l'iscrizione dell'utente loggato a un evento.
+    Il trigger nel DB gestisce l'incremento dei posti.
+    """
+    if request.method == "POST":
+        utente_db = get_object_or_404(UserModel, username=request.user.username)
+
+        iscrizione = EnrollModel.objects.filter(
+            ID_evento_id=evento_id, username=utente_db
+        ).first()
+
+        if iscrizione:
+            iscrizione.delete()  
+
+    return redirect("profile")

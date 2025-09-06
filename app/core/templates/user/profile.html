@@ -69,6 +69,14 @@
                                         {{ iscrizione.ID_evento.data_evento|date:"d/m/Y" }}
                                     </td>
                                     <td class="text-center">{{ iscrizione.partecipanti }}</td>
+                                    <td class="text-center">
+                                        <form method="post" action="{% url 'cancella-iscrizione' iscrizione.ID_evento.ID_evento %}">
+                                        {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                            Cancella
+                                            </button>
+                                        </form>
+                                    </td>    
                                 </tr>
                                 {% endfor %}
                             </tbody>
