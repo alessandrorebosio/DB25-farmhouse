@@ -7,7 +7,7 @@
 -- Database Section
 -- ________________ 
 
-DROP DATABASE DB;
+DROP DATABASE IF EXISTS DB;
 CREATE DATABASE DB;
 USE DB;
 
@@ -192,7 +192,7 @@ CREATE TABLE DETTAGLI_ORDINE (
 
 CREATE TABLE EVENTO (
     ID_evento INT AUTO_INCREMENT NOT NULL,
-    posti INT NOT NULL CHECK (max_partecipanti >= 0),
+    posti INT NOT NULL CHECK (posti >= 0),
     titolo VARCHAR(100) NOT NULL,
     descrizione TEXT NOT NULL,
     data_evento DATE NOT NULL,
@@ -298,13 +298,13 @@ BEGIN
     WHERE ID_evento = NEW.ID_evento;
 
     -- Se non ci sono abbastanza posti, blocco l'iscrizione
-    IF posti < NEW.partecipanti THEN
+    IF posti_disponibili < NEW.partecipanti THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Posti insufficienti per questo evento';
     ELSE
         -- Decremento i posti disponibili
         UPDATE EVENTO
-        SET posti = posti - NEW.partecipanti
+        SET posti = posti_disponibili - NEW.partecipanti
         WHERE ID_evento = NEW.ID_evento;
     END IF;
 END$$
@@ -346,6 +346,7 @@ DELIMITER ;
 
 -- Event Section
 -- _______________
+DELIMITER $$
 
 CREATE EVENT IF NOT EXISTS evt_aggiorna_stato_servizi
 ON SCHEDULE EVERY 1 HOUR
@@ -374,3 +375,66 @@ BEGIN
             AND DP.data_fine > NOW()
       );
 END$$
+
+DELIMITER $$
+
+
+CREATE EVENT IF NOT EXISTS evt_aggiorna_stato_servizi
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- 1. Servizi che devono essere OCCUPATI perché la prenotazione è attiva
+    UPDATE SERVIZIO S
+    SET S.status = 'OCCUPATO'
+    WHERE EXISTS (
+        SELECT 1
+        FROM DETTAGLI_PRENOTAZIONE DP
+        WHERE DP.ID_servizio = S.ID_servizio
+          AND DP.data_inizio <= NOW()
+          AND DP.data_fine > NOW()
+    );
+
+    -- 2. Servizi che devono tornare DISPONIBILI perché la prenotazione è finita
+    UPDATE SERVIZIO S
+    SET S.status = 'DISPONIBILE'
+    WHERE S.status = 'OCCUPATO'
+      AND NOT EXISTS (
+          SELECT 1
+          FROM DETTAGLI_PRENOTAZIONE DP
+          WHERE DP.ID_servizio = S.ID_servizio
+            AND DP.data_fine > NOW()
+      );
+END$$
+
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS evt_aggiorna_stato_servizi
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- 1. Servizi che devono essere OCCUPATI perché la prenotazione è attiva
+    UPDATE SERVIZIO S
+    SET S.status = 'OCCUPATO'
+    WHERE EXISTS (
+        SELECT 1
+        FROM DETTAGLI_PRENOTAZIONE DP
+        WHERE DP.ID_servizio = S.ID_servizio
+          AND DP.data_inizio <= NOW()
+          AND DP.data_fine > NOW()
+    );
+
+    -- 2. Servizi che devono tornare DISPONIBILI perché la prenotazione è finita
+    UPDATE SERVIZIO S
+    SET S.status = 'DISPONIBILE'
+    WHERE S.status = 'OCCUPATO'
+      AND NOT EXISTS (
+          SELECT 1
+          FROM DETTAGLI_PRENOTAZIONE DP
+          WHERE DP.ID_servizio = S.ID_servizio
+            AND DP.data_fine > NOW()
+      );
+END$$
+
+DELIMITER ;
