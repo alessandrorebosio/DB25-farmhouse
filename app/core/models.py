@@ -88,3 +88,69 @@ class StaffModel(models.Model):
         db_table = "DIPENDENTE"
         managed = False
         verbose_name = verbose_name_plural = "Staff"
+
+class EventModel(models.Model):
+    """
+    Represents the EVENTO table.
+
+    Fields:
+    - ID_evento: primary key (assumed INT AUTO_INCREMENT in DB).
+    - posti: number of available seats for the event.
+    - titolo: title of the event.
+    - descrizione: description of the event.
+    - data_evento: date of the event.
+    - username: foreign key to UTENTE.username (the organizer).
+    """
+
+    ID_evento = models.AutoField(primary_key=True)
+    posti = models.IntegerField()
+    titolo = models.CharField(max_length=200)
+    descrizione = models.TextField()
+    data_evento = models.DateField()
+    username = models.ForeignKey(
+        UserModel,
+        db_column="username",
+        to_field="username",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        db_table = "EVENTO"
+        managed = False
+        verbose_name = "Event"
+        verbose_name_plural = "Events"
+
+
+class EnrollModel(models.Model):
+    """
+    Represents the ISCRIVE table (associative entity between UTENTE and EVENTO).
+
+    Fields:
+    - ID_evento: foreign key to EVENTO.ID_evento.
+    - username: foreign key to UTENTE.username.
+    - partecipanti: number of participants that the user registers.
+    Notes:
+    - This table likely has a composite primary key (ID_evento + username).
+      In Django, define one as PK and set `unique_together` in Meta to enforce both.
+    """
+
+    ID_evento = models.ForeignKey(
+        EventModel,
+        db_column="ID_evento",
+        to_field="ID_evento",
+        on_delete=models.CASCADE,
+    )
+    username = models.ForeignKey(
+        UserModel,
+        db_column="username",
+        to_field="username",
+        on_delete=models.CASCADE,
+    )
+    partecipanti = models.IntegerField()
+
+    class Meta:
+        db_table = "ISCRIVE"
+        managed = False
+        unique_together = (("ID_evento", "username"),)
+        verbose_name = "Subscription"
+        verbose_name_plural = "Subscriptions"
