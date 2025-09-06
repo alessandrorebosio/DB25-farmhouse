@@ -23,5 +23,48 @@
             prenotazioni e recensioni, e gestire offerte e turni.
         </p>
     </section>
+
+    <!-- Services Section -->
+    <section class="services mt-5">
+        <h2 class="text-center mb-4">I Nostri Servizi</h2>
+        <div class="row">
+            {% for servizio in servizi_disponibili %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <!-- Service icon based on type -->
+                        {% if servizio.tipo_servizio == 'CAMERA' %}
+                            <i class="fas fa-bed fa-3x mb-3 text-primary"></i>
+                        {% elif servizio.tipo_servizio == 'PISCINA' %}
+                            <i class="fas fa-swimming-pool fa-3x mb-3 text-primary"></i>
+                        {% elif servizio.tipo_servizio == 'CAMPO_DA_GIOCO' %}
+                            <i class="fas fa-futbol fa-3x mb-3 text-primary"></i>
+                        {% elif servizio.tipo_servizio == 'ATTIVITA_CON_ANIMALI' %}
+                            <i class="fas fa-paw fa-3x mb-3 text-primary"></i>
+                        {% elif servizio.tipo_servizio == 'RISTORANTE' %}
+                            <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                        {% endif %}
+                        
+                        <h5 class="card-title">{{ servizio.get_tipo_servizio_display }}</h5>
+                        <p class="card-text">
+                            {% if servizio.prezzo > 0 %}
+                                Prezzo: €{{ servizio.prezzo }}
+                            {% else %}
+                                Servizio Gratuito
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'book_service' servizio.ID_servizio %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-calendar-plus"></i> Prenota Ora
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center">Nessun servizio disponibile al momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
 </main>
 {% endblock %}

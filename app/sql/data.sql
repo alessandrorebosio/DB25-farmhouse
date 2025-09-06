@@ -44,20 +44,26 @@ INSERT INTO svolge (username, ID_turno, data_inizio) VALUES
 
 -- 4) SERVIZI e sottotabelle
 INSERT INTO SERVIZIO (prezzo, tipo_servizio) VALUES
-(0.00,'CAMERA'),
+(80.00,'CAMERA'),    -- Camera base 2 persone: €80
+(120.00,'CAMERA'),   -- Camera suite 2 persone: €120  
+(100.00,'CAMERA'),   -- Camera 4 persone: €100
 (15.00,'PISCINA'),
 (5.00,'ATTIVITA_CON_ANIMALI'),
 (0.00,'CAMPO_DA_GIOCO'),
 (0.00,'RISTORANTE');
 
-SET @s1 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='CAMERA' LIMIT 1);
+SET @s1 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='CAMERA' AND prezzo=80.00 LIMIT 1);
+SET @s1_suite = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='CAMERA' AND prezzo=120.00 LIMIT 1);
+SET @s1_family = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='CAMERA' AND prezzo=100.00 LIMIT 1);
 SET @s2 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='PISCINA' LIMIT 1);
 SET @s3 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='ATTIVITA_CON_ANIMALI' LIMIT 1);
 SET @s4 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='CAMPO_DA_GIOCO' LIMIT 1);
 SET @s5 = (SELECT ID_servizio FROM SERVIZIO WHERE tipo_servizio='RISTORANTE' LIMIT 1);
 
 INSERT INTO CAMERA (ID_servizio, cod_camera, max_capienza) VALUES
-(@s1,'C01',2);
+(@s1,'C01',2),        -- Camera base €80 per 2 persone
+(@s1_suite,'C02',2),  -- Camera suite €120 per 2 persone  
+(@s1_family,'C03',4); -- Camera famiglia €100 per 4 persone
 
 INSERT INTO PISCINA (ID_servizio, cod_lettino) VALUES
 (@s2,'L1');

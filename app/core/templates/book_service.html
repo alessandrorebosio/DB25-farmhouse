@@ -1,0 +1,83 @@
+{% extends "core/base.html" %}
+{% block title %}Prenota {{ service.get_tipo_servizio_display }} - Agriturismo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Prenota {{ service.get_tipo_servizio_display }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Selezione istanza specifica (se applicabile) -->
+                        {% if ha_istanze %}
+                        <div class="mb-4">
+                            <h5>Seleziona {{ service.get_tipo_servizio_display }}:</h5>
+                            {% for istanza in istanze_disponibili %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" 
+                                       name="istanza_selezionata" 
+                                       value="{{ istanza.ID_servizio.ID_servizio }}" 
+                                       id="istanza_{{ istanza.ID_servizio.ID_servizio }}"
+                                       {% if forloop.first %}checked{% endif %}>
+                                <label class="form-check-label" for="istanza_{{ istanza.ID_servizio.ID_servizio }}">
+                                    {% if service.tipo_servizio == 'CAMERA' %}
+                                        <strong>Camera {{ istanza.cod_camera }}</strong> - Capienza: {{ istanza.max_capienza }} persone
+                                    {% elif service.tipo_servizio == 'RISTORANTE' %}
+                                        <strong>Tavolo {{ istanza.cod_tavolo }}</strong> - Capienza: {{ istanza.max_capienza }} persone
+                                    {% elif service.tipo_servizio == 'PISCINA' %}
+                                        <strong>Lettino {{ istanza.cod_lettino }}</strong> - Piscina
+                                    {% elif service.tipo_servizio == 'CAMPO_DA_GIOCO' %}
+                                        <strong>Campo {{ istanza.cod_campo }}</strong> - Capienza: {{ istanza.max_capienza }} giocatori
+                                    {% elif service.tipo_servizio == 'ATTIVITA_CON_ANIMALI' %}
+                                        <strong>{{ istanza.cod_attivita }}</strong> - {{ istanza.descrizione }}
+                                    {% else %}
+                                        <strong>{{ istanza }}</strong>
+                                    {% endif %}
+                                    {% if istanza.ID_servizio.prezzo > 0 %} 
+                                        - <span class="text-success fw-bold">€{{ istanza.ID_servizio.prezzo }}</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <!-- Per servizi senza istanze (es. Attività con Animali) -->
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <strong>{{ service.get_tipo_servizio_display }}</strong>
+                                {% if service.prezzo > 0 %} - €{{ service.prezzo }}{% else %} - Gratuito{% endif %}
+                            </div>
+                            <input type="hidden" name="istanza_selezionata" value="{{ service.ID_servizio }}">
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Date selection -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="data_inizio" class="form-label">Data Inizio</label>
+                                    <input type="date" class="form-control" name="data_inizio" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="data_fine" class="form-label">Data Fine</label>
+                                    <input type="date" class="form-control" name="data_fine" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">Conferma Prenotazione</button>
+                        <a href="{% url 'homepage' %}" class="btn btn-secondary">Annulla</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

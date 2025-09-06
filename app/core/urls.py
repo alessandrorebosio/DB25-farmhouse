@@ -32,9 +32,12 @@ urlpatterns = [
 	# - should be called with POST (AJAX or normal). For AJAX returns JSON {success: True}
 	path("logout/", views.logout_view, name="logout"),
  
+    # Events endpoints:
     path("eventi/", views.eventi_list, name="eventi-list"),
-    
     path("eventi/<int:evento_id>/iscriviti/", views.iscrizione_evento, name="iscrizione-evento"),
-
     path("eventi/<int:evento_id>/cancella/", views.cancella_iscrizione, name="cancella-iscrizione"),
+    
+    # Booking endpoint:
+    # - GET/POST: handle service booking with service ID parameter
+    path("book/<int:service_id>/", views.book_service, name="book_service"),
 ]
