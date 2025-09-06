@@ -88,3 +88,131 @@ class StaffModel(models.Model):
         db_table = "DIPENDENTE"
         managed = False
         verbose_name = verbose_name_plural = "Staff"
+
+
+# Service Models
+class ServizioModel(models.Model):
+    """
+    Represents the SERVIZIO table.
+    
+    Fields:
+    - ID_servizio: service ID, primary key (auto-increment)
+    - prezzo: service price (decimal with 2 decimal places)
+    - tipo_servizio: service type (CAMERA, PISCINA, etc.)
+    - status: service availability status (DISPONIBILE, OCCUPATO, MANUTENZIONE)
+    """
+    
+    TIPO_CHOICES = [
+        ('CAMERA', 'Camera'),
+        ('PISCINA', 'Piscina'),
+        ('RISTORANTE', 'Ristorante'),
+        ('CAMPO_DA_GIOCO', 'Campo da Gioco'),
+        ('ATTIVITA_CON_ANIMALI', 'Attività con Animali'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('DISPONIBILE', 'Disponibile'),
+        ('OCCUPATO', 'Occupato'),
+        ('MANUTENZIONE', 'Manutenzione'),
+    ]
+    
+    ID_servizio = models.AutoField(primary_key=True)
+    prezzo = models.DecimalField(max_digits=10, decimal_places=2)
+    tipo_servizio = models.CharField(max_length=50, choices=TIPO_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DISPONIBILE')
+    
+    class Meta:
+        db_table = 'SERVIZIO'
+        managed = False
+        
+    def get_tipo_servizio_display(self):
+        """Returns human-readable service type"""
+        return dict(self.TIPO_CHOICES).get(self.tipo_servizio, self.tipo_servizio)
+
+
+class CameraModel(models.Model):
+    """
+    Represents the CAMERA table.
+    
+    Fields:
+    - ID_servizio: foreign key to SERVIZIO table, primary key
+    - cod_camera: room code (e.g., 'C01', 'C02')
+    - max_capienza: maximum room capacity (number of guests)
+    """
+    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    cod_camera = models.CharField(max_length=10)
+    max_capienza = models.IntegerField()
+    
+    class Meta:
+        db_table = 'CAMERA'
+        managed = False
+
+
+class RistoranteModel(models.Model):
+    """
+    Represents the RISTORANTE table.
+    
+    Fields:
+    - ID_servizio: foreign key to SERVIZIO table, primary key
+    - cod_tavolo: table code (e.g., 'T1', 'T2')
+    - max_capienza: maximum table capacity (number of seats)
+    """
+    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    cod_tavolo = models.CharField(max_length=10)
+    max_capienza = models.IntegerField()
+    
+    class Meta:
+        db_table = 'RISTORANTE'
+        managed = False
+
+
+class PiscinaModel(models.Model):
+    """
+    Represents the PISCINA table.
+    
+    Fields:
+    - ID_servizio: foreign key to SERVIZIO table, primary key
+    - cod_lettino: pool chair code (e.g., 'L1', 'L2')
+    """
+    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    cod_lettino = models.CharField(max_length=10)
+    
+    class Meta:
+        db_table = 'PISCINA'
+        managed = False
+
+
+class CampoDaGiocoModel(models.Model):
+    """
+    Represents the CAMPO_DA_GIOCO table.
+    
+    Fields:
+    - ID_servizio: foreign key to SERVIZIO table, primary key
+    - cod_campo: field code (e.g., 'F1', 'F2')
+    - max_capienza: maximum field capacity (number of players)
+    """
+    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    cod_campo = models.CharField(max_length=10)
+    max_capienza = models.IntegerField()
+    
+    class Meta:
+        db_table = 'CAMPO_DA_GIOCO'
+        managed = False
+
+
+class AttivitaConAnimaliModel(models.Model):
+    """
+    Represents the ATTIVITA_CON_ANIMALI table.
+    
+    Fields:
+    - ID_servizio: foreign key to SERVIZIO table, primary key
+    - cod_attivita: activity code (e.g., 'A01', 'A02')
+    - descrizione: activity description
+    """
+    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    cod_attivita = models.CharField(max_length=10)
+    descrizione = models.TextField()
+    
+    class Meta:
+        db_table = 'ATTIVITA_CON_ANIMALI'
+        managed = False
