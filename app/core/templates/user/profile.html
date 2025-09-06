@@ -46,14 +46,44 @@
                     </div>
                 </div>
             </div>
-            {% else %}
-            <div class="alert alert-info">
-                You are not signed in. <a href="{% url 'login' %}">Sign in</a> or <a
-                    href="{% url 'register' %}">register</a>.
+
+            {% if iscrizioni %}
+            <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h6 class="mb-0">Le tue iscrizioni agli eventi</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-start">Titolo</th>
+                                    <th class="text-start">Data evento</th>
+                                    <th class="text-center">Partecipanti</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for iscrizione in iscrizioni %}
+                                <tr>
+                                    <td class="text-start">{{ iscrizione.ID_evento.titolo }}</td>
+                                    <td class="text-start">
+                                        {{ iscrizione.ID_evento.data_evento|date:"d/m/Y" }}
+                                    </td>
+                                    <td class="text-center">{{ iscrizione.partecipanti }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="alert alert-info">
+                    You are not signed in. <a href="{% url 'login' %}">Sign in</a> or
+                    <a href="{% url 'register' %}">register</a>.
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
-    </div>
     </div>
 </main>
 {% endblock %}

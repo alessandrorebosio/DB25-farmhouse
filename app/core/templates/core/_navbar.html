@@ -11,6 +11,9 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
             </ul>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{% url 'eventi-list' %}">Eventi</a></li>
+            </ul>
 
             <div class="d-flex align-items-center">
                 {% if user.is_authenticated %}

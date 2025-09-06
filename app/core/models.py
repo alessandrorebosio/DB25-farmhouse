@@ -139,6 +139,7 @@ class EnrollModel(models.Model):
         db_column="ID_evento",
         to_field="ID_evento",
         on_delete=models.CASCADE,
+        primary_key=True,  # impostiamo questo come PK
     )
     username = models.ForeignKey(
         UserModel,

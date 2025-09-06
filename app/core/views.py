@@ -20,8 +20,9 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
-from .models import PersonModel, UserModel
+from .models import PersonModel, UserModel, EventModel, EnrollModel
 from .forms import RegisterForm
 
 
@@ -129,11 +130,25 @@ def profile_view(request: HttpRequest) -> HttpResponse:
       - Protected with @login_required so only authenticated users can access it.
     """
     person = None
+    iscrizioni = []
     debug = {"request_user": request.user.username}
 
     try:
         ut = UserModel.objects.select_related("CF").get(username=request.user.username)
         person = getattr(ut, "CF", None)
+        
+        # recupero le iscrizioni solo ad eventi futuri
+        iscrizioni = (
+            EnrollModel.objects.filter(
+                username=ut,
+                ID_evento__data_evento__gte=timezone.now(),  # 👈 filtro eventi futuri
+            )
+            .select_related("ID_evento")
+            .order_by("ID_evento__data_evento")
+        )
+        
+        debug["iscrizioni_count"] = iscrizioni.count()
+        
         debug["user_CF_obj"] = (
             None
             if person is None
@@ -146,7 +161,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     except UserModel.DoesNotExist:
         debug["error"] = "UserModel.DoesNotExist"
 
-    return render(request, "user/profile.html", {"person": person, "debug": debug})
+    return render(request, "user/profile.html", {"person": person,"iscrizioni":iscrizioni, "debug": debug})
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
@@ -165,3 +180,36 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
+
+
+def eventi_list(request):
+    """
+    Shows all future events (data_evento >= today).
+    If the user is authenticated, allows subscription.
+    """
+    eventi = EventModel.objects.filter(data_evento__gte=timezone.now().date()).order_by("data_evento")
+    return render(request, "core/events/eventi.html", {"eventi": eventi})
+
+@login_required
+def iscrizione_evento(request, evento_id):
+    evento = get_object_or_404(EventModel, pk=evento_id)
+
+    if request.method == "POST":
+        partecipanti = int(request.POST.get("partecipanti", 1))
+
+        utente_db = get_object_or_404(UserModel, username=request.user.username)
+
+        iscrizione = EnrollModel.objects.filter(ID_evento=evento, username=utente_db).first()
+        if iscrizione:
+            iscrizione.partecipanti += partecipanti
+            iscrizione.save()
+        else:
+            EnrollModel.objects.create(
+                ID_evento=evento,
+                username=utente_db,
+                partecipanti=partecipanti,
+            )
+
+        return redirect("eventi-list")
+
+    return redirect("eventi-list")

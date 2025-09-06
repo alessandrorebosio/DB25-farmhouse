@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<h1>Eventi Futuri</h1>
+
+{% if eventi %}
+  <ul>
+    {% for evento in eventi %}
+      <li class="mb-4 border p-3 rounded">
+        <h3>{{ evento.titolo }}</h3>
+        <p>{{ evento.descrizione }}</p>
+        <p><strong>Data:</strong> {{ evento.data_evento|date:"d/m/Y" }}</p>
+        <p><strong>Posti disponibili:</strong> {{ evento.posti }}</p>
+
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'iscrizione-evento' evento.ID_evento %}">
+            {% csrf_token %}
+            <label for="partecipanti_{{ evento.ID_evento }}">Numero partecipanti:</label>
+            <input type="number" id="partecipanti_{{ evento.ID_evento }}" name="partecipanti" value="1" min="1" class="form-control w-25 d-inline">
+            <button type="submit" class="btn btn-primary">Iscriviti</button>
+          </form>
+        {% else %}
+          <p><a href="{% url 'login' %}">Accedi</a> per iscriverti</p>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Nessun evento futuro disponibile.</p>
+{% endif %}
+
+{% endblock %}
