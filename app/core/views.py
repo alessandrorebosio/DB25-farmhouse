@@ -21,7 +21,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
-from .models import PersonModel, UserModel
+from .models import PersonModel, UserModel, ServizioModel
 from .forms import RegisterForm
 
 
@@ -33,11 +33,19 @@ def homepage(request: HttpRequest) -> HttpResponse:
     Methods: GET
 
     Template: index.html
-    Context: none
+    Context: 
+    - servizi_disponibili: list of available services
 
     Returns a simple HttpResponse rendering the homepage template.
     """
-    return render(request, "index.html")
+    # Get all available services
+    servizi_disponibili = ServizioModel.objects.filter(status='DISPONIBILE')
+    
+    context = {
+        'servizi_disponibili': servizi_disponibili
+    }
+    
+    return render(request, "index.html", context)
 
 
 def register_view(request: HttpRequest) -> HttpResponse:
