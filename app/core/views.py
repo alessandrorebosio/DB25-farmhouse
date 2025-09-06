@@ -173,3 +173,76 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
+
+
+def book_service(request, service_id):
+    """
+    Handle service booking for specific service ID.
+    
+    URL: /book/<int:service_id>/
+    Methods: GET, POST
+    
+    GET:
+      - Display booking form for the specified service
+      - Show available instances if applicable (cameras, tables, etc.)
+    
+    POST:
+      - Process booking form submission
+      - Create booking record
+      
+    Behavior:
+      - Redirects to login if user is not authenticated
+      - Shows service details and booking form
+    """
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        from django.urls import reverse
+        login_url = reverse('login')
+        book_url = reverse('book_service', args=[service_id])
+        return redirect(f"{login_url}?next={book_url}")
+    
+    # Get the service or return 404
+    from django.shortcuts import get_object_or_404
+    from datetime import datetime
+    
+    service = get_object_or_404(ServizioModel, ID_servizio=service_id)
+    
+    # Determine if this service type has instances
+    ha_istanze = False
+    istanze_disponibili = []
+    
+    if service.tipo_servizio == 'CAMERA':
+        # Get available camera instances
+        from .models import CameraModel
+        istanze_disponibili = CameraModel.objects.filter(
+            ID_servizio=service,
+        )
+        ha_istanze = len(istanze_disponibili) > 0
+    elif service.tipo_servizio == 'RISTORANTE':
+        # Get available restaurant tables
+        from .models import RistoranteModel
+        istanze_disponibili = RistoranteModel.objects.filter(
+            ID_servizio=service,
+        )
+        ha_istanze = len(istanze_disponibili) > 0
+    
+    if request.method == 'POST':
+        # Process booking form
+        data_inizio = request.POST.get('data_inizio')
+        data_fine = request.POST.get('data_fine')
+        istanza_selezionata = request.POST.get('istanza_selezionata')
+        
+        # TODO: Create booking record in database
+        # For now, just show success message
+        from django.contrib import messages
+        messages.success(request, f'Prenotazione per {service.get_tipo_servizio_display()} confermata!')
+        return redirect('homepage')
+    
+    context = {
+        'service': service,
+        'ha_istanze': ha_istanze,
+        'istanze_disponibili': istanze_disponibili,
+        'today': datetime.today(),
+    }
+    
+    return render(request, 'book_service.html', context)

@@ -139,7 +139,12 @@ class CameraModel(models.Model):
     - cod_camera: room code (e.g., 'C01', 'C02')
     - max_capienza: maximum room capacity (number of guests)
     """
-    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    ID_servizio = models.OneToOneField(
+        ServizioModel, 
+        on_delete=models.CASCADE, 
+        primary_key=True,
+        db_column='ID_servizio'
+    )
     cod_camera = models.CharField(max_length=10)
     max_capienza = models.IntegerField()
     
@@ -157,12 +162,18 @@ class RistoranteModel(models.Model):
     - cod_tavolo: table code (e.g., 'T1', 'T2')
     - max_capienza: maximum table capacity (number of seats)
     """
-    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    ID_servizio = models.OneToOneField(
+        ServizioModel, 
+        on_delete=models.CASCADE, 
+        primary_key=True,
+        db_column='ID_servizio'
+    )
     cod_tavolo = models.CharField(max_length=10)
     max_capienza = models.IntegerField()
     
     class Meta:
         db_table = 'RISTORANTE'
+        managed = False
         managed = False
 
 
