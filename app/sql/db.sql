@@ -7,9 +7,9 @@
 -- Database Section
 -- ________________ 
 
-DROP DATABASE IF EXISTS DB;
-CREATE DATABASE DB;
-USE DB;
+DROP DATABASE IF EXISTS farmhouse;
+CREATE DATABASE farmhouse;
+USE farmhouse;
 
 -- Tables Section
 -- _____________ 
@@ -64,7 +64,7 @@ CREATE TABLE TURNO (
 CREATE TABLE svolge (
     username VARCHAR(32) NOT NULL,
     ID_turno INT NOT NULL,
-    data_inizio DATE DEFAULT CURRENT_TIMESTAMP,
+    data_inizio DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT ID_svolge_ID PRIMARY KEY (username, ID_turno,data_inizio),
     CONSTRAINT FKsvo_DIP FOREIGN KEY (username) REFERENCES DIPENDENTE(username),
     CONSTRAINT FKsvo_TUR_FK FOREIGN KEY (ID_turno) REFERENCES TURNO(ID_turno)
@@ -140,7 +140,7 @@ CREATE TABLE composto (
 CREATE TABLE acquista (
     ID_pacchetto INT NOT NULL,
     username VARCHAR(32) NOT NULL,
-    data_acquisto DATE DEFAULT CURRENT_TIMESTAMP,
+    data_acquisto DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT ID_acquista_ID PRIMARY KEY (username, ID_pacchetto),
     CONSTRAINT FKacq_UTE FOREIGN KEY (username) REFERENCES UTENTE(username),
     CONSTRAINT FKacq_PAC_FK FOREIGN KEY (ID_pacchetto) REFERENCES PACCHETTO(ID_pacchetto)
@@ -174,7 +174,7 @@ CREATE TABLE PRODOTTO (
 
 CREATE TABLE ORDINE (
     ID_ordine INT AUTO_INCREMENT NOT NULL,
-    data DATE DEFAULT CURRENT_TIMESTAMP,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
     username VARCHAR(32) NOT NULL,
     CONSTRAINT ID_ORDINE_ID PRIMARY KEY (ID_ordine),
     CONSTRAINT FKesegue_FK FOREIGN KEY (username) REFERENCES UTENTE(username)
