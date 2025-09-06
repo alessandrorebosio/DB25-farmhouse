@@ -258,7 +258,7 @@ vicino a un contesto reale.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 175pt 175pt 0, clip]{./pdf/raffinamento servizi.pdf}
+	\includegraphics[width=\textwidth, trim=0 200pt 290pt 0, clip]{./pdf/raffinamento servizi.pdf}
 	\caption{Schema ER, raffinamento servizi}
 	\label{fig:raffinamento-servizi}
 \end{figure}
@@ -294,7 +294,7 @@ Qui di seguito, è presente lo schema concettuale finale con tutti i raffinament
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 75pt 20pt 0, clip, angle=0]{./pdf/finale.pdf}
+	\includegraphics[width=\textwidth, trim=0 50pt 0 0, clip, angle=0]{./pdf/finale.pdf}
 	\caption{Schema ER, schema concettuale finale}
 	\label{fig:schema-finale}
 \end{figure}
@@ -1489,7 +1489,7 @@ in relazioni relazionali. Di seguito presentiamo lo schema logico.
 \subsection{Schema relazionale (grafico)}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, trim=0 75pt 0 0 , clip]{./pdf/finale logico.pdf}
+	\includegraphics[width=\textwidth, trim=0 25pt 25pt 0 , clip]{./pdf/finale logico.pdf}
 	\caption{Schema logico, schema relazionale finale}
 	\label{fig:schema-logico}
 \end{figure}
@@ -1532,7 +1532,7 @@ Nel file SQL sono stati utilizzati vincoli di tipo \texttt{CHECK} per definire a
 \item \texttt{TURNO}: \texttt{CHECK (ora\_inizio < ora\_fine)} per assicurare orari coerenti.
 \item \texttt{DIPENDENTE\\\_RUOLO\_STORICO}: \texttt{CHECK (data\_inizio <= data\_fine)} per la validit\u00E0 degli intervalli.
 \item \texttt{SERVIZIO} e \texttt{PRODOTTO}: \texttt{CHECK (prezzo >= 0)} per il prezzo non negativo.
-\item Tabelle con attributi di capienza (\texttt{TAVOLO}, \texttt{CAMPO\_DA\_GIOCO}, \texttt{CAMERA}): \texttt{CHECK (max\_capienza >= 1)}.
+\item Tabelle con attributi di capienza (\texttt{TAVOLO}, \texttt{CAMPO\_DA\_GIOCO}, \newline \texttt{CAMERA}): \texttt{CHECK (max\_capienza >= 1)}.
 \item \texttt{DETTAGLI\_PRENOTAZIONE}: \texttt{CHECK (data\_inizio <= data\_fine)}.
 \item \texttt{RECENSIONE}: \texttt{CHECK (voto BETWEEN 1 AND 5)}.
 \item \texttt{DETTAGLI\_ORDINE}: \texttt{CHECK (quantita > 0)} e \texttt{CHECK (prezzo\_unitario >= 0)}.
@@ -1567,7 +1567,7 @@ BEGIN
     END IF;
 END\$\$
 
--- Trigger: impedisce di eliminare l’ultimo servizio da un pacchetto
+-- Trigger: impedisce di eliminare l'ultimo servizio da un pacchetto
 CREATE TRIGGER trg_check_pacchetto_servizi
 BEFORE DELETE ON composto
 FOR EACH ROW
@@ -1633,10 +1633,10 @@ BEGIN
             SET MESSAGE_TEXT = 'Non esiste un dettaglio prenotazione valido per questa recensione.';
     END IF;
     
-    -- Se il servizio non è ancora terminato, blocco la recensione
+    -- Se il servizio non e' ancora terminato, blocco la recensione
     IF fine_servizio >= CURDATE() THEN
         SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'La recensione può essere inserita solo dopo la fine del servizio prenotato.';
+            SET MESSAGE_TEXT = 'La recensione puo' essere inserita solo dopo la fine del servizio prenotato.';
     END IF;
 END\$\$
 
@@ -1987,6 +1987,7 @@ installato e in esecuzione.
 
 \begin{verbatim}
 > mysql -u root -p < app/sql/db.sql
+> mysql -u root -p < app/sql/data.sql
 \end{verbatim}
 
 Verrà richiesta la password dell'utente \texttt{root}. Il comando eseguirà tutte le
