@@ -34,12 +34,28 @@ def homepage(request: HttpRequest) -> HttpResponse:
 
     Template: index.html
     Context: 
-    - servizi_disponibili: list of available services
+    - servizi_disponibili: list of available services (one per type)
 
     Returns a simple HttpResponse rendering the homepage template.
+    Shows only one representative service per type to avoid duplicates.
     """
-    # Get all available services
-    servizi_disponibili = ServizioModel.objects.filter(status='DISPONIBILE')
+    # Get one service per type to avoid showing duplicates
+    # Use distinct() on tipo_servizio to get unique service types
+    servizi_disponibili = []
+    
+    # Get all unique service types that are available
+    tipi_servizi = ServizioModel.objects.filter(
+        status='DISPONIBILE'
+    ).values_list('tipo_servizio', flat=True).distinct()
+    
+    # For each service type, get the first available service as representative
+    for tipo in tipi_servizi:
+        servizio_rappresentativo = ServizioModel.objects.filter(
+            status='DISPONIBILE',
+            tipo_servizio=tipo
+        ).first()
+        if servizio_rappresentativo:
+            servizi_disponibili.append(servizio_rappresentativo)
     
     context = {
         'servizi_disponibili': servizi_disponibili
@@ -212,17 +228,68 @@ def book_service(request, service_id):
     istanze_disponibili = []
     
     if service.tipo_servizio == 'CAMERA':
-        # Get available camera instances
+        # Get ALL available camera instances of this service type
         from .models import CameraModel
+        # Find all services of type CAMERA that are available
+        servizi_camera = ServizioModel.objects.filter(
+            tipo_servizio='CAMERA',
+            status='DISPONIBILE'
+        )
+        # Get camera instances for all these services
         istanze_disponibili = CameraModel.objects.filter(
-            ID_servizio=service,
+            ID_servizio__in=servizi_camera
         )
         ha_istanze = len(istanze_disponibili) > 0
     elif service.tipo_servizio == 'RISTORANTE':
-        # Get available restaurant tables
+        # Get ALL available restaurant table instances of this service type
         from .models import RistoranteModel
+        # Find all services of type RISTORANTE that are available
+        servizi_ristorante = ServizioModel.objects.filter(
+            tipo_servizio='RISTORANTE',
+            status='DISPONIBILE'
+        )
+        # Get restaurant instances for all these services
         istanze_disponibili = RistoranteModel.objects.filter(
-            ID_servizio=service,
+            ID_servizio__in=servizi_ristorante
+        )
+        ha_istanze = len(istanze_disponibili) > 0
+    elif service.tipo_servizio == 'PISCINA':
+        # Get ALL available pool chair instances of this service type
+        from .models import PiscinaModel
+        # Find all services of type PISCINA that are available
+        servizi_piscina = ServizioModel.objects.filter(
+            tipo_servizio='PISCINA',
+            status='DISPONIBILE'
+        )
+        # Get pool instances for all these services
+        istanze_disponibili = PiscinaModel.objects.filter(
+            ID_servizio__in=servizi_piscina
+        )
+        ha_istanze = len(istanze_disponibili) > 0
+    elif service.tipo_servizio == 'CAMPO_DA_GIOCO':
+        # Get ALL available field instances of this service type
+        from .models import CampoDaGiocoModel
+        # Find all services of type CAMPO_DA_GIOCO that are available
+        servizi_campo = ServizioModel.objects.filter(
+            tipo_servizio='CAMPO_DA_GIOCO',
+            status='DISPONIBILE'
+        )
+        # Get field instances for all these services
+        istanze_disponibili = CampoDaGiocoModel.objects.filter(
+            ID_servizio__in=servizi_campo
+        )
+        ha_istanze = len(istanze_disponibili) > 0
+    elif service.tipo_servizio == 'ATTIVITA_CON_ANIMALI':
+        # Get ALL available animal activity instances of this service type
+        from .models import AttivitaConAnimaliModel
+        # Find all services of type ATTIVITA_CON_ANIMALI that are available
+        servizi_animali = ServizioModel.objects.filter(
+            tipo_servizio='ATTIVITA_CON_ANIMALI',
+            status='DISPONIBILE'
+        )
+        # Get animal activity instances for all these services
+        istanze_disponibili = AttivitaConAnimaliModel.objects.filter(
+            ID_servizio__in=servizi_animali
         )
         ha_istanze = len(istanze_disponibili) > 0
     

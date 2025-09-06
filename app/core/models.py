@@ -185,7 +185,12 @@ class PiscinaModel(models.Model):
     - ID_servizio: foreign key to SERVIZIO table, primary key
     - cod_lettino: pool chair code (e.g., 'L1', 'L2')
     """
-    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    ID_servizio = models.OneToOneField(
+        ServizioModel, 
+        on_delete=models.CASCADE, 
+        primary_key=True,
+        db_column='ID_servizio'
+    )
     cod_lettino = models.CharField(max_length=10)
     
     class Meta:
@@ -202,7 +207,12 @@ class CampoDaGiocoModel(models.Model):
     - cod_campo: field code (e.g., 'F1', 'F2')
     - max_capienza: maximum field capacity (number of players)
     """
-    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    ID_servizio = models.OneToOneField(
+        ServizioModel, 
+        on_delete=models.CASCADE, 
+        primary_key=True,
+        db_column='ID_servizio'
+    )
     cod_campo = models.CharField(max_length=10)
     max_capienza = models.IntegerField()
     
@@ -220,7 +230,12 @@ class AttivitaConAnimaliModel(models.Model):
     - cod_attivita: activity code (e.g., 'A01', 'A02')
     - descrizione: activity description
     """
-    ID_servizio = models.OneToOneField(ServizioModel, on_delete=models.CASCADE, primary_key=True)
+    ID_servizio = models.OneToOneField(
+        ServizioModel, 
+        on_delete=models.CASCADE, 
+        primary_key=True,
+        db_column='ID_servizio'
+    )
     cod_attivita = models.CharField(max_length=10)
     descrizione = models.TextField()
     
