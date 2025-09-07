@@ -9,9 +9,18 @@
                 <div class="card-header">
                     <h3>Prenota {{ tipo|title }}</h3>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
+                                <div class="card-body">
+                                        {% if errors %}
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    {% for error in errors %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                        <form method="post">
+                                                {% csrf_token %}
                         <div class="mb-4">
                             <h5>Seleziona {{ tipo|title }}:</h5>
                                 {% for istanza in istanze %}
@@ -41,7 +50,8 @@
                                     <p>Nessuna istanza disponibile.</p>
                                 {% endfor %}
                         </div>
-                        <!-- Date selection -->
+                        <!-- Date and time selection -->
+                        {% if tipo == 'CAMERA' %}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -56,6 +66,28 @@
                                 </div>
                             </div>
                         </div>
+                        {% else %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="data_inizio" class="form-label">Data</label>
+                                    <input type="date" class="form-control" name="data_inizio" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="ora_inizio" class="form-label">Ora Inizio</label>
+                                    <input type="time" class="form-control" name="ora_inizio" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="ora_fine" class="form-label">Ora Fine</label>
+                                    <input type="time" class="form-control" name="ora_fine" required>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         <button type="submit" class="btn btn-success">Conferma Prenotazione</button>
                         <a href="{% url 'homepage' %}" class="btn btn-secondary">Annulla</a>
                     </form>
