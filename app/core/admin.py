@@ -82,13 +82,13 @@ class Service(admin.ModelAdmin):
 
 @admin.register(models.Compound)
 class Compound(admin.ModelAdmin):
-    list_display = ("id", "package", "service")
+    list_display = ("package", "service")
     search_fields = ("id",)
 
 
 @admin.register(models.Purchase)
 class Purchase(admin.ModelAdmin):
-    list_display = ("id", "package", "username", "purchase_date")
+    list_display = ("package", "username", "purchase_date")
     search_fields = ("id",)
 
 
@@ -184,7 +184,7 @@ class Order(admin.ModelAdmin):
 
 @admin.register(models.OrderDetail)
 class OrderDetail(admin.ModelAdmin):
-    list_display = ("id", "order", "product", "quantity", "unit_price")
+    list_display = ("order", "product", "quantity", "unit_price")
     search_fields = ("id",)
 
 

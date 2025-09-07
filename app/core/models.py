@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from cpkmodel import CPkModel
 
+
 class Person(models.Model):
     cf = models.CharField(max_length=16, primary_key=True, db_column="CF")
     name = models.CharField(max_length=50, db_column="nome", null=True)
@@ -47,6 +48,7 @@ class Hosts(models.Model):
         managed = False
         verbose_name = "Ospitazione"
         verbose_name_plural = "Ospitazioni"
+        unique_together = (("cf", "username", "hosting_date"),)
 
 
 class Service(models.Model):
@@ -79,13 +81,20 @@ class Package(models.Model):
         verbose_name_plural = "Pacchetti"
 
 
-class Compound(models.Model):
-    id = models.AutoField(primary_key=True)
-    package = models.ForeignKey(
-        Package, models.CASCADE, db_column="ID_pacchetto", to_field="id"
+class Compound(CPkModel):
+    package = models.OneToOneField(
+        Package,
+        models.CASCADE,
+        db_column="ID_pacchetto",
+        to_field="id",
+        primary_key=True,
     )
-    service = models.ForeignKey(
-        Service, models.CASCADE, db_column="ID_servizio", to_field="id"
+    service = models.OneToOneField(
+        Service,
+        models.CASCADE,
+        db_column="ID_servizio",
+        to_field="id",
+        primary_key=True,
     )
 
     class Meta:
@@ -96,13 +105,20 @@ class Compound(models.Model):
         unique_together = (("service", "package"),)
 
 
-class Purchase(models.Model):
-    id = models.AutoField(primary_key=True)
-    package = models.ForeignKey(
-        Package, models.CASCADE, db_column="ID_pacchetto", to_field="id"
+class Purchase(CPkModel):
+    package = models.OneToOneField(
+        Package,
+        models.CASCADE,
+        db_column="ID_pacchetto",
+        to_field="id",
+        primary_key=True,
     )
-    username = models.ForeignKey(
-        User, models.CASCADE, db_column="username", to_field="username"
+    username = models.OneToOneField(
+        User,
+        models.CASCADE,
+        db_column="username",
+        to_field="username",
+        primary_key=True,
     )
     purchase_date = models.DateTimeField(db_column="data_acquisto", null=True)
 
@@ -111,6 +127,7 @@ class Purchase(models.Model):
         managed = False
         verbose_name = "Acquisto"
         verbose_name_plural = "Acquisti"
+        unique_together = (("package", "username"),)
 
 
 class Restaurant(models.Model):
@@ -229,13 +246,20 @@ class Booking(models.Model):
         verbose_name_plural = "Prenotazioni"
 
 
-class BookingDetail(models.Model):
-    # id = models.AutoField(primary_key=True)
-    booking = models.ForeignKey(
-        Booking, models.CASCADE, db_column="ID_prenotazione", to_field="id"
+class BookingDetail(CPkModel):
+    booking = models.OneToOneField(
+        Booking,
+        models.CASCADE,
+        db_column="ID_prenotazione",
+        to_field="id",
+        primary_key=True,
     )
-    service = models.ForeignKey(
-        Service, models.CASCADE, db_column="ID_servizio", to_field="id"
+    service = models.OneToOneField(
+        Service,
+        models.CASCADE,
+        db_column="ID_servizio",
+        to_field="id",
+        primary_key=True,
     )
     start_date = models.DateField(db_column="data_inizio")
     end_date = models.DateField(db_column="data_fine")
@@ -269,6 +293,7 @@ class Review(models.Model):
         managed = False
         verbose_name = "Recensione"
         verbose_name_plural = "Recensioni"
+        unique_together = (("username", "id_booking"),)
 
 
 class Employee(models.Model):
@@ -307,12 +332,16 @@ class Event(models.Model):
 
 
 class Enrolls(CPkModel):
-    
-    event = models.ForeignKey(
-        Event, models.CASCADE, db_column="ID_evento", to_field="id",primary_key=True
+
+    event = models.OneToOneField(
+        Event, models.CASCADE, db_column="ID_evento", to_field="id", primary_key=True
     )
-    username = models.ForeignKey(
-        User, models.CASCADE, db_column="username", to_field="username",primary_key=True
+    username = models.OneToOneField(
+        User,
+        models.CASCADE,
+        db_column="username",
+        to_field="username",
+        primary_key=True,
     )
     enroll_date = models.DateTimeField(db_column="data_iscrizione", null=True)
     participants = models.IntegerField(db_column="partecipanti", default=1)
@@ -322,7 +351,7 @@ class Enrolls(CPkModel):
         managed = False
         verbose_name = "Iscrizione"
         verbose_name_plural = "Iscrizioni"
-        unique_together = (('event', 'username'),)  
+        unique_together = (("event", "username"),)
 
 
 class Product(models.Model):
@@ -351,13 +380,16 @@ class Order(models.Model):
         verbose_name_plural = "Ordini"
 
 
-class OrderDetail(models.Model):
-    # id = models.AutoField(primary_key=True)
-    order = models.ForeignKey(
-        Order, models.CASCADE, db_column="ID_ordine", to_field="id"
+class OrderDetail(CPkModel):
+    order = models.OneToOneField(
+        Order, models.CASCADE, db_column="ID_ordine", to_field="id", primary_key=True
     )
-    product = models.ForeignKey(
-        Product, models.CASCADE, db_column="ID_prodotto", to_field="id"
+    product = models.OneToOneField(
+        Product,
+        models.CASCADE,
+        db_column="ID_prodotto",
+        to_field="id",
+        primary_key=True,
     )
     quantity = models.IntegerField(db_column="quantita")
     unit_price = models.DecimalField(
@@ -369,16 +401,14 @@ class OrderDetail(models.Model):
         managed = False
         verbose_name = "Dettaglio ordine"
         verbose_name_plural = "Dettagli ordine"
-        unique_together = (("order", "product"),)
 
 
 class EmployeeRoleHistory(models.Model):
-    # id = models.AutoField(primary_key=True)
-    username = models.ForeignKey(
+    username = models.OneToOneField(
         Employee, models.CASCADE, db_column="username", to_field="username"
     )
     role = models.CharField(max_length=32, db_column="ruolo")
-    start_date = models.DateField(db_column="data_inizio")
+    start_date = models.DateField(db_column="data_inizio", primary_key=True)
     end_date = models.DateField(db_column="data_fine", null=True)
 
     class Meta:
@@ -403,13 +433,16 @@ class Shift(models.Model):
         verbose_name_plural = "Turni"
 
 
-class Performs(models.Model):
-    id = models.AutoField(primary_key=True)
-    username = models.ForeignKey(
-        Employee, models.CASCADE, db_column="username", to_field="username"
+class Performs(CPkModel):
+    username = models.OneToOneField(
+        Employee,
+        models.CASCADE,
+        db_column="username",
+        to_field="username",
+        primary_key=True,
     )
-    shift = models.ForeignKey(
-        Shift, models.CASCADE, db_column="ID_turno", to_field="id"
+    shift = models.OneToOneField(
+        Shift, models.CASCADE, db_column="ID_turno", to_field="id", primary_key=True
     )
     start_date = models.DateTimeField(db_column="data_inizio")
 
