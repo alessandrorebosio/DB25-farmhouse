@@ -36,6 +36,8 @@ class RegisterForm(forms.Form):
       - tax_code: str, 16 characters (CF)
       - name: str, first name
       - surname: str, last name
+      - phone: str, phone number (optional)
+      - city: str, city (optional)
       - username: str, account username (must be unique)
       - email: str, account email
       - password1/password2: password and confirmation
@@ -61,6 +63,8 @@ class RegisterForm(forms.Form):
     tax_code = forms.CharField(label="Tax Code", max_length=16, min_length=16)
     name = forms.CharField(label="Name", max_length=50)
     surname = forms.CharField(label="Surname", max_length=50)
+    phone = forms.CharField(label="Phone", max_length=20, required=False)
+    city = forms.CharField(label="City", max_length=50, required=False)
     username = forms.CharField(label="Username", max_length=30)
     email = forms.EmailField(label="Email")
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
@@ -118,17 +122,19 @@ class RegisterForm(forms.Form):
         with transaction.atomic():
             # create person only if missing (do not update existing person)
             person, created = Person.objects.get_or_create(
-                CF=self.cleaned_data["tax_code"],
+                cf=self.cleaned_data["tax_code"],
                 defaults={
-                    "nome": self.cleaned_data["name"],
-                    "cognome": self.cleaned_data["surname"],
+                    "name": self.cleaned_data["name"],
+                    "surname": self.cleaned_data["surname"],
+                    "phone": self.cleaned_data.get("phone"),
+                    "city": self.cleaned_data.get("city"),
                 },
             )
 
             # create the user and link to the person instance (assign FK instance)
             user = User.objects.create(
                 username=self.cleaned_data["username"],
-                CF=person,  # if your FK field is named differently adapt accordingly
+                cf=person,
                 password=make_password(self.cleaned_data["password1"]),
                 email=self.cleaned_data["email"],
             )

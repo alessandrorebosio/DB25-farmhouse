@@ -131,9 +131,12 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     Security:
       - Protected with @login_required so only authenticated users can access it.
     """
+    try:
+        ut = User.objects.select_related("cf").get(username=request.user.username)
+    except User.DoesNotExist:
+        return render(request, "user/profile.html", {"person": None})
 
-    ut = User.objects.get(username=request.user.username)
-    person = Person.objects.filter(cf=getattr(ut, "cf", None)).first()
+    person = getattr(ut, "cf", None)
 
 
     return render(request, "user/profile.html", {"person": person})
