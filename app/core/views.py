@@ -131,15 +131,28 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     Security:
       - Protected with @login_required so only authenticated users can access it.
     """
+    iscrizioni = []
+    debug = {}
+
     try:
         ut = User.objects.select_related("cf").get(username=request.user.username)
+        iscrizioni = (
+          Enrolls.objects.filter(
+          username=ut,
+          event__date__gte=timezone.now().date(),  # usa .date() perché il campo è DateField
+          )
+          .select_related("event")
+          .order_by("event__date")
+        )
+
+        debug["iscrizioni_count"] = iscrizioni.count()
     except User.DoesNotExist:
         return render(request, "user/profile.html", {"person": None})
 
     person = getattr(ut, "cf", None)
 
 
-    return render(request, "user/profile.html", {"person": person})
+    return render(request, "user/profile.html", {"person": person,"iscrizioni":iscrizioni, "debug": debug})
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
