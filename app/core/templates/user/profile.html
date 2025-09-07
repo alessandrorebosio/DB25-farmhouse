@@ -15,7 +15,7 @@
                                 {{ user.username|slice:":1"|upper }}
                             </div>
                             <div class="ms-3 text-start">
-                                <h5 class="mb-0">{{ person.nome }} {{ person.cognome }}</h5>
+                                <h5 class="mb-0">{{ person.name|default:"-" }} {{ person.surname|default:"-" }}</h5>
                                 <small class="text-muted">{{ user.username }}</small>
                             </div>
                         </div>
@@ -24,6 +24,12 @@
 
                             <dt class="col-sm-4 text-muted small text-start">Email</dt>
                             <dd class="col-sm-8 text-end">{{ user.email|default:"—" }}</dd>
+
+                            <dt class="col-sm-4 text-muted small text-start">Phone</dt>
+                            <dd class="col-sm-8 text-end">{{ person.phone|default:"—" }}</dd>
+
+                            <dt class="col-sm-4 text-muted small text-start">City</dt>
+                            <dd class="col-sm-8 text-end">{{ person.city|default:"—" }}</dd>
 
                             <dt class="col-sm-4 text-muted small text-start">Joined</dt>
                             <dd class="col-sm-8 text-end">{{ user.date_joined|date:"F j, Y H:i" }}</dd>

@@ -20,12 +20,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.contrib import messages
-from django.db import DatabaseError
 
-
-from .models import PersonModel, UserModel, EventModel, EnrollModel, ServizioModel
+from .models import Person, User
 from .forms import RegisterForm
 
 
@@ -37,35 +33,11 @@ def homepage(request: HttpRequest) -> HttpResponse:
     Methods: GET
 
     Template: index.html
-    Context: 
-    - servizi_disponibili: list of available services (one per type)
+    Context: none
 
     Returns a simple HttpResponse rendering the homepage template.
-    Shows only one representative service per type to avoid duplicates.
     """
-    # Get one service per type to avoid showing duplicates
-    # Use distinct() on tipo_servizio to get unique service types
-    servizi_disponibili = []
-    
-    # Get all unique service types that are available
-    tipi_servizi = ServizioModel.objects.filter(
-        status='DISPONIBILE'
-    ).values_list('tipo_servizio', flat=True).distinct()
-    
-    # For each service type, get the first available service as representative
-    for tipo in tipi_servizi:
-        servizio_rappresentativo = ServizioModel.objects.filter(
-            status='DISPONIBILE',
-            tipo_servizio=tipo
-        ).first()
-        if servizio_rappresentativo:
-            servizi_disponibili.append(servizio_rappresentativo)
-    
-    context = {
-        'servizi_disponibili': servizi_disponibili
-    }
-    
-    return render(request, "index.html", context)
+    return render(request, "index.html")
 
 
 def register_view(request: HttpRequest) -> HttpResponse:
@@ -156,39 +128,11 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     Security:
       - Protected with @login_required so only authenticated users can access it.
     """
-    person = None
-    iscrizioni = []
-    debug = {"request_user": request.user.username}
 
-    try:
-        ut = UserModel.objects.select_related("CF").get(username=request.user.username)
-        person = getattr(ut, "CF", None)
-        
-        # recupero le iscrizioni solo ad eventi futuri
-        iscrizioni = (
-            EnrollModel.objects.filter(
-                username=ut,
-                ID_evento__data_evento__gte=timezone.now(),  # 👈 filtro eventi futuri
-            )
-            .select_related("ID_evento")
-            .order_by("ID_evento__data_evento")
-        )
-        
-        debug["iscrizioni_count"] = iscrizioni.count()
-        
-        debug["user_CF_obj"] = (
-            None
-            if person is None
-            else {
-                "CF": getattr(person, "CF", None),
-                "nome": getattr(person, "nome", None),
-                "cognome": getattr(person, "cognome", None),
-            }
-        )
-    except UserModel.DoesNotExist:
-        debug["error"] = "UserModel.DoesNotExist"
+    ut = User.objects.get(username=request.user.username)
+    person = Person.objects.filter(cf=getattr(ut, "cf", None)).first()
 
-    return render(request, "user/profile.html", {"person": person,"iscrizioni":iscrizioni, "debug": debug})
+    return render(request, "user/profile.html", {"person": person})
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
@@ -207,184 +151,3 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
-
-
-def eventi_list(request):
-    """
-    Shows all future events (data_evento >= today).
-    If the user is authenticated, allows subscription.
-    """
-    eventi = EventModel.objects.filter(data_evento__gte=timezone.now().date()).order_by("data_evento")
-    return render(request, "core/events/eventi.html", {"eventi": eventi})
-
-@login_required
-def iscrizione_evento(request, evento_id):
-    evento = get_object_or_404(EventModel, pk=evento_id)
-
-    if request.method == "POST":
-        partecipanti = int(request.POST.get("partecipanti", 1))
-
-        utente_db = get_object_or_404(UserModel, username=request.user.username)
-
-        iscrizione = EnrollModel.objects.filter(ID_evento=evento, username=utente_db).first()
-
-        try:
-            if iscrizione:
-                iscrizione.partecipanti += partecipanti
-                iscrizione.save()
-            else:
-                EnrollModel.objects.create(
-                    ID_evento=evento,
-                    username=utente_db,
-                    partecipanti=partecipanti,
-                )
-        
-            messages.success(request, "Iscrizione avvenuta con successo!")
-        except DatabaseError as e:
-            messages.error(request,"Iscrizione non valida: posti esauriti o limite superato.")
-            
-        return redirect("eventi-list")
-
-    return redirect("eventi-list")
-  
-@login_required
-def cancella_iscrizione(request, evento_id):
-    """
-    Cancella l'iscrizione dell'utente loggato a un evento.
-    Il trigger nel DB gestisce l'incremento dei posti.
-    """
-    if request.method == "POST":
-        utente_db = get_object_or_404(UserModel, username=request.user.username)
-
-        iscrizione = EnrollModel.objects.filter(
-            ID_evento_id=evento_id, username=utente_db
-        ).first()
-
-        if iscrizione:
-            iscrizione.delete()  
-
-    return redirect("profile")
-
-
-def book_service(request, service_id):
-    """
-    Handle service booking for specific service ID.
-    
-    URL: /book/<int:service_id>/
-    Methods: GET, POST
-    
-    GET:
-      - Display booking form for the specified service
-      - Show available instances if applicable (cameras, tables, etc.)
-    
-    POST:
-      - Process booking form submission
-      - Create booking record
-      
-    Behavior:
-      - Redirects to login if user is not authenticated
-      - Shows service details and booking form
-    """
-    # Check if user is authenticated
-    if not request.user.is_authenticated:
-        from django.urls import reverse
-        login_url = reverse('login')
-        book_url = reverse('book_service', args=[service_id])
-        return redirect(f"{login_url}?next={book_url}")
-    
-    # Get the service or return 404
-    from django.shortcuts import get_object_or_404
-    from datetime import datetime
-    
-    service = get_object_or_404(ServizioModel, ID_servizio=service_id)
-    
-    # Determine if this service type has instances
-    ha_istanze = False
-    istanze_disponibili = []
-    
-    if service.tipo_servizio == 'CAMERA':
-        # Get ALL available camera instances of this service type
-        from .models import CameraModel
-        # Find all services of type CAMERA that are available
-        servizi_camera = ServizioModel.objects.filter(
-            tipo_servizio='CAMERA',
-            status='DISPONIBILE'
-        )
-        # Get camera instances for all these services
-        istanze_disponibili = CameraModel.objects.filter(
-            ID_servizio__in=servizi_camera
-        )
-        ha_istanze = len(istanze_disponibili) > 0
-    elif service.tipo_servizio == 'RISTORANTE':
-        # Get ALL available restaurant table instances of this service type
-        from .models import RistoranteModel
-        # Find all services of type RISTORANTE that are available
-        servizi_ristorante = ServizioModel.objects.filter(
-            tipo_servizio='RISTORANTE',
-            status='DISPONIBILE'
-        )
-        # Get restaurant instances for all these services
-        istanze_disponibili = RistoranteModel.objects.filter(
-            ID_servizio__in=servizi_ristorante
-        )
-        ha_istanze = len(istanze_disponibili) > 0
-    elif service.tipo_servizio == 'PISCINA':
-        # Get ALL available pool chair instances of this service type
-        from .models import PiscinaModel
-        # Find all services of type PISCINA that are available
-        servizi_piscina = ServizioModel.objects.filter(
-            tipo_servizio='PISCINA',
-            status='DISPONIBILE'
-        )
-        # Get pool instances for all these services
-        istanze_disponibili = PiscinaModel.objects.filter(
-            ID_servizio__in=servizi_piscina
-        )
-        ha_istanze = len(istanze_disponibili) > 0
-    elif service.tipo_servizio == 'CAMPO_DA_GIOCO':
-        # Get ALL available field instances of this service type
-        from .models import CampoDaGiocoModel
-        # Find all services of type CAMPO_DA_GIOCO that are available
-        servizi_campo = ServizioModel.objects.filter(
-            tipo_servizio='CAMPO_DA_GIOCO',
-            status='DISPONIBILE'
-        )
-        # Get field instances for all these services
-        istanze_disponibili = CampoDaGiocoModel.objects.filter(
-            ID_servizio__in=servizi_campo
-        )
-        ha_istanze = len(istanze_disponibili) > 0
-    elif service.tipo_servizio == 'ATTIVITA_CON_ANIMALI':
-        # Get ALL available animal activity instances of this service type
-        from .models import AttivitaConAnimaliModel
-        # Find all services of type ATTIVITA_CON_ANIMALI that are available
-        servizi_animali = ServizioModel.objects.filter(
-            tipo_servizio='ATTIVITA_CON_ANIMALI',
-            status='DISPONIBILE'
-        )
-        # Get animal activity instances for all these services
-        istanze_disponibili = AttivitaConAnimaliModel.objects.filter(
-            ID_servizio__in=servizi_animali
-        )
-        ha_istanze = len(istanze_disponibili) > 0
-    
-    if request.method == 'POST':
-        # Process booking form
-        data_inizio = request.POST.get('data_inizio')
-        data_fine = request.POST.get('data_fine')
-        istanza_selezionata = request.POST.get('istanza_selezionata')
-        
-        # TODO: Create booking record in database
-        # For now, just show success message
-        from django.contrib import messages
-        messages.success(request, f'Prenotazione per {service.get_tipo_servizio_display()} confermata!')
-        return redirect('homepage')
-    
-    context = {
-        'service': service,
-        'ha_istanze': ha_istanze,
-        'istanze_disponibili': istanze_disponibili,
-        'today': datetime.today(),
-    }
-    
-    return render(request, 'book_service.html', context)

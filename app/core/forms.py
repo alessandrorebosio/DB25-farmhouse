@@ -25,7 +25,7 @@ from django import forms
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-from .models import PersonModel, UserModel
+from .models import Person, User
 
 
 class RegisterForm(forms.Form):
@@ -82,7 +82,7 @@ class RegisterForm(forms.Form):
         Ensure the chosen username is not already present in UserModel.
         """
         u = self.cleaned_data["username"]
-        if UserModel.objects.filter(username=u).exists():
+        if User.objects.filter(username=u).exists():
             raise ValidationError("Username already in use.")
         return u
 
@@ -117,7 +117,7 @@ class RegisterForm(forms.Form):
 
         with transaction.atomic():
             # create person only if missing (do not update existing person)
-            person, created = PersonModel.objects.get_or_create(
+            person, created = Person.objects.get_or_create(
                 CF=self.cleaned_data["tax_code"],
                 defaults={
                     "nome": self.cleaned_data["name"],
@@ -126,7 +126,7 @@ class RegisterForm(forms.Form):
             )
 
             # create the user and link to the person instance (assign FK instance)
-            user = UserModel.objects.create(
+            user = User.objects.create(
                 username=self.cleaned_data["username"],
                 CF=person,  # if your FK field is named differently adapt accordingly
                 password=make_password(self.cleaned_data["password1"]),

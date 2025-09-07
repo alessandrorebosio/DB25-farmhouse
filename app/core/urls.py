@@ -16,28 +16,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	# Main landing page
-	path("", views.homepage, name="homepage"),
-	# Registration endpoint:
-	# - GET: renders the registration page
-	# - POST: processes registration form
-	path("register/", views.register_view, name="register"),
-	# Login endpoint:
-	# - GET: renders the login page
-	# - POST: processes credentials; returns JSON for AJAX, redirect for normal POST
-	path("login/", views.login_view, name="login"),
+    # Main landing page
+    path("", views.homepage, name="homepage"),
+    # Registration endpoint:
+    # - GET: renders the registration page
+    # - POST: processes registration form
+    path("register/", views.register_view, name="register"),
+    # Login endpoint:
+    # - GET: renders the login page
+    # - POST: processes credentials; returns JSON for AJAX, redirect for normal POST
+    path("login/", views.login_view, name="login"),
     # Profile endpoint;
     path("profile/", views.profile_view, name="profile"),
-	# Logout endpoint:
-	# - should be called with POST (AJAX or normal). For AJAX returns JSON {success: True}
-	path("logout/", views.logout_view, name="logout"),
- 
-    # Events endpoints:
-    path("eventi/", views.eventi_list, name="eventi-list"),
-    path("eventi/<int:evento_id>/iscriviti/", views.iscrizione_evento, name="iscrizione-evento"),
-    path("eventi/<int:evento_id>/cancella/", views.cancella_iscrizione, name="cancella-iscrizione"),
-    
-    # Booking endpoint:
-    # - GET/POST: handle service booking with service ID parameter
-    path("book/<int:service_id>/", views.book_service, name="book_service"),
+    # Logout endpoint:
+    # - should be called with POST (AJAX or normal). For AJAX returns JSON {success: True}
+    path("logout/", views.logout_view, name="logout"),
 ]

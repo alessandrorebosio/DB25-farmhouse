@@ -18,8 +18,8 @@ CREATE TABLE PERSONA (
     CF VARCHAR(16) NOT NULL,
     nome VARCHAR(32) NOT NULL,
     cognome VARCHAR(32) NOT NULL,
-    telefono VARCHAR(11),
-    citta VARCHAR(45),
+    telefono VARCHAR(20) NOT NULL,
+    citta VARCHAR(50),
     CONSTRAINT ID_PERSONA_ID PRIMARY KEY (CF)
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE TURNO (
     CONSTRAINT CHK_orario CHECK (ora_inizio < ora_fine)
 );
 
-CREATE TABLE svolge (
+CREATE TABLE SVOLGE (
     username VARCHAR(32) NOT NULL,
     ID_turno INT NOT NULL,
     data_inizio DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -129,7 +129,7 @@ CREATE TABLE PACCHETTO (
     CONSTRAINT ID_PACCHETTO_ID PRIMARY KEY (ID_pacchetto)
 );
 
-CREATE TABLE composto (
+CREATE TABLE COMPOSTO (
     ID_pacchetto INT NOT NULL,
     ID_servizio INT NOT NULL,
     CONSTRAINT ID_composto_ID PRIMARY KEY (ID_servizio, ID_pacchetto),
@@ -137,7 +137,7 @@ CREATE TABLE composto (
     CONSTRAINT FKcom_SER FOREIGN KEY (ID_servizio) REFERENCES SERVIZIO(ID_servizio)
 );
 
-CREATE TABLE acquista (
+CREATE TABLE ACQUISTA (
     ID_pacchetto INT NOT NULL,
     username VARCHAR(32) NOT NULL,
     data_acquisto DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -154,12 +154,12 @@ CREATE TABLE PRENOTAZIONE (
     CONSTRAINT FKeffettua_FK FOREIGN KEY (username) REFERENCES UTENTE(username)
 );
 
-CREATE TABLE DETTAGLI_PRENOTAZIONE (
+CREATE TABLE DETTAGLIO_PRENOTAZIONE (
     ID_prenotazione INT NOT NULL,
     ID_servizio INT NOT NULL,
     data_inizio DATE NOT NULL,
     data_fine DATE NOT NULL,
-    CONSTRAINT ID_DETTAGLI_PRENOTAZIONE_ID PRIMARY KEY (ID_prenotazione, ID_servizio),
+    CONSTRAINT ID_DETTAGLIO_PRENOTAZIONE_ID PRIMARY KEY (ID_prenotazione, ID_servizio),
     CONSTRAINT FKcompone FOREIGN KEY (ID_prenotazione) REFERENCES PRENOTAZIONE(ID_prenotazione),
     CONSTRAINT FKriguarda_FK FOREIGN KEY (ID_servizio) REFERENCES SERVIZIO(ID_servizio),
     CONSTRAINT CHK_date_prenotazione CHECK (data_inizio <= data_fine)
@@ -180,12 +180,12 @@ CREATE TABLE ORDINE (
     CONSTRAINT FKesegue_FK FOREIGN KEY (username) REFERENCES UTENTE(username)
 );
 
-CREATE TABLE DETTAGLI_ORDINE (
+CREATE TABLE DETTAGLIO_ORDINE (
     ID_prodotto INT NOT NULL,
     ID_ordine INT NOT NULL,
     quantita INT NOT NULL CHECK (quantita > 0),
     prezzo_unitario DECIMAL(8,2) NOT NULL CHECK (prezzo_unitario >= 0),
-    CONSTRAINT ID_DETTAGLI_ORDINE_ID PRIMARY KEY (ID_prodotto, ID_ordine),
+    CONSTRAINT ID_DETTAGLIO_ORDINE_ID PRIMARY KEY (ID_prodotto, ID_ordine),
     CONSTRAINT FKcontiene FOREIGN KEY (ID_prodotto) REFERENCES PRODOTTO(ID_prodotto),
     CONSTRAINT FKriguardano_FK FOREIGN KEY (ID_ordine) REFERENCES ORDINE(ID_ordine)
 );
@@ -201,7 +201,7 @@ CREATE TABLE EVENTO (
     CONSTRAINT FKcrea_FK FOREIGN KEY (username) REFERENCES DIPENDENTE(username)
 );
 
-CREATE TABLE iscrive (
+CREATE TABLE ISCRIVE (
     ID_evento INT NOT NULL,
     username VARCHAR(32) NOT NULL,
     data_iscrizione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -211,7 +211,7 @@ CREATE TABLE iscrive (
     CONSTRAINT FKisc_UTE_FK FOREIGN KEY (username) REFERENCES UTENTE(username)
 );
 
-CREATE TABLE ospita (
+CREATE TABLE OSPITA (
     CF VARCHAR(16) NOT NULL,
     username VARCHAR(32) NOT NULL,
     data_ospitazione DATE NOT NULL,
@@ -243,8 +243,8 @@ CREATE INDEX FKeffettua_IND ON PRENOTAZIONE (username);
 CREATE INDEX FKgiudica_IND ON RECENSIONE (ID_prenotazione);
 CREATE INDEX FKisc_UTE_IND ON iscrive (username);
 CREATE INDEX FKosp_UTE_IND ON ospita (username);
-CREATE INDEX FKriguarda_IND ON DETTAGLI_PRENOTAZIONE (ID_servizio);
-CREATE INDEX FKriguardano_IND ON DETTAGLI_ORDINE (ID_ordine);
+CREATE INDEX FKriguarda_IND ON DETTAGLIO_PRENOTAZIONE (ID_servizio);
+CREATE INDEX FKriguardano_IND ON DETTAGLIO_ORDINE (ID_ordine);
 CREATE INDEX FKscrive_IND ON RECENSIONE (username);
 CREATE INDEX FKsvo_TUR_IND ON svolge (ID_turno);
 CREATE INDEX FKcom_PAC_IND ON composto (ID_pacchetto);
@@ -330,7 +330,7 @@ BEGIN
     -- Recupero la data_fine dal dettaglio prenotazione corrispondente
     SELECT DP.data_fine
     INTO fine_servizio
-    FROM DETTAGLI_PRENOTAZIONE DP
+    FROM DETTAGLIO_PRENOTAZIONE DP
     WHERE DP.ID_prenotazione = NEW.ID_prenotazione
       AND DP.ID_servizio = (
           SELECT S.ID_servizio
@@ -369,7 +369,7 @@ BEGIN
     SET S.status = 'OCCUPATO'
     WHERE EXISTS (
         SELECT 1
-        FROM DETTAGLI_PRENOTAZIONE DP
+        FROM DETTAGLIO_PRENOTAZIONE DP
         WHERE DP.ID_servizio = S.ID_servizio
           AND DP.data_inizio <= NOW()
           AND DP.data_fine > NOW()
@@ -381,7 +381,7 @@ BEGIN
     WHERE S.status = 'OCCUPATO'
       AND NOT EXISTS (
           SELECT 1
-          FROM DETTAGLI_PRENOTAZIONE DP
+          FROM DETTAGLIO_PRENOTAZIONE DP
           WHERE DP.ID_servizio = S.ID_servizio
             AND DP.data_fine > NOW()
       );
@@ -400,7 +400,7 @@ BEGIN
     SET S.status = 'OCCUPATO'
     WHERE EXISTS (
         SELECT 1
-        FROM DETTAGLI_PRENOTAZIONE DP
+        FROM DETTAGLIO_PRENOTAZIONE DP
         WHERE DP.ID_servizio = S.ID_servizio
           AND DP.data_inizio <= NOW()
           AND DP.data_fine > NOW()
@@ -412,7 +412,7 @@ BEGIN
     WHERE S.status = 'OCCUPATO'
       AND NOT EXISTS (
           SELECT 1
-          FROM DETTAGLI_PRENOTAZIONE DP
+          FROM DETTAGLIO_PRENOTAZIONE DP
           WHERE DP.ID_servizio = S.ID_servizio
             AND DP.data_fine > NOW()
       );
@@ -430,7 +430,7 @@ BEGIN
     SET S.status = 'OCCUPATO'
     WHERE EXISTS (
         SELECT 1
-        FROM DETTAGLI_PRENOTAZIONE DP
+        FROM DETTAGLIO_PRENOTAZIONE DP
         WHERE DP.ID_servizio = S.ID_servizio
           AND DP.data_inizio <= NOW()
           AND DP.data_fine > NOW()
@@ -442,7 +442,7 @@ BEGIN
     WHERE S.status = 'OCCUPATO'
       AND NOT EXISTS (
           SELECT 1
-          FROM DETTAGLI_PRENOTAZIONE DP
+          FROM DETTAGLIO_PRENOTAZIONE DP
           WHERE DP.ID_servizio = S.ID_servizio
             AND DP.data_fine > NOW()
       );
