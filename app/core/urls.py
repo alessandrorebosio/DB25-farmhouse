@@ -18,6 +18,7 @@ from . import views
 urlpatterns = [
     # Main landing page
     path("", views.homepage, name="homepage"),
+  path("servizio/<int:id_servizio>/prenota/", views.book_service, name="book_service"),
     # Registration endpoint:
     # - GET: renders the registration page
     # - POST: processes registration form
@@ -42,4 +43,6 @@ urlpatterns = [
         views.cancel_enrollment,
         name="cancel_enrollment",
     ),
+    path('services/<str:type>/', views.choose_service, name='choose_service'),
+    path("booking/<str:type>/", views.book_service, name="book_service"),
 ]

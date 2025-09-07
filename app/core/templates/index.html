@@ -42,8 +42,12 @@
                             <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
                         {% endif %}
                         
-                        <h5 class="card-title">{{ servizio.get_tipo_servizio_display }}</h5>
+                        <h5 class="card-title">
+                            {{ servizio.type |title }}
+                        </h5>
                         <p class="card-text">
+                            {% if servizio.price > 0 %}
+                                Prezzo: €{{ servizio.price }}
                             {% if servizio.prezzo > 0 %}
                                 Price: €{{ servizio.prezzo }}
                             {% else %}
@@ -52,6 +56,8 @@
                         </p>
                         <a href="{% url 'book_service' servizio.ID_servizio %}" class="btn btn-primary btn-sm">
                             <i class="fas fa-calendar-plus"></i> Book Now
+                        <a href="{% url 'book_service' servizio.type %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-calendar-plus"></i> Prenota Ora
                         </a>
                     </div>
                 </div>

@@ -25,7 +25,15 @@ from django.contrib import messages
 from django.db import DatabaseError
 
 from .models import *
+from .models import Person, User, Service, Room, Pool, AnimalActivity, Playground, Restaurant
 from .forms import RegisterForm
+
+from django.contrib.auth.decorators import login_required
+# View per prenotazione servizio
+
+
+# Gestione doppia firma per compatibilità con entrambe le url
+from django.http import Http404
 
 
 def homepage(request: HttpRequest) -> HttpResponse:
@@ -40,7 +48,15 @@ def homepage(request: HttpRequest) -> HttpResponse:
 
     Returns a simple HttpResponse rendering the homepage template.
     """
-    return render(request, "index.html")
+    tipi_servizi = Service.objects.values_list('type', flat=True).distinct()
+    servizi = Service.objects.filter(type__in=tipi_servizi, status='DISPONIBILE')
+    tipi_unici = []
+    visti = set()
+    for s in servizi:
+        if s.type not in visti:
+            tipi_unici.append(s)
+            visti.add(s.type)
+    return render(request, "index.html", {"servizi_disponibili": tipi_unici})
 
 
 def register_view(request: HttpRequest) -> HttpResponse:
@@ -249,3 +265,59 @@ def cancel_enrollment(request, event_id):
             enrollment.delete()
 
     return redirect("profile")
+def choose_service(request, tipo):
+    istanze = Service.objects.filter(type=tipo, status='DISPONIBILE')
+    return render(request, "core/choose_service.html", {"istanze": istanze, "tipo": tipo})
+
+
+
+
+from datetime import datetime, timedelta
+
+@login_required(login_url='login')
+def book_service(request, tipo=None, id_servizio=None, tipo_servizio=None):
+  # Supporta chiamate sia con tipo che con id_servizio (per retrocompatibilità url)
+  if tipo_servizio:
+    tipo = tipo_servizio
+  if tipo:
+    # Logica dinamica per istanze in base al tipo
+    if tipo == 'CAMERA':
+      istanze = Room.objects.select_related('id').all()
+    elif tipo == 'PISCINA':
+      istanze = Pool.objects.select_related('id').all()
+    elif tipo == 'ATTIVITA_CON_ANIMALI':
+      istanze = AnimalActivity.objects.select_related('id').all()
+    elif tipo == 'CAMPO_DA_GIOCO':
+      istanze = Playground.objects.select_related('id').all()
+    elif tipo == 'RISTORANTE':
+      istanze = Restaurant.objects.select_related('id').all()
+    else:
+      istanze = []
+    context = {
+      'istanze': istanze,
+      'tipo': tipo,
+    }
+    errors = []
+    if tipo != 'CAMERA' and request.method == "POST":
+      data = request.POST.get('data_inizio')
+      ora_inizio = request.POST.get('ora_inizio')
+      ora_fine = request.POST.get('ora_fine')
+      if data and ora_inizio and ora_fine:
+        try:
+          d = datetime.strptime(data, "%Y-%m-%d").date()
+          t_inizio = datetime.strptime(ora_inizio, "%H:%M").time()
+          t_fine = datetime.strptime(ora_fine, "%H:%M").time()
+          dt_inizio = datetime.combine(d, t_inizio)
+          dt_fine = datetime.combine(d, t_fine)
+          if (dt_fine - dt_inizio) > timedelta(hours=2):
+            errors.append("La prenotazione deve essere di fasce di due ore.")
+        except ValueError:
+          errors.append("Formato data o ora non valido.")
+      if errors:
+        context['errors'] = errors
+    return render(request, 'book_service.html', context)
+  elif id_servizio:
+    # Logica legacy: mostra dettagli per id_servizio
+    return render(request, "book_service.html", {"id_servizio": id_servizio})
+  else:
+    raise Http404("Parametro non valido per prenotazione servizio.")
