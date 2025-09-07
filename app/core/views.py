@@ -21,6 +21,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib import messages
+from django.db import DatabaseError
+
 
 from .models import PersonModel, UserModel, EventModel, EnrollModel, ServizioModel
 from .forms import RegisterForm
@@ -225,18 +228,21 @@ def iscrizione_evento(request, evento_id):
 
         iscrizione = EnrollModel.objects.filter(ID_evento=evento, username=utente_db).first()
 
-
-
-        if iscrizione:
-            iscrizione.partecipanti += partecipanti
-            iscrizione.save()
-        else:
-            EnrollModel.objects.create(
-                ID_evento=evento,
-                username=utente_db,
-                partecipanti=partecipanti,
-            )
-
+        try:
+            if iscrizione:
+                iscrizione.partecipanti += partecipanti
+                iscrizione.save()
+            else:
+                EnrollModel.objects.create(
+                    ID_evento=evento,
+                    username=utente_db,
+                    partecipanti=partecipanti,
+                )
+        
+            messages.success(request, "Iscrizione avvenuta con successo!")
+        except DatabaseError as e:
+            messages.error(request,"Iscrizione non valida: posti esauriti o limite superato.")
+            
         return redirect("eventi-list")
 
     return redirect("eventi-list")
