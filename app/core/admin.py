@@ -166,7 +166,7 @@ class Event(admin.ModelAdmin):
 
 @admin.register(models.Enrolls)
 class Enrolls(admin.ModelAdmin):
-    list_display = ("id", "event", "username", "enroll_date", "participants")
+    list_display = ("event", "username", "enroll_date", "participants")
     search_fields = ("id",)
 
 

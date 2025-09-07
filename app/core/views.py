@@ -15,13 +15,16 @@ Notes:
 - profile_view expects UserModel to relate to PersonModel via the CF FK.
 """
 
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import DatabaseError
 
-from .models import Person, User
+from .models import *
 from .forms import RegisterForm
 
 
@@ -132,6 +135,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     ut = User.objects.get(username=request.user.username)
     person = Person.objects.filter(cf=getattr(ut, "cf", None)).first()
 
+
     return render(request, "user/profile.html", {"person": person})
 
 
@@ -151,3 +155,63 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
+  
+def eventi_list(request):
+    """
+    Shows all future events (data_evento >= today).
+    If the user is authenticated, allows subscription.
+    """
+    eventi = Event.objects.filter(date__gte=timezone.now().date()).order_by("date")
+    return render(request, "core/events/eventi.html", {"eventi": eventi})
+
+@login_required
+def iscrizione_evento(request, evento_id):
+    evento = get_object_or_404(Event, pk=evento_id)
+
+    if request.method == "POST":
+        partecipanti = int(request.POST.get("partecipanti", 1))
+        utente_db = get_object_or_404(User, username=request.user.username)
+
+        # Cerca iscrizione esistente con i nomi giusti
+        iscrizione = Enrolls.objects.filter(event=evento, username=utente_db).first()
+
+        try:
+            if iscrizione:
+                iscrizione.participants += partecipanti
+                iscrizione.save()
+            else:
+                Enrolls.objects.create(
+                    event=evento,
+                    username=utente_db,
+                    participants=partecipanti,
+                )
+
+            messages.success(request, "Iscrizione avvenuta con successo!")
+        except DatabaseError:
+            messages.error(
+                request,
+                "Iscrizione non valida: posti esauriti o limite superato."
+            )
+
+        return redirect("eventi-list")
+
+    return redirect("eventi-list")
+
+@login_required
+def cancella_iscrizione(request, evento_id):
+    """
+    Cancella l'iscrizione dell'utente loggato a un evento.
+    Il trigger nel DB gestisce l'incremento dei posti.
+    """
+    if request.method == "POST":
+        utente_db = get_object_or_404(User, username=request.user.username)
+
+        iscrizione = Enrolls.objects.filter(
+            event_id=evento_id, username=utente_db
+        ).first()
+
+        if iscrizione:
+            iscrizione.delete()
+
+    return redirect("profile")
+

@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-
+from cpkmodel import CPkModel
 
 class Person(models.Model):
     cf = models.CharField(max_length=16, primary_key=True, db_column="CF")
@@ -307,13 +307,13 @@ class Event(models.Model):
         verbose_name_plural = "Eventi"
 
 
-class Enrolls(models.Model):
-    id = models.AutoField(primary_key=True)
+class Enrolls(CPkModel):
+    
     event = models.ForeignKey(
-        Event, models.CASCADE, db_column="ID_evento", to_field="id"
+        Event, models.CASCADE, db_column="ID_evento", to_field="id",primary_key=True
     )
     username = models.ForeignKey(
-        User, models.CASCADE, db_column="username", to_field="username"
+        User, models.CASCADE, db_column="username", to_field="username",primary_key=True
     )
     enroll_date = models.DateTimeField(db_column="data_iscrizione", null=True)
     participants = models.IntegerField(db_column="partecipanti", default=1)
@@ -323,6 +323,7 @@ class Enrolls(models.Model):
         managed = False
         verbose_name = "Iscrizione"
         verbose_name_plural = "Iscrizioni"
+        unique_together = (('event', 'username'),)  
 
 
 class Product(models.Model):
