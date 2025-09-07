@@ -7,26 +7,23 @@
 
     <section class="presentation lead">
         <p>
-            Benvenuti a Campo Verde: un agriturismo che unisce ospitalità familiare, ristorazione con prodotti a km 0,
-            piscina, attività con animali e spazi per lo sport. Il sito permette di esplorare i servizi, verificare la
-            disponibilità e prenotare facilmente online.
+            Welcome to Campo Verde: a farmhouse that combines family hospitality, farm-to-table dining,
+            swimming pool, animal activities, and sports facilities. The website allows you to explore services, check
+            availability, and easily book online.
         </p>
         <p>
-            È possibile prenotare camere, tavoli, lettini in piscina (fasce da 2 ore), campi sportivi e iscriversi agli
-            eventi;
-            gli utenti registrati gestiscono le proprie prenotazioni, acquistano pacchetti personalizzati e lasciano
-            recensioni.
+            You can book rooms, tables, pool loungers (2-hour slots), sports fields, and register for events;
+            registered users can manage their bookings, purchase custom packages, and leave reviews.
         </p>
         <p>
-            Ogni prenotazione viene confermata via email; lo staff ha accesso a una dashboard per monitorare
-            occupazione,
-            prenotazioni e recensioni, e gestire offerte e turni.
+            Each booking is confirmed by email; staff have access to a dashboard to monitor
+            occupancy, bookings, and reviews, and to manage offers and shifts.
         </p>
     </section>
 
     <!-- Services Section -->
     <section class="services mt-5">
-        <h2 class="text-center mb-4">I Nostri Servizi</h2>
+        <h2 class="text-center mb-4">Our Services</h2>
         <div class="row">
             {% for servizio in servizi_disponibili %}
             <div class="col-md-4 mb-4">
@@ -48,20 +45,20 @@
                         <h5 class="card-title">{{ servizio.get_tipo_servizio_display }}</h5>
                         <p class="card-text">
                             {% if servizio.prezzo > 0 %}
-                                Prezzo: €{{ servizio.prezzo }}
+                                Price: €{{ servizio.prezzo }}
                             {% else %}
-                                Servizio Gratuito
+                                Free Service
                             {% endif %}
                         </p>
                         <a href="{% url 'book_service' servizio.ID_servizio %}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-calendar-plus"></i> Prenota Ora
+                            <i class="fas fa-calendar-plus"></i> Book Now
                         </a>
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="col-12">
-                <p class="text-center">Nessun servizio disponibile al momento.</p>
+                <p class="text-center">No services available at the moment.</p>
             </div>
             {% endfor %}
         </div>
