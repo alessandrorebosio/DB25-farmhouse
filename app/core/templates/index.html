@@ -24,40 +24,35 @@
     <!-- Services Section -->
     <section class="services mt-5">
         <h2 class="text-center mb-4">Our Services</h2>
-        <div class="row">
+        <div class="row justify-content-center">
             {% for servizio in servizi_disponibili %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <!-- Service icon based on type -->
+            <div class="col-12 col-sm-6 col-md-4 mb-4 d-flex align-items-stretch">
+                <div class="card shadow-sm w-100">
+                    <div class="card-body text-center d-flex flex-column">
                         {% if servizio.tipo_servizio == 'CAMERA' %}
-                            <i class="fas fa-bed fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-bed fa-3x mb-3 text-primary"></i>
                         {% elif servizio.tipo_servizio == 'PISCINA' %}
-                            <i class="fas fa-swimming-pool fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-swimming-pool fa-3x mb-3 text-primary"></i>
                         {% elif servizio.tipo_servizio == 'CAMPO_DA_GIOCO' %}
-                            <i class="fas fa-futbol fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-futbol fa-3x mb-3 text-primary"></i>
                         {% elif servizio.tipo_servizio == 'ATTIVITA_CON_ANIMALI' %}
-                            <i class="fas fa-paw fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-paw fa-3x mb-3 text-primary"></i>
                         {% elif servizio.tipo_servizio == 'RISTORANTE' %}
-                            <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
                         {% endif %}
-                        
-                        <h5 class="card-title">
-                            {{ servizio.type |title }}
+
+                        <h5 class="card-title mt-2 mb-2">
+                            {{ servizio.type|title }}
                         </h5>
-                        <p class="card-text">
+                        <p class="card-text flex-grow-1">
                             {% if servizio.price > 0 %}
-                                Prezzo: €{{ servizio.price }}
-                            {% if servizio.prezzo > 0 %}
-                                Price: €{{ servizio.prezzo }}
+                            <span class="fw-bold">Price:</span> €{{ servizio.price }}
                             {% else %}
-                                Free Service
+                            <span class="text-success fw-bold">Free Service</span>
                             {% endif %}
                         </p>
-                        <a href="{% url 'book_service' servizio.ID_servizio %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'book_service' servizio.id %}" class="btn btn-primary mt-auto">
                             <i class="fas fa-calendar-plus"></i> Book Now
-                        <a href="{% url 'book_service' servizio.type %}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-calendar-plus"></i> Prenota Ora
                         </a>
                     </div>
                 </div>

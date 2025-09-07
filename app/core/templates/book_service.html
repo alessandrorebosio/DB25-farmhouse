@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% block title %}Prenota {{ tipo|title }} - Agriturismo{% endblock %}
+{% block title %}Book {{ tipo|title }} - Farmhouse{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -7,61 +7,62 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3>Prenota {{ tipo|title }}</h3>
+                    <h3>Book {{ tipo|title }}</h3>
                 </div>
-                                <div class="card-body">
-                                        {% if errors %}
-                                            <div class="alert alert-danger">
-                                                <ul>
-                                                    {% for error in errors %}
-                                                        <li>{{ error }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        {% endif %}
-                                        <form method="post">
-                                                {% csrf_token %}
+                <div class="card-body">
+                    {% if errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for error in errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
                         <div class="mb-4">
-                            <h5>Seleziona {{ tipo|title }}:</h5>
-                                {% for istanza in istanze %}
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" 
-                                                        name="istanza_id" 
-                                                        value="{{ istanza.id }}" 
-                                                        id="istanza_{{ istanza.id }}"
-                                                        {% if forloop.first %}checked{% endif %}>
-                                        <label class="form-check-label" for="istanza_{{ istanza.id }}">
-                                            {% if tipo == 'CAMERA' %}
-                                                Camera {{ istanza.room_code }} - Capienza: {{ istanza.max_capacity }} persone - €{{ istanza.id.price }}
-                                            {% elif tipo == 'PISCINA' %}
-                                                Lettino {{ istanza.sunbed_code }} - €{{ istanza.id.price }}
-                                            {% elif tipo == 'ATTIVITA_CON_ANIMALI' %}
-                                                Attività {{ istanza.activity_code }}: {{ istanza.description }} - €{{ istanza.id.price }}
-                                            {% elif tipo == 'CAMPO_DA_GIOCO' %}
-                                                Campo {{ istanza.playground_code }} - Capienza: {{ istanza.max_capacity }} persone - €{{ istanza.id.price }}
-                                            {% elif tipo == 'RISTORANTE' %}
-                                                Tavolo {{ istanza.table_code }} - Capienza: {{ istanza.max_capacity }} persone - €{{ istanza.id.price }}
-                                            {% else %}
-                                                Istanza {{ istanza.id }} - €{{ istanza.id.price }}
-                                            {% endif %}
-                                        </label>
-                                    </div>
-                                {% empty %}
-                                    <p>Nessuna istanza disponibile.</p>
-                                {% endfor %}
+                            <h5>Select {{ tipo|title }}:</h5>
+                            {% for istanza in istanze %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="istanza_id" value="{{ istanza.id }}"
+                                    id="istanza_{{ istanza.id }}" {% if forloop.first %}checked{% endif %}>
+                                <label class="form-check-label" for="istanza_{{ istanza.id }}">
+                                    {% if tipo == 'CAMERA' %}
+                                    Room {{ istanza.room_code }} - Capacity: {{ istanza.max_capacity }} people - €{{
+                                    istanza.id.price }}
+                                    {% elif tipo == 'PISCINA' %}
+                                    Sunbed {{ istanza.sunbed_code }} - €{{ istanza.id.price }}
+                                    {% elif tipo == 'ATTIVITA_CON_ANIMALI' %}
+                                    Activity {{ istanza.activity_code }}: {{ istanza.description }} - €{{
+                                    istanza.id.price }}
+                                    {% elif tipo == 'CAMPO_DA_GIOCO' %}
+                                    Playground {{ istanza.playground_code }} - Capacity: {{ istanza.max_capacity }}
+                                    people - €{{ istanza.id.price }}
+                                    {% elif tipo == 'RISTORANTE' %}
+                                    Table {{ istanza.table_code }} - Capacity: {{ istanza.max_capacity }} people - €{{
+                                    istanza.id.price }}
+                                    {% else %}
+                                    Instance {{ istanza.id }} - €{{ istanza.id.price }}
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p>No instances available.</p>
+                            {% endfor %}
                         </div>
                         <!-- Date and time selection -->
                         {% if tipo == 'CAMERA' %}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="data_inizio" class="form-label">Data Inizio</label>
+                                    <label for="data_inizio" class="form-label">Start Date</label>
                                     <input type="date" class="form-control" name="data_inizio" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="data_fine" class="form-label">Data Fine</label>
+                                    <label for="data_fine" class="form-label">End Date</label>
                                     <input type="date" class="form-control" name="data_fine" required>
                                 </div>
                             </div>
@@ -70,26 +71,29 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="data_inizio" class="form-label">Data</label>
+                                    <label for="data_inizio" class="form-label">Date</label>
                                     <input type="date" class="form-control" name="data_inizio" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="ora_inizio" class="form-label">Ora Inizio</label>
-                                    <input type="time" class="form-control" name="ora_inizio" required>
+                                    <label for="ora_inizio" class="form-label">Start Time</label>
+                                    <input type="time" class="form-control" name="ora_inizio" required step="900"
+                                        min="00:00" max="24:00">
+
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="ora_fine" class="form-label">Ora Fine</label>
-                                    <input type="time" class="form-control" name="ora_fine" required>
+                                    <label for="ora_fine" class="form-label">End Time</label>
+                                    <input type="time" class="form-control" name="ora_fine" required step="900"
+                                        min="00:00" max="24:00">
                                 </div>
                             </div>
                         </div>
                         {% endif %}
-                        <button type="submit" class="btn btn-success">Conferma Prenotazione</button>
-                        <a href="{% url 'homepage' %}" class="btn btn-secondary">Annulla</a>
+                        <button type="submit" class="btn btn-success">Confirm Booking</button>
+                        <a href="{% url 'homepage' %}" class="btn btn-secondary">Cancel</a>
                     </form>
                 </div>
             </div>

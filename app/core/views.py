@@ -23,12 +23,14 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import DatabaseError
+from datetime import datetime, timedelta
 
 from .models import *
-from .models import Person, User, Service, Room, Pool, AnimalActivity, Playground, Restaurant
+
 from .forms import RegisterForm
 
 from django.contrib.auth.decorators import login_required
+
 # View per prenotazione servizio
 
 
@@ -48,8 +50,8 @@ def homepage(request: HttpRequest) -> HttpResponse:
 
     Returns a simple HttpResponse rendering the homepage template.
     """
-    tipi_servizi = Service.objects.values_list('type', flat=True).distinct()
-    servizi = Service.objects.filter(type__in=tipi_servizi, status='DISPONIBILE')
+    tipi_servizi = Service.objects.values_list("type", flat=True).distinct()
+    servizi = Service.objects.filter(type__in=tipi_servizi, status="DISPONIBILE")
     tipi_unici = []
     visti = set()
     for s in servizi:
@@ -155,7 +157,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
         iscrizioni = (
             Enrolls.objects.filter(
                 username=ut,
-                event__date__gte=timezone.now().date(), 
+                event__date__gte=timezone.now().date(),
             )
             .select_related("event")
             .order_by("event__date")
@@ -265,59 +267,72 @@ def cancel_enrollment(request, event_id):
             enrollment.delete()
 
     return redirect("profile")
+
+
 def choose_service(request, tipo):
-    istanze = Service.objects.filter(type=tipo, status='DISPONIBILE')
-    return render(request, "core/choose_service.html", {"istanze": istanze, "tipo": tipo})
+    istanze = Service.objects.filter(type=tipo, status="DISPONIBILE")
+    return render(
+        request, "core/choose_service.html", {"istanze": istanze, "tipo": tipo}
+    )
 
 
+@login_required(login_url="login")
+def book_service(request, type=None, service_id=None, service_type=None):
+    """
+    Handles booking for various service types.
 
+    Supports both 'type' and 'service_id' parameters for backward compatibility.
 
-from datetime import datetime, timedelta
+    - If 'type' or 'service_type' is provided, displays available instances for that type.
+    - For non-room services, validates booking duration (must be 2 hours) on POST.
+    - If 'service_id' is provided, renders the booking page for the specific service.
+    - Raises 404 if parameters are invalid.
+    """
+    # Allow both 'type' and 'service_type' for compatibility
+    if service_type:
+        type = service_type
 
-@login_required(login_url='login')
-def book_service(request, tipo=None, id_servizio=None, tipo_servizio=None):
-  # Supporta chiamate sia con tipo che con id_servizio (per retrocompatibilità url)
-  if tipo_servizio:
-    tipo = tipo_servizio
-  if tipo:
-    # Logica dinamica per istanze in base al tipo
-    if tipo == 'CAMERA':
-      istanze = Room.objects.select_related('id').all()
-    elif tipo == 'PISCINA':
-      istanze = Pool.objects.select_related('id').all()
-    elif tipo == 'ATTIVITA_CON_ANIMALI':
-      istanze = AnimalActivity.objects.select_related('id').all()
-    elif tipo == 'CAMPO_DA_GIOCO':
-      istanze = Playground.objects.select_related('id').all()
-    elif tipo == 'RISTORANTE':
-      istanze = Restaurant.objects.select_related('id').all()
+    if type:
+        # Dynamically select instances based on service type
+        if type == "ROOM":
+            instances = Room.objects.select_related("id").all()
+        elif type == "POOL":
+            instances = Pool.objects.select_related("id").all()
+        elif type == "ANIMAL_ACTIVITY":
+            instances = AnimalActivity.objects.select_related("id").all()
+        elif type == "PLAYGROUND":
+            instances = Playground.objects.select_related("id").all()
+        elif type == "RESTAURANT":
+            instances = Restaurant.objects.select_related("id").all()
+        else:
+            instances = []
+
+        context = {
+            "instances": instances,
+            "type": type,
+        }
+        errors = []
+        # For non-room services, validate booking duration on POST
+        if type != "ROOM" and request.method == "POST":
+            date_str = request.POST.get("start_date")
+            start_time_str = request.POST.get("start_time")
+            end_time_str = request.POST.get("end_time")
+            if date_str and start_time_str and end_time_str:
+                try:
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    start_time = datetime.strptime(start_time_str, "%H:%M").time()
+                    end_time = datetime.strptime(end_time_str, "%H:%M").time()
+                    dt_start = datetime.combine(date_obj, start_time)
+                    dt_end = datetime.combine(date_obj, end_time)
+                    if (dt_end - dt_start) > timedelta(hours=2):
+                        errors.append("Booking duration must be exactly two hours.")
+                except ValueError:
+                    errors.append("Invalid date or time format.")
+            if errors:
+                context["errors"] = errors
+        return render(request, "book_service.html", context)
+    elif service_id:
+        # Legacy logic: show details for a specific service by ID
+        return render(request, "book_service.html", {"service_id": service_id})
     else:
-      istanze = []
-    context = {
-      'istanze': istanze,
-      'tipo': tipo,
-    }
-    errors = []
-    if tipo != 'CAMERA' and request.method == "POST":
-      data = request.POST.get('data_inizio')
-      ora_inizio = request.POST.get('ora_inizio')
-      ora_fine = request.POST.get('ora_fine')
-      if data and ora_inizio and ora_fine:
-        try:
-          d = datetime.strptime(data, "%Y-%m-%d").date()
-          t_inizio = datetime.strptime(ora_inizio, "%H:%M").time()
-          t_fine = datetime.strptime(ora_fine, "%H:%M").time()
-          dt_inizio = datetime.combine(d, t_inizio)
-          dt_fine = datetime.combine(d, t_fine)
-          if (dt_fine - dt_inizio) > timedelta(hours=2):
-            errors.append("La prenotazione deve essere di fasce di due ore.")
-        except ValueError:
-          errors.append("Formato data o ora non valido.")
-      if errors:
-        context['errors'] = errors
-    return render(request, 'book_service.html', context)
-  elif id_servizio:
-    # Logica legacy: mostra dettagli per id_servizio
-    return render(request, "book_service.html", {"id_servizio": id_servizio})
-  else:
-    raise Http404("Parametro non valido per prenotazione servizio.")
+        raise Http404("Invalid parameter for service booking.")
