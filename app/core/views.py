@@ -137,12 +137,12 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     try:
         ut = User.objects.select_related("cf").get(username=request.user.username)
         iscrizioni = (
-          Enrolls.objects.filter(
-          username=ut,
-          event__date__gte=timezone.now().date(),  # usa .date() perché il campo è DateField
-          )
-          .select_related("event")
-          .order_by("event__date")
+            Enrolls.objects.filter(
+                username=ut,
+                event__date__gte=timezone.now().date(), 
+            )
+            .select_related("event")
+            .order_by("event__date")
         )
 
         debug["iscrizioni_count"] = iscrizioni.count()
@@ -151,8 +151,11 @@ def profile_view(request: HttpRequest) -> HttpResponse:
 
     person = getattr(ut, "cf", None)
 
-
-    return render(request, "user/profile.html", {"person": person,"iscrizioni":iscrizioni, "debug": debug})
+    return render(
+        request,
+        "user/profile.html",
+        {"person": person, "iscrizioni": iscrizioni, "debug": debug},
+    )
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
@@ -171,63 +174,78 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
-  
-def eventi_list(request):
+
+
+def list_event(request):
     """
     Shows all future events (data_evento >= today).
     If the user is authenticated, allows subscription.
     """
     eventi = Event.objects.filter(date__gte=timezone.now().date()).order_by("date")
-    return render(request, "core/events/eventi.html", {"eventi": eventi})
+    return render(request, "core/events/event-list.html", {"eventi": eventi})
+
 
 @login_required
-def iscrizione_evento(request, evento_id):
-    evento = get_object_or_404(Event, pk=evento_id)
+def event_subscription(request, event_id):
+    """
+    Handles event enrollment for the authenticated user.
+
+    - Retrieves the event by ID.
+    - On POST: gets the number of participants (default 1), finds the user in the DB.
+    - If an enrollment already exists, increments participants and decreases event seats accordingly.
+    - Shows a success message on success, error message on DB error (e.g., event full).
+    - Always redirects to the event list.
+    """
+    event = get_object_or_404(Event, pk=event_id)
 
     if request.method == "POST":
-        partecipanti = int(request.POST.get("partecipanti", 1))
-        utente_db = get_object_or_404(User, username=request.user.username)
+        participants = int(request.POST.get("partecipanti", 1))
+        user_db = get_object_or_404(User, username=request.user.username)
 
-        # Cerca iscrizione esistente con i nomi giusti
-        iscrizione = Enrolls.objects.filter(event=evento, username=utente_db).first()
+        enrollment = Enrolls.objects.filter(event=event, username=user_db).first()
 
         try:
-            if iscrizione:
-                iscrizione.participants += partecipanti
-                iscrizione.save()
+            if enrollment:
+                if event.seats >= participants:
+                    enrollment.participants += participants
+                    enrollment.save()
+                    event.seats -= participants
+                    event.save()
+                    messages.success(request, "Enrollment updated successfully!")
+                else:
+                    messages.error(request, "Not enough seats available.")
             else:
-                Enrolls.objects.create(
-                    event=evento,
-                    username=utente_db,
-                    participants=partecipanti,
-                )
-
-            messages.success(request, "Iscrizione avvenuta con successo!")
+                if event.seats >= participants:
+                    Enrolls.objects.create(
+                        event=event,
+                        username=user_db,
+                        participants=participants,
+                    )
+                    event.seats -= participants
+                    event.save()
+                    messages.success(request, "Enrollment successful!")
+                else:
+                    messages.error(request, "Not enough seats available.")
         except DatabaseError:
             messages.error(
-                request,
-                "Iscrizione non valida: posti esauriti o limite superato."
+                request, "Invalid enrollment: no seats available or limit exceeded."
             )
 
-        return redirect("eventi-list")
+    return redirect("list-event")
 
-    return redirect("eventi-list")
 
 @login_required
-def cancella_iscrizione(request, evento_id):
+def cancel_enrollment(request, event_id):
     """
-    Cancella l'iscrizione dell'utente loggato a un evento.
-    Il trigger nel DB gestisce l'incremento dei posti.
+    Cancels the logged-in user's enrollment for an event.
+    The DB trigger handles seat increment.
     """
     if request.method == "POST":
-        utente_db = get_object_or_404(User, username=request.user.username)
+        user_db = get_object_or_404(User, username=request.user.username)
 
-        iscrizione = Enrolls.objects.filter(
-            event_id=evento_id, username=utente_db
-        ).first()
+        enrollment = Enrolls.objects.filter(event_id=event_id, username=user_db).first()
 
-        if iscrizione:
-            iscrizione.delete()
+        if enrollment:
+            enrollment.delete()
 
     return redirect("profile")
-

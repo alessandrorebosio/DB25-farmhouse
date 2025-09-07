@@ -31,12 +31,15 @@ urlpatterns = [
     # Logout endpoint:
     # - should be called with POST (AJAX or normal). For AJAX returns JSON {success: True}
     path("logout/", views.logout_view, name="logout"),
-    
-    path("eventi/", views.eventi_list, name="eventi-list"),
-    
-    path("eventi/<int:evento_id>/iscriviti/", views.iscrizione_evento, name="iscrizione-evento"),
-    
-    path("eventi/<int:evento_id>/cancella/", views.cancella_iscrizione, name="cancella-iscrizione"),
-
-
+    path("event/", views.list_event, name="list-event"),
+    path(
+        "event/<int:event_id>/subscribe/",
+        views.event_subscription,
+        name="event_subscription",
+    ),
+    path(
+        "event/<int:event_id>/cancel/",
+        views.cancel_enrollment,
+        name="cancel_enrollment",
+    ),
 ]
