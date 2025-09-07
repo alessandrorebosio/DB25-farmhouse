@@ -70,21 +70,22 @@
                             <tbody>
                                 {% for iscrizione in iscrizioni %}
                                 <tr>
-                                    <td class="text-start">{{ iscrizione.ID_evento.titolo }}</td>
+                                    <td class="text-start">{{ iscrizione.event.title }}</td>
                                     <td class="text-start">
-                                        {{ iscrizione.ID_evento.data_evento|date:"d/m/Y" }}
+                                        {{ iscrizione.event.date|date:"d/m/Y" }}
                                     </td>
-                                    <td class="text-center">{{ iscrizione.partecipanti }}</td>
+                                    <td class="text-center">{{ iscrizione.participants }}</td>
                                     <td class="text-center">
-                                        <form method="post" action="{% url 'cancella-iscrizione' iscrizione.ID_evento.ID_evento %}">
-                                        {% csrf_token %}
+                                        <form method="post" action="{% url 'cancella-iscrizione' iscrizione.event.id %}">
+                                            {% csrf_token %}
                                             <button type="submit" class="btn btn-sm btn-danger">
-                                            Cancella
+                                                Cancella
                                             </button>
                                         </form>
-                                    </td>    
+                                    </td>
                                 </tr>
                                 {% endfor %}
+
                             </tbody>
                         </table>
                     </div>
