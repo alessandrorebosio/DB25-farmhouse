@@ -22,7 +22,7 @@ from django.contrib.auth.models import User as DjangoUser
 from django.contrib.auth.hashers import check_password
 from django.db import transaction
 
-from .models import UserModel, StaffModel
+from .models import User, Employee
 
 
 class UserBackend(BaseBackend):
@@ -60,8 +60,8 @@ class UserBackend(BaseBackend):
             return None
 
         try:
-            u = UserModel.objects.get(username=username)
-        except UserModel.DoesNotExist:
+            u = User.objects.get(username=username)
+        except User.DoesNotExist:
             return None
 
         stored = u.password or ""
@@ -78,11 +78,11 @@ class UserBackend(BaseBackend):
 
             # Determine staff/superuser flags from StaffModel (DIPENDENTE)
             try:
-                d = StaffModel.objects.get(username=username)
+                d = Employee.objects.get(username=username)
                 user.is_staff = True
                 user.is_superuser = True
                 # user.is_superuser = getattr(d, "ruolo", "").lower() == "admin"
-            except StaffModel.DoesNotExist:
+            except Employee.DoesNotExist:
                 user.is_staff = False
                 user.is_superuser = False
 

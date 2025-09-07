@@ -38,7 +38,7 @@ SET @t1 = LAST_INSERT_ID(); -- id ultimo inserito (qui t2), but we'll query expl
 SELECT ID_turno INTO @turno1 FROM TURNO WHERE giorno='LUN' LIMIT 1;
 SELECT ID_turno INTO @turno2 FROM TURNO WHERE giorno='VEN' LIMIT 1;
 
-INSERT INTO svolge (username, ID_turno, data_inizio) VALUES
+INSERT INTO SVOLGE (username, ID_turno, data_inizio) VALUES
 ('pmast', @turno1, NOW()),
 ('mtapi', @turno2, NOW());
 
@@ -81,29 +81,29 @@ SET @p1 = LAST_INSERT_ID(); -- last pacchetto (Cena Romantica)
 SELECT ID_pacchetto INTO @pac1 FROM PACCHETTO WHERE nome='Weekend Famiglia' LIMIT 1;
 SELECT ID_pacchetto INTO @pac2 FROM PACCHETTO WHERE nome='Cena Romantica' LIMIT 1;
 
-INSERT INTO composto (ID_pacchetto, ID_servizio) VALUES
+INSERT INTO COMPOSTO (ID_pacchetto, ID_servizio) VALUES
 (@pac1, @s1),
 (@pac1, @s2),
 (@pac1, @s3),
 (@pac2, @s5);
 
-INSERT INTO acquista (ID_pacchetto, username) VALUES
+INSERT INTO ACQUISTA (ID_pacchetto, username) VALUES
 (@pac1,'mrossi'),
 (@pac2,'lbianchi');
 
--- 6) PRENOTAZIONI + DETTAGLI_PRENOTAZIONE
+-- 6) PRENOTAZIONI + DETTAGLIO_PRENOTAZIONE
 INSERT INTO PRENOTAZIONE (username) VALUES ('mrossi'), ('averdi'), ('sneri');
 SELECT ID_prenotazione INTO @pr1 FROM PRENOTAZIONE WHERE username='mrossi' ORDER BY ID_prenotazione DESC LIMIT 1;
 SELECT ID_prenotazione INTO @pr2 FROM PRENOTAZIONE WHERE username='averdi' ORDER BY ID_prenotazione DESC LIMIT 1;
 SELECT ID_prenotazione INTO @pr3 FROM PRENOTAZIONE WHERE username='sneri' ORDER BY ID_prenotazione DESC LIMIT 1;
 
 -- pr1: passato (per recensione), pr2: attivo, pr3: futuro
-INSERT INTO DETTAGLI_PRENOTAZIONE (ID_prenotazione, ID_servizio, data_inizio, data_fine) VALUES
+INSERT INTO DETTAGLIO_PRENOTAZIONE (ID_prenotazione, ID_servizio, data_inizio, data_fine) VALUES
 (@pr1, @s1, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 8 DAY)),
 (@pr2, @s2, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 DAY)),
 (@pr3, @s5, DATE_ADD(CURDATE(), INTERVAL 7 DAY), DATE_ADD(CURDATE(), INTERVAL 7 DAY));
 
--- 7) PRODOTTI, ORDINI, DETTAGLI_ORDINE
+-- 7) PRODOTTI, ORDINI, DETTAGLIO_ORDINE
 INSERT INTO PRODOTTO (nome, prezzo) VALUES
 ('Marmellata Artigianale',6.50),
 ('Olio 500ml',12.00),
@@ -115,7 +115,7 @@ SELECT ID_ordine INTO @o2 FROM ORDINE WHERE username='mrossi' ORDER BY ID_ordine
 SELECT ID_prodotto INTO @prod1 FROM PRODOTTO WHERE nome='Marmellata Artigianale' LIMIT 1;
 SELECT ID_prodotto INTO @prod2 FROM PRODOTTO WHERE nome='Olio 500ml' LIMIT 1;
 
-INSERT INTO DETTAGLI_ORDINE (ID_prodotto, ID_ordine, quantita, prezzo_unitario) VALUES
+INSERT INTO DETTAGLIO_ORDINE (ID_prodotto, ID_ordine, quantita, prezzo_unitario) VALUES
 (@prod1, @o1, 2, 6.50),
 (@prod2, @o1, 1, 12.00),
 (@prod1, @o2, 1, 6.50);
@@ -128,12 +128,12 @@ INSERT INTO EVENTO (posti, titolo, descrizione, data_evento, username) VALUES
 SELECT ID_evento INTO @ev1 FROM EVENTO WHERE titolo='Torneo Calcetto' LIMIT 1;
 SELECT ID_evento INTO @ev2 FROM EVENTO WHERE titolo='Laboratorio Asini' LIMIT 1;
 
-INSERT INTO iscrive (ID_evento, username, partecipanti) VALUES
+INSERT INTO ISCRIVE (ID_evento, username, partecipanti) VALUES
 (@ev1, 'mrossi', 4),
 (@ev2, 'averdi', 2);
 
 -- 9) ospita (collega PERSONA <-> UTENTE per ospitalità)
-INSERT INTO ospita (CF, username, data_ospitazione) VALUES
+INSERT INTO OSPITA (CF, username, data_ospitazione) VALUES
 ('RSSMRA80A01H501U','mrossi', CURDATE()),
 ('VRDLNZ90C03G345Y','averdi', DATE_SUB(CURDATE(), INTERVAL 30 DAY));
 
@@ -145,7 +145,7 @@ INSERT INTO RECENSIONE (tipo_servizio, voto, descrizione, username, ID_prenotazi
 -- A) Elenco prenotazioni attive (oggi)
 SELECT P.ID_prenotazione, P.username, DP.ID_servizio, DP.data_inizio, DP.data_fine
 FROM PRENOTAZIONE P
-JOIN DETTAGLI_PRENOTAZIONE DP ON DP.ID_prenotazione = P.ID_prenotazione
+JOIN DETTAGLIO_PRENOTAZIONE DP ON DP.ID_prenotazione = P.ID_prenotazione
 WHERE DP.data_inizio <= CURDATE() AND DP.data_fine >= CURDATE();
 
 -- B) Trova servizi occupati ora (utilizza evento schedulato logic)
@@ -153,7 +153,7 @@ SELECT * FROM SERVIZIO WHERE status = 'OCCUPATO';
 
 -- C) Fatturato totale per prodotto (aggregato)
 SELECT PR.nome, SUM(DO.quantita * DO.prezzo_unitario) AS totale_venduto
-FROM DETTAGLI_ORDINE DO
+FROM DETTAGLIO_ORDINE DO
 JOIN PRODOTTO PR ON PR.ID_prodotto = DO.ID_prodotto
 GROUP BY PR.ID_prodotto;
 

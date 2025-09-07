@@ -21,7 +21,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
-from .models import PersonModel, UserModel
+from .models import Person, User
 from .forms import RegisterForm
 
 
@@ -128,25 +128,11 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     Security:
       - Protected with @login_required so only authenticated users can access it.
     """
-    person = None
-    debug = {"request_user": request.user.username}
 
-    try:
-        ut = UserModel.objects.select_related("CF").get(username=request.user.username)
-        person = getattr(ut, "CF", None)
-        debug["user_CF_obj"] = (
-            None
-            if person is None
-            else {
-                "CF": getattr(person, "CF", None),
-                "nome": getattr(person, "nome", None),
-                "cognome": getattr(person, "cognome", None),
-            }
-        )
-    except UserModel.DoesNotExist:
-        debug["error"] = "UserModel.DoesNotExist"
+    ut = User.objects.get(username=request.user.username)
+    person = Person.objects.filter(cf=getattr(ut, "cf", None)).first()
 
-    return render(request, "user/profile.html", {"person": person, "debug": debug})
+    return render(request, "user/profile.html", {"person": person})
 
 
 def logout_view(request: HttpRequest) -> HttpResponseRedirect:
