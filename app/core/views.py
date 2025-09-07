@@ -224,6 +224,9 @@ def iscrizione_evento(request, evento_id):
         utente_db = get_object_or_404(UserModel, username=request.user.username)
 
         iscrizione = EnrollModel.objects.filter(ID_evento=evento, username=utente_db).first()
+
+
+
         if iscrizione:
             iscrizione.partecipanti += partecipanti
             iscrizione.save()

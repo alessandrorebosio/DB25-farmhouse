@@ -134,13 +134,13 @@ class EnrollModel(models.Model):
     - This table likely has a composite primary key (ID_evento + username).
       In Django, define one as PK and set `unique_together` in Meta to enforce both.
     """
+    pk = models.CompositePrimaryKey("ID_evento_id", "username_id")
 
     ID_evento = models.ForeignKey(
         EventModel,
         db_column="ID_evento",
         to_field="ID_evento",
         on_delete=models.CASCADE,
-        primary_key=True,  # impostiamo questo come PK
     )
     username = models.ForeignKey(
         UserModel,
