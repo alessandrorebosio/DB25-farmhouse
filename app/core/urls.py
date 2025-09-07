@@ -18,6 +18,7 @@ from . import views
 urlpatterns = [
     # Main landing page
     path("", views.homepage, name="homepage"),
+  path("servizio/<int:id_servizio>/prenota/", views.book_service, name="book_service"),
     # Registration endpoint:
     # - GET: renders the registration page
     # - POST: processes registration form
@@ -31,4 +32,6 @@ urlpatterns = [
     # Logout endpoint:
     # - should be called with POST (AJAX or normal). For AJAX returns JSON {success: True}
     path("logout/", views.logout_view, name="logout"),
+    path('servizi/<str:tipo>/', views.scegli_servizio, name='scegli_servizio'),
+    path("prenota/<str:tipo>/", views.book_service, name="book_service"),
 ]

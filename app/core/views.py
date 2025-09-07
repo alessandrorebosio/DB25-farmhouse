@@ -21,8 +21,45 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
-from .models import Person, User
+from .models import Person, User, Service, Room, Pool, AnimalActivity, Playground, Restaurant
 from .forms import RegisterForm
+
+from django.contrib.auth.decorators import login_required
+# View per prenotazione servizio
+
+
+# Gestione doppia firma per compatibilità con entrambe le url
+from django.http import Http404
+
+@login_required(login_url='login')
+def book_service(request, tipo=None, id_servizio=None, tipo_servizio=None):
+  # Supporta chiamate sia con tipo che con id_servizio (per retrocompatibilità url)
+  if tipo_servizio:
+    tipo = tipo_servizio
+  if tipo:
+    # Logica dinamica per istanze in base al tipo
+    if tipo == 'CAMERA':
+      istanze = Room.objects.select_related('id').all()
+    elif tipo == 'PISCINA':
+      istanze = Pool.objects.select_related('id').all()
+    elif tipo == 'ATTIVITA_CON_ANIMALI':
+      istanze = AnimalActivity.objects.select_related('id').all()
+    elif tipo == 'CAMPO_DA_GIOCO':
+      istanze = Playground.objects.select_related('id').all()
+    elif tipo == 'RISTORANTE':
+      istanze = Restaurant.objects.select_related('id').all()
+    else:
+      istanze = []
+    context = {
+      'istanze': istanze,
+      'tipo': tipo,
+    }
+    return render(request, 'book_service.html', context)
+  elif id_servizio:
+    # Logica legacy: mostra dettagli per id_servizio
+    return render(request, "book_service.html", {"id_servizio": id_servizio})
+  else:
+    raise Http404("Parametro non valido per prenotazione servizio.")
 
 
 def homepage(request: HttpRequest) -> HttpResponse:
@@ -37,7 +74,15 @@ def homepage(request: HttpRequest) -> HttpResponse:
 
     Returns a simple HttpResponse rendering the homepage template.
     """
-    return render(request, "index.html")
+    tipi_servizi = Service.objects.values_list('type', flat=True).distinct()
+    servizi = Service.objects.filter(type__in=tipi_servizi, status='DISPONIBILE')
+    tipi_unici = []
+    visti = set()
+    for s in servizi:
+        if s.type not in visti:
+            tipi_unici.append(s)
+            visti.add(s.type)
+    return render(request, "index.html", {"servizi_disponibili": tipi_unici})
 
 
 def register_view(request: HttpRequest) -> HttpResponse:
@@ -151,3 +196,8 @@ def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     """
     logout(request)
     return redirect("/")
+
+def scegli_servizio(request, tipo):
+    istanze = Service.objects.filter(type=tipo, status='DISPONIBILE')
+    return render(request, "core/choose_service.html", {"istanze": istanze, "tipo": tipo})
+
