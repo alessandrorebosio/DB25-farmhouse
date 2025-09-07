@@ -18,6 +18,7 @@
 
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{enumitem}
 
 % colori (uso HTML per esadecimale, compatibile con xcolor)
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -43,9 +44,7 @@
     showspaces=false,
     showstringspaces=false,
     showtabs=false,
-    frame=single,            % bordo attorno al codice (opzionale)
-    xleftmargin=5pt,
-    xrightmargin=5pt
+	keepspaces=true
 }
 
 % ambiente dedicato, sempre con nome unico
@@ -366,60 +365,41 @@ specificando anche il tipo di utente che la effettua e il tipo di accesso al DB 
 	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
 		\hline
 		\rowcolor{gray!20}
-		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Op / 7gg} & \textbf{Tipo Utente}   \\
+		\textbf{\#} & \textbf{Operazione}                                                   & \textbf{Op / 7gg} & \textbf{Tipo Utente} \\
 		\hline
-		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 10                & Cliente                \\
+		1           & \hyperref[op1]{Prenotazione servizio}                                 & 125               & Cliente / Reception  \\
 		\hline
-		2           & \hyperref[op2]{Autenticazione / login}                                 & 350               & Tutti (Clienti, Staff) \\
+		2           & \hyperref[op2]{Acquisto pacchetto}                                    & 15                & Cliente              \\
 		\hline
-		3           & \hyperref[op3]{Prenotazione servizio}                                  & 125               & Cliente / Reception    \\
+		3           & \hyperref[op3]{Inserimento recensione}                                & 40                & Cliente              \\
 		\hline
-		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 30                & Cliente / Reception    \\
+		4           & \hyperref[op4]{Creazione ordine}                                      & 25                & Cliente / Staff      \\
 		\hline
-		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 3                 & Staff / Admin          \\
+		5           & \hyperref[op5]{Check-in / Check-out (arrivi/partenze)}                & 50                & Reception            \\
 		\hline
-		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 15                & Cliente                \\
+		6           & \hyperref[op6]{Controllo disponibilità servizi (ricerca/filtri)}      & 550               & Tutti                \\
 		\hline
-		7           & \hyperref[op7]{Inserimento recensione}                                 & 40                & Cliente                \\
+		7           & \hyperref[op7]{Generazione report settimanali (occupazione, ricavi)}  & 1                 & Admin                \\
 		\hline
-		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 10                & Staff                  \\
+		8           & \hyperref[op8]{Applicazione sconto/promozione su prenotazione/ordine} & 5                 & Staff / Admin        \\
 		\hline
-		9           & \hyperref[op9]{Creazione evento}                                       & 1                 & Staff / Admin          \\
+		9           & \hyperref[op9]{Pianificazione turno esistente per dipendente}         & 3                 & Admin                \\
 		\hline
-		10          & \hyperref[op10]{Iscrizione evento}                                     & 15                & Cliente                \\
+		10          & \hyperref[op10]{Calcolo tasso di occupazione camere mensile}          & 1                 & Admin                \\
 		\hline
-		11          & \hyperref[op11]{Creazione ordine}                                      & 25                & Cliente / Staff        \\
+		11          & \hyperref[op11]{Analisi fasce orarie più richieste per i lettini}     & 1                 & Admin / Staff        \\
 		\hline
-		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              & 1                 & Admin                  \\
+		12          & \hyperref[op12]{Individuazione pacchetto più richiesto}               & 1                 & Admin                \\
 		\hline
-		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                & 50                & Reception              \\
+		13          & \hyperref[op13]{Calcolo fatturato mensile per servizio}               & 1                 & Admin                \\
 		\hline
-		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        & 30                & Staff operativo        \\
-		\hline
-		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      & 550               & Tutti                  \\
-		\hline
-		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  & 1                 & Admin                  \\
-		\hline
-		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 5                 & Staff / Admin          \\
-		\hline
-		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}         & 3                 & Admin                  \\
-		\hline
-		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 1                 & Admin                  \\
-		\hline
-		20          & \hyperref[op20]{Analisi fasce orarie più richieste per i lettini}      & 1                 & Admin / Staff          \\
-		\hline
-		21          & \hyperref[op21]{Individuazione pacchetto più richiesto}                & 1                 & Admin                  \\
-		\hline
-		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 1                 & Admin                  \\
-		\hline
-		23          & \hyperref[op23]{Analisi servizi più inclusi nei pacchetti}             & 1                 & Admin                  \\
+		14          & \hyperref[op14]{Analisi servizi più inclusi nei pacchetti}            & 1                 & Admin                \\
 		\hline
 	\end{tabularx}
 	\caption{Numero stimato di operazioni per settimana, con tipo di utente che le effettua}
 	\label{tab:operazioni-settimanali}
 \end{table}
 
-\newpage
 \section{Analisi delle operazioni}
 Di seguito viene riportata un'analisi per alcune delle operazioni principali sul database dell'agriturismo. \\
 Per stimare il carico delle operazioni sul database si è deciso di introdurre i seguenti parametri:
@@ -429,70 +409,10 @@ Per stimare il carico delle operazioni sul database si è deciso di introdurre i
 	\item $Op_{set}$ = numero medio di volte in cui l'operazione viene eseguita in una settimana (dalla Tabella \ref{tab:operazioni-settimanali}).
 \end{itemize}
 Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittura, rispetto a quelli in lettura
+
+\newpage
 \begin{enumerate}
-	\item {\large \textbf{Registrazione nuovo utente}} \label{op1}
-
-	      In questa operazione viene gestita la creazione di un nuovo utente del sistema.
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      UTENTE        & E             & 1                       & L            \\
-			      \hline
-			      PERSONA       & E             & 1                       & S            \\
-			      \hline
-			      UTENTE        & E             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Il flusso dunque si articola in tre parti principali:
-	      \begin{enumerate}
-		      \item Verificare che l'\texttt{username} ed l'\texttt{email} non siano già presenti in \texttt{UTENTE}, al fine di evitare quindi duplicati.
-		      \item Inserimento dei dati anagrafici della nuova persona in \texttt{PERSONA}.
-		      \item Creazione dell'utente vero e proprio in \texttt{UTENTE}, collegato alla relativa persona.
-	      \end{enumerate}
-
-	      Sono dunque presenti $A_{lettura}=1$ e $A_{scrittura}=2$.
-
-	      Pertanto il \textbf{costo settimanale} è dato da:
-	      \begin{align*}
-		      C_{tot} & = O_{settimana} \cdot (A_{lett} + 2 \cdot A_{scr}) \\
-		              & = 10 \cdot (1 + 2 \cdot 2)                         \\
-		              & = 10 \cdot 5 = \mathbf{50}
-	      \end{align*}
-
-
-	\item {\large \textbf{Autenticazione / login}} \label{op2}
-
-	      $$
-		      {Op}_{sett} = 350
-	      $$
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      UTENTE        & E             & 1                       & L            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Quindi si ha una sola operazione di lettura.
-	      Pertanto $C_{tot} = 350 \cdot 1 = \mathbf{350}$
-
-	\item {\large \textbf{Prenotazione servizio}} \label{op3}
+	\item {\large \textbf{Prenotazione servizio}} \label{op1}
 	      $$
 		      {Op}_{sett}=125
 	      $$
@@ -521,86 +441,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      Pertanto il costo settimanale è:
 	      $$\mathbf{C_{tot}} = 125 \cdot (3+6)=\mathbf{1125}$$
 
-
-
-	\item {\large \textbf{Modifica / cancellazione prenotazione}} \label{op4}
-
-	      $$
-		      {Op}_{sett} = 30
-	      $$
-	      In media si hanno $\frac{4000}{2000}=2$ \textbf{servizi per prenotazione}.
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome}          & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      PRENOTAZIONE           & E             & 1                       & L            \\
-			      DETTAGLI\_PRENOTAZIONE & A             & 2                       & L            \\
-			      PRENOTAZIONE           & E             & 1                       & S            \\
-			      DETTAGLI\_PRENOTAZIONE & A             & 2                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Quindi in totale si hanno $A_{lett}=3$ e $A_{scr}=3$, questo perché:
-	      \begin{itemize}
-		      \item Si accede alla tabella \texttt{PRENOTAZIONE} per trovare la prenotazione da modificare.
-		      \item Si leggono i \texttt{DETTAGLI\_PRENOTAZIONE} collegati (che sono in media 2 per prenotazione).
-		      \item Infine si aggiorna o si elimina la prenotazione (se viene cancellata, si devono rimuovere anche i relativi dettagli).
-	      \end{itemize}
-
-	      Pertanto, il costo settimanale è:
-	      $$
-		      \mathbf{C_{tot}} = 30 \cdot (3 + 2 \cdot 3) = \mathbf{270}
-	      $$
-
-
-	\item {\large \textbf{Creazione / modifica pacchetto} \label{op5}}
-
-	      In questa operazione, un membro dello staff oppure un amministratore \newline
-	      crea/modifica un pacchetto, ovvero un insieme di servizi offerti ad un prezzo \newline
-	      promozionale.
-
-	      $$
-		      {Op}_{set}=3
-	      $$
-
-	      In media ogni pacchetto contiene $\frac{90}{30}=3$ \textbf{servizi}
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      PACCHETTO     & E             & 1                       & S            \\
-			      SERVIZIO      & E             & 3                       & L            \\
-			      COMPOSTO\_DA  & A             & 3                       & L            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-	      Si hanno dunque $A_{lett}=3$ e $A_{scr}=4$. \\
-	      Questo perché:
-	      \begin{itemize}
-		      \item si inserisce o aggiorna il record del \texttt{PACCHETTO};
-		      \item si leggono in media 3 record di \texttt{SERVIZIO} per verificare la loro esistenza;
-		      \item si scrivono in media 3 record nella relazione \texttt{COMPOSTO\_DA}, che collega i 	servizi al pacchetto.
-	      \end{itemize}
-
-	      Pertanto il costo settimanale è:
-	      $$
-		      C_{tot} = 3 \cdot (3 + 2 \cdot 4) = \mathbf{33}
-	      $$
-
-	\item {\large \textbf{Acquisto pacchetto}} \label{op6}
+	\item {\large \textbf{Acquisto pacchetto}} \label{op2}
 
 	      $$
 		      {Op}_{sett} = 15
@@ -643,7 +484,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      \]
 
 
-	\item {\large \textbf{Inserimento recensione}} \label{op7}
+	\item {\large \textbf{Inserimento recensione}} \label{op3}
 
 	      $$
 		      {Op}_{sett} = 40
@@ -679,104 +520,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      Pertanto il costo settimanale è:
 	      $$\mathbf{C_{tot}} = 40 \cdot (2 + 2 \cdot 1) = \mathbf{160}$$
 
-
-	\item {\large \textbf{Gestione inventario / prodotti}} \label{op8}
-
-	      Per gestione inventario si intende l'aggiornamento dei prodotti del ristorante/bar da parte dello staff.
-	      $$
-		      {Op}_{sett} = 10
-	      $$
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      PRODOTTO      & E             & 1                       & L            \\
-			      PRODOTTO      & E             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Quindi in totale si hanno $A_{lett}=1$ e $A_{scr}=1$.
-
-	      Questo perché:
-	      \begin{itemize}
-		      \item prima leggiamo il record del \texttt{PRODOTTO} per verificare l'esistenza di dati attuali
-		      \item per poi aggiornarlo (se esiste) o inserirlo
-	      \end{itemize}
-
-	      Pertanto il costo settimanale è:
-	      $$\mathbf{C_{tot}} = 10 \cdot (1 + 2 \cdot 1) = \mathbf{30}$$
-
-	\item {\large \textbf{Creazione evento}} \label{op9}
-
-	      $$
-		      {Op}_{sett} = 1
-	      $$
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      EVENTO        & E             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Questo perchè l'operazione comporta semplicemente l'inserimento di un \newline nuovo \texttt{EVENTO}.
-
-	      Quindi si ha solamente un'operazione di scrittura:
-	      $$
-		      \mathbf{C_{tot}} = 1 \cdot (0 + 2 \cdot 1) = \mathbf{2}
-	      $$
-
-	\item {\large \textbf{Iscrizione evento}} \label{op10}
-
-	      $$
-		      {Op}_{sett} = 15
-	      $$
-
-	      In media ad un evento si iscrivono $\frac{500}{25}=20$ \textbf{iscritti}
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.9\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      UTENTE        & E             & 1                       & L            \\
-			      EVENTO        & E             & 1                       & L            \\
-			      ISCRIVE       & A             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      Questo perché:
-	      \begin{itemize}
-		      \item si legge l'\texttt{UTENTE} che si iscrive;
-		      \item si legge l'\texttt{EVENTO} scelto;
-		      \item si inserisce un nuovo record nella \texttt{ISCRIVE}.
-	      \end{itemize}
-
-	      Quindi: $A_{lett}=2$, $A_{scr}=1$.
-	      Pertanto il costo settimanale è:
-	      $$\mathbf{C_{tot}} = 15 \cdot (2 + 2 \cdot 1) = \mathbf{60}$$
-
-
-	\item {\large \textbf{Creazione Ordine}} \label{op11}
+	\item {\large \textbf{Creazione Ordine}} \label{op4}
 
 	      $$
 		      {Op}_{sett} = 25
@@ -813,43 +557,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      Pertanto il costo settimanale è:
 	      $$\mathbf{C_{tot}} = 25 \cdot (4 + 2 \cdot 4) = \mathbf{300}$$
 
-
-
-	\item {\large \textbf{Assegnazione / modifica ruolo dipendenti}} \label{op12}
-	      $$
-		      Op_{sett} = 1
-	      $$
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome}  & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      DIPENDENTE     & E             & 1                       & L            \\
-			      RUOLO          & E             & 1                       & L            \\
-			      ASSEGNA\_RUOLO & A             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      In questa operazione si assegna o modifica il ruolo di un dipendente:
-	      \begin{itemize}
-		      \item Si legge il \texttt{DIPENDENTE}.
-		      \item Si legge il \texttt{RUOLO}.
-		      \item Si inserisce/aggiorna l'associazione in \texttt{ASSEGNA\_RUOLO}.
-	      \end{itemize}
-
-	      Totale: $A_{lett}=2$, $A_{scr}=1$.
-	      \[
-		      C_{tot} = 1 \cdot (2 + 2 \cdot 1) = \mathbf{4}
-	      \]
-
-
-	\item {\large \textbf{Check-in / Check-out}} \label{op13}
+	\item {\large \textbf{Check-in / Check-out}} \label{op5}
 
 	      Questa operazione gestisce l'arrivo o la partenza di un cliente.
 	      $$
@@ -885,37 +593,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 		      \mathbf{C_{tot}} = 50 \cdot (3 + 2 \cdot 2) = \mathbf{350}
 	      $$
 
-	\item {\large \textbf{Aggiornamento stato servizio}} \label{op14}
-
-	      Questa operazione spiega quante volte lo staff aggiorna lo stato di un servizio.
-	      $$
-		      Op_{sett} = 30
-	      $$
-
-	      \begin{table}[H]
-		      \centering
-		      \small
-		      \renewcommand{\arraystretch}{1.15}
-		      \begin{tabularx}{0.8\textwidth}{|X|c|c|c|}
-			      \hline
-			      \rowcolor{gray!20}
-			      \textbf{Nome} & \textbf{Tipo} & \textbf{Numero accessi} & \textbf{S/L} \\
-			      \hline
-			      SERVIZIO      & E             & 1                       & L            \\
-			      SERVIZIO      & E             & 1                       & S            \\
-			      \hline
-		      \end{tabularx}
-	      \end{table}
-
-	      \begin{itemize}
-		      \item Si legge il \texttt{SERVIZIO}.
-		      \item Si aggiorna lo stato (es. disponibile, in manutenzione, occupato).
-	      \end{itemize}
-
-	      Quindi ci sono $A_{lett}=1$ e $A_{scr}=1$.
-	      $$\mathbf{C_{tot}} = 30 \cdot (1 + 2 \cdot 1) = \mathbf{90}$$
-
-	\item {\large \textbf{Controllo disponibilità servizi}} \label{op15}
+	\item {\large \textbf{Controllo disponibilità servizi}} \label{op6}
 
 	      Un utente o lo staff verificano la disponibilità di un servizio in un dato periodo.
 	      Si assume che gli utenti guardino in media 3 servizi e che, quindi, non consultino solamente uno.
@@ -947,7 +625,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 
 	      $$\mathbf{C_{tot}} = 550 \cdot 3 = \mathbf{1650}$$
 
-	\item {\large \textbf{Generazione report settimanali}} \label{op16}
+	\item {\large \textbf{Generazione report settimanali}} \label{op7}
 
 	      Lo staff genera report riassuntivi sulle prenotazioni e sugli ordini.
 	      In media un report include 20 prenotazioni e 10 ordini.
@@ -979,7 +657,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$\mathbf{C_{tot}} = 1 \cdot (30) = \mathbf{30}$$
 
 
-	\item {\large \textbf{Applicazione sconto / promozione}} \label{op17}
+	\item {\large \textbf{Applicazione sconto / promozione}} \label{op8}
 	      Un amministratore o un membro dello staff inserisce o modifica una promozione su pacchetti o servizi.
 	      $$
 		      Op_{sett} = 5
@@ -1008,7 +686,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      Quindi si ha $A_{lett}=1$ e $A_{scr}=1$.
 	      $$\mathbf{C_{tot}} = 5 \cdot (1 + 2 \cdot 1) = \mathbf{15}$$
 
-	\item {\large \textbf{Pianificazione turno esistente per dipendente}} \label{op18}
+	\item {\large \textbf{Pianificazione turno esistente per dipendente}} \label{op9}
 	      $$
 		      Op_{sett} = 3
 	      $$
@@ -1040,7 +718,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$C_{tot} = 3 \cdot (2 + 2 \cdot 1) = \mathbf{12}$$
 
 
-	\item {\large \textbf{Calcolo tasso di occupazione camere}} \label{op19}
+	\item {\large \textbf{Calcolo tasso di occupazione camere}} \label{op10}
 	      $$
 		      {Op}_{sett} = 1
 	      $$
@@ -1079,7 +757,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$
 
 
-	\item {\large \textbf{Analisi fasce orarie più richieste per i lettini}} \label{op20}
+	\item {\large \textbf{Analisi fasce orarie più richieste per i lettini}} \label{op11}
 
 	      È un'operazione volta a dimensionare i turni del personale sui picchi di domanda, al fine di migliorare il servizio e gestire al meglio le risorse.
 
@@ -1112,7 +790,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$\mathbf{C_{tot}} = 1 \cdot (8045 + 0) = \mathbf{8045}$$
 
 
-	\item {\large \textbf{Individuazione pacchetto più richiesto}} \label{op21}
+	\item {\large \textbf{Individuazione pacchetto più richiesto}} \label{op12}
 	      $$
 		      {Op}_{sett} = 1
 	      $$
@@ -1148,7 +826,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$\mathbf{C_{tot}} = 1 \cdot (640 + 0) = \mathbf{640}$$
 
 
-	\item {\large \textbf{Calcolo fatturato per servizio}} \label{op22}
+	\item {\large \textbf{Calcolo fatturato per servizio}} \label{op13}
 	      $$
 		      {Op}_{sett} = 0.25
 	      $$
@@ -1185,7 +863,7 @@ Nel calcolo degli accessi si stima come doppio il peso degli accessi in scrittur
 	      $$\mathbf{C_{tot}} = 1 \cdot (25700 + 0) = \mathbf{25700}$$
 
 
-	\item {\large \textbf{Analisi servizi più inclusi nei pacchetti}} \label{op23}
+	\item {\large \textbf{Analisi servizi più inclusi nei pacchetti}} \label{op14}
 	      $$
 		      {Op}_{sett} = 1
 	      $$
@@ -1231,127 +909,88 @@ Nel modello ER definitivo sono state individuate quattro ridondanze:
 	\item \texttt{status} in \texttt{SERVIZIO}
 \end{itemize}
 
-\subsection{Analisi attributo \texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}}
-L’attributo \texttt{prezzo\_unitario} è ridondante perché il prezzo è già presente in \newline \texttt{PRODOTTO}.
-
-Mantendo la \textbf{ridondanza} il prezzo verrebbe letto direttamente dalla riga di \newline \texttt{DETTAGLIO\_ORDINE}.
-\textbf{Senza ridondanza} ad ogni dettaglio d’ordine occorrerebbe un join con \texttt{PRODOTTO}, raddoppiando
-i costi di accesso.
+\newpage
+\subsection{\texttt{prezzo\_unitario} in \texttt{DETTAGLIO\_ORDINE}}
 
 \begin{table}[H]
 	\centering
-	\small
-	\begin{tabular}{|c|l|c|c|}
+	\begin{tabular}{|c|c|c|}
 		\hline
-		\rowcolor{gray!20}
-		\textbf{Op.}    & \textbf{Descrizione}                     & \textbf{Con rid.} & \textbf{Senza rid.} \\
+		\textbf{Operazione} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
 		\hline
-		11              & Creazione ordine (sett.)                 & 300               & 600                 \\
-		16              & Report settimanali (sett.)               & 30                & 60                  \\
-		22              & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425            & 12\,850             \\
+		Op. 4               & 300                     & $\sim$400                 \\
 		\hline
-		\textbf{Totale} &                                          & \textbf{6\,755}   & \textbf{13\,510}    \\
+		Op. 13              & 25.700                  & $\sim$30.000              \\
+		\hline
+		\textbf{Totale}     & \textbf{26.000}         & $\sim$\textbf{30.400}     \\
 		\hline
 	\end{tabular}
-	\caption{Analisi ridondanza \texttt{prezzo\_unitario}}
 \end{table}
 
-\noindent
-A fronte di questa analisi, decidiamo di mantenere l’attributo con la ridondanza perché dimezza i costi e preserva i prezzi storici degli ordini.
+\textbf{Decisione:} Conviene mantenere la ridondanza: il costo di scrittura è minimo e si evitano join pesanti nelle operazioni di reporting.
 
-\subsection{Analisi attributo \texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}}
-La quantità è ridondante perché si potrebbero inserire $q$ tuple identiche.
-Mantenendo \textbf{la ridondanza}, si salverebbe un solo record con il campo \texttt{quantita},
-\textbf{Senza ridondanza} occorrerebbe invece replicare ogni voce d’ordine $q$ volte, aumentando linearmente i costi con $\bar{q}$.
-
-
+\subsection{\texttt{quantita} in \texttt{DETTAGLIO\_ORDINE}}
 \begin{table}[H]
 	\centering
-	\small
-	\begin{tabular}{|c|l|c|c|}
+	\begin{tabular}{|c|c|c|}
 		\hline
-		\rowcolor{gray!20}
-		\textbf{Op.}    & \textbf{Descrizione}                     & \textbf{Con rid.} & \textbf{Senza rid.}     \\
+		\textbf{Operazione} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
 		\hline
-		11              & Creazione ordine (sett.)                 & 300               & $300 \times \bar{q}$    \\
-		16              & Report settimanali (sett.)               & 30                & $30 \times \bar{q}$     \\
-		22              & Fatturato per servizio ($Op_{set}=0.25$) & 6\,425            & $6\,425 \times \bar{q}$ \\
+		Op. 4               & 300                     & $\sim$500                 \\
 		\hline
-		\textbf{Totale} &                                          & \textbf{6\,755}   & $\gg 6\,755$            \\
+		Op. 13              & 25.700                  & $\sim$30.000              \\
+		\hline
+		\textbf{Totale}     & \textbf{26.000}         & $\sim$\textbf{30.500}     \\
 		\hline
 	\end{tabular}
-	\caption{Analisi ridondanza \texttt{quantita}}
 \end{table}
 
-\noindent
-A fronte di questa analisi, conviene mantenere la ridondanza perché riduce drasticamente il volume dei dati.
+\textbf{Decisione:} Mantenere la ridondanza: la quantità è fondamentale per la business logic e la sua presenza semplifica e velocizza tutte le operazioni di lettura e reporting.
 
-\subsection{Analisi attributo \texttt{tipo\_servizio} in \texttt{RECENSIONE}}
-Il tipo del servizio è già recuperabile da \texttt{SERVIZIO}.
-Mediante la \textbf{ridondanza} la query sulle recensioni accede direttamente all’attributo.
-\textbf{Senza ridondanza} servirebbe un join tra \texttt{RECENSIONE} e \texttt{SERVIZIO}, raddoppiando i costi.
-
+\subsection{\texttt{tipo\_servizio} in \texttt{RECENSIONE}}
 \begin{table}[H]
 	\centering
-	\small
-	\begin{tabular}{|c|l|c|c|}
+	\begin{tabular}{|c|c|c|}
 		\hline
-		\rowcolor{gray!20}
-		\textbf{Op.}    & \textbf{Descrizione}           & \textbf{Con rid.} & \textbf{Senza rid.} \\
+		\textbf{Operazione} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
 		\hline
-		7               & Inserimento recensione (sett.) & 160               & 320                 \\
-		20              & Analisi fasce orarie (sett.)   & 8\,045            & 16\,090             \\
-		23              & Analisi pacchetti (sett.)      & 640               & 1\,280              \\
+		Op. 3               & 160                     & $\sim$200                 \\
 		\hline
-		\textbf{Totale} &                                & \textbf{8\,845}   & \textbf{17\,690}    \\
+		Op. 7               & 30                      & $\sim$50                  \\
+		\hline
+		\textbf{Totale}     & \textbf{190}            & $\sim$\textbf{250}        \\
 		\hline
 	\end{tabular}
-	\caption{Analisi ridondanza \texttt{tipo\_servizio}}
 \end{table}
 
-\noindent
-A fronte di questa analisi, decidiamo di mantenere la ridondanza perché evita join costosi nelle query statistiche.
+\textbf{Decisione:} Mantenere la ridondanza per semplificare e velocizzare le query di lettura.
 
-\subsection{Analisi attributo \texttt{status} in \texttt{SERVIZIO}}
-La disponibilità di un servizio può essere calcolata dalle prenotazioni.
-Con la \textbf{ridondanza} si legge direttamente l’attributo \texttt{status} in \texttt{SERVIZIO}.
-Invece, \textbf{senza ridondanza} occorre cercare nelle prenotazioni attive di \texttt{DETTAGLIO\_PRENOTAZIONE}, con più join e accessi.
-
+\subsection{Ridondanza: \texttt{status} in \texttt{SERVIZIO}}
 \begin{table}[H]
 	\centering
-	\small
-	\begin{tabular}{|c|l|c|c|}
+	\begin{tabular}{|c|c|c|}
 		\hline
-		\rowcolor{gray!20}
-		\textbf{Op.}    & \textbf{Descrizione}            & \textbf{Con rid.} & \textbf{Senza rid.} \\
+		\textbf{Operazione} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
 		\hline
-		3               & Prenotazione servizio (sett.)   & 1\,125            & 2\,250              \\
-		13              & Check-in / Check-out (sett.)    & 350               & 700                 \\
-		14              & Aggiornamento stato (sett.)     & 90                & 180                 \\
-		15              & Controllo disponibilità (sett.) & 1\,650            & 3\,300              \\
+		Op. 6               & 1.650                   & $\sim$10.000              \\
 		\hline
-		\textbf{Totale} &                                 & \textbf{3\,215}   & \textbf{6\,430}     \\
+		Op. 10              & 8.220                   & $\sim$15.000              \\
+		\hline
+		\textbf{Totale}     & \textbf{9.870}          & $\sim$\textbf{25.000}     \\
 		\hline
 	\end{tabular}
-	\caption{Analisi ridondanza \texttt{status}}
 \end{table}
 
-\noindent
-A fronte di questa analisi, ci conviene mantenere la ridondanza perché dimezza i costi delle operazioni più frequenti del sistema.
+\textbf{Decisione:} Mantenere la ridondanza per garantire performance ottimali nelle ricerche in tempo reale e ridurre la complessità delle query di lettura.
 
-\subsection*{Riepilogo analisi delle ridondanze}
-Tutte le ridondanze vengono mantenute poiché:
-\begin{itemize}
-	\item \texttt{prezzo\_unitario} e \texttt{quantita} assicurano efficienza e storicità degli ordini.
-	\item \texttt{tipo\_servizio} evita join costosi sulle recensioni.
-	\item \texttt{status} riduce drasticamente i costi delle prenotazioni e dei controlli disponibilità.
-\end{itemize}
+\subsection{Riepilogo decisioni}
+In conclusione, tutte le ridondanze individuate (\texttt{prezzo\_unitario}, \texttt{quantita}, \newline \texttt{tipo\_servizio}, \texttt{status}) sono state
+mantenute perché rendono più semplici e veloci le operazioni di lettura e reporting, migliorando le prestazioni del sistema.
 
 \newpage
 \section{Riepilogo operazioni}
 Nella tabella qui sotto, riprendiamo l'analisi delle operazioni, facendone un riepilogo, aggiungendo
 il costo totale per ogni operazione.
-
 \begin{table}[H]
 	\centering
 	\small
@@ -1359,56 +998,38 @@ il costo totale per ogni operazione.
 	\begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}X|c|c|}
 		\hline
 		\rowcolor{gray!20}
-		\textbf{\#} & \textbf{Operazione}                                                    & \textbf{Costo tot. / 7gg} & \textbf{Tipo Utente}   \\
+		\textbf{\#} & \textbf{Operazione}                                                   & \textbf{Costo tot. / 7gg} & \textbf{Tipo Utente} \\
 		\hline
-		1           & \hyperref[op1]{Registrazione nuovo utente}                             & 50                        & Cliente                \\
+		1           & \hyperref[op1]{Prenotazione servizio}                                 & 1125                      & Cliente / Reception  \\
 		\hline
-		2           & \hyperref[op2]{Autenticazione / login}                                 & 350                       & Tutti (Clienti, Staff) \\
+		2           & \hyperref[op2]{Acquisto pacchetto}                                    & 195                       & Cliente              \\
 		\hline
-		3           & \hyperref[op3]{Prenotazione servizio}                                  & 1125                      & Cliente / Reception    \\
+		3           & \hyperref[op3]{Inserimento recensione}                                & 160                       & Cliente              \\
 		\hline
-		4           & \hyperref[op4]{Modifica / cancellazione prenotazione}                  & 270                       & Cliente / Reception    \\
+		4           & \hyperref[op4]{Creazione ordine}                                      & 300                       & Cliente / Staff      \\
 		\hline
-		5           & \hyperref[op5]{Creazione / modifica pacchetto}                         & 33                        & Staff / Admin          \\
+		5           & \hyperref[op5]{Check-in / Check-out (arrivi/partenze)}                & 350                       & Reception            \\
 		\hline
-		6           & \hyperref[op6]{Acquisto pacchetto}                                     & 195                       & Cliente                \\
+		6           & \hyperref[op6]{Controllo disponibilità servizi (ricerca/filtri)}      & 1650                      & Tutti                \\
 		\hline
-		7           & \hyperref[op7]{Inserimento recensione}                                 & 160                       & Cliente                \\
+		7           & \hyperref[op7]{Generazione report settimanali (occupazione, ricavi)}  & 30                        & Admin                \\
 		\hline
-		8           & \hyperref[op8]{Gestione inventario / prodotti}                         & 30                        & Staff                  \\
+		8           & \hyperref[op8]{Applicazione sconto/promozione su prenotazione/ordine} & 15                        & Staff / Admin        \\
 		\hline
-		9           & \hyperref[op9]{Creazione evento}                                       & 2                         & Staff / Admin          \\
+		9           & \hyperref[op9]{Pianificazione turno esistente per dipendente}         & 12                        & Admin                \\
 		\hline
-		10          & \hyperref[op10]{Iscrizione evento}                                     & 60                        & Cliente                \\
+		10          & \hyperref[op10]{Calcolo tasso di occupazione camere mensile}          & 8220                      & Admin                \\
 		\hline
-		11          & \hyperref[op11]{Creazione ordine}                                      & 300                       & Cliente / Staff        \\
+		11          & \hyperref[op11]{Analisi fasce orarie più richieste per i lettini}     & 8045                      & Admin / Staff        \\
 		\hline
-		12          & \hyperref[op12]{Assegnazione / modifica ruolo dipendenti}              & 4                         & Admin                  \\
+		12          & \hyperref[op12]{Individuazione pacchetto più richiesto}               & 640                       & Admin                \\
 		\hline
-		13          & \hyperref[op13]{Check-in / Check-out (arrivi/partenze)}                & 350                       & Reception              \\
+		13          & \hyperref[op13]{Calcolo fatturato mensile per servizio}               & 25700                     & Admin                \\
 		\hline
-		14          & \hyperref[op14]{Aggiornamento stato servizio (pulizia, manut.)}        & 90                        & Staff operativo        \\
-		\hline
-		15          & \hyperref[op15]{Controllo disponibilità servizi (ricerca/filtri)}      & 1650                      & Tutti                  \\
-		\hline
-		16          & \hyperref[op16]{Generazione report settimanali (occupazione, ricavi)}  & 30                        & Admin                  \\
-		\hline
-		17          & \hyperref[op17]{Applicazione sconto/promozione su prenotazione/ordine} & 15                        & Staff / Admin          \\
-		\hline
-		18          & \hyperref[op18]{Pianificazione turno esistente per dipendente}         & 12                        & Admin                  \\
-		\hline
-		19          & \hyperref[op19]{Calcolo tasso di occupazione camere mensile}           & 8220                      & Admin                  \\
-		\hline
-		20          & \hyperref[op20]{Analisi fasce orarie più richieste per i lettini}      & 8045                      & Admin / Staff          \\
-		\hline
-		21          & \hyperref[op21]{Individuazione pacchetto più richiesto}                & 640                       & Admin                  \\
-		\hline
-		22          & \hyperref[op22]{Calcolo fatturato mensile per servizio}                & 6425                      & Admin                  \\
-		\hline
-		23          & \hyperref[op23]{Analisi servizi più inclusi nei pacchetti}             & 640                       & Admin                  \\
+		14          & \hyperref[op14]{Analisi servizi più inclusi nei pacchetti}            & 640                       & Admin                \\
 		\hline
 	\end{tabularx}
-	\caption{Coste delle operazioni per settimana, con tipo di utente che le effettua}
+	\caption{Costo delle operazioni per settimana, con tipo di utente che le effettua}
 	\label{tab:costo-operazioni-settimanali}
 \end{table}
 
@@ -1535,170 +1156,108 @@ Di seguito viene riportata la traduzione in schema relazionale delle entità e r
 	\item\texttt{\textbf{ATTIVITA\_CON\_ANIMALI} (\underline{ID\_servizio} : SERVIZIO, \newline cod\_attivita : ATTIVITA\_CON\_ANIMALI)}
 \end{description}
 
-\chapter{Progettazione della Base di Dati}
-Ora che abbiamo creato la nostra base di dati, mappiamo le nostre relazioni in tabelle, per poi utilizzarle nel nostro
+\chapter{Progettazione della Base Dati}
+Una volta creato il nostro database, riportiamo di seguito una parte del codice relazionale utilizzato per la sua implementazione.
 
 \section{Check}
-Nel file SQL sono stati utilizzati vincoli di tipo \texttt{CHECK} per definire alcuni domini e assicurare semplici proprietà degli attributi. Di seguito un elenco dei controlli presenti nel file:
-\begin{itemize}
-	\item \texttt{TURNO}: \texttt{CHECK (ora\_inizio < ora\_fine)} per assicurare orari coerenti.
-	\item \texttt{DIPENDENTE\\\_RUOLO\_STORICO}: \texttt{CHECK (data\_inizio <= data\_fine)} per la validit\u00E0 degli intervalli.
-	\item \texttt{SERVIZIO} e \texttt{PRODOTTO}: \texttt{CHECK (prezzo >= 0)} per il prezzo non negativo.
-	\item Tabelle con attributi di capienza (\texttt{TAVOLO}, \texttt{CAMPO\_DA\_GIOCO}, \newline \texttt{CAMERA}): \texttt{CHECK (max\_capienza >= 1)}.
-	\item \texttt{DETTAGLI\_PRENOTAZIONE}: \texttt{CHECK (data\_inizio <= data\_fine)}.
-	\item \texttt{RECENSIONE}: \texttt{CHECK (voto BETWEEN 1 AND 5)}.
-	\item \texttt{DETTAGLI\_ORDINE}: \texttt{CHECK (quantita > 0)} e \texttt{CHECK (prezzo\_unitario >= 0)}.
-	\item \texttt{EVENTO}: \texttt{CHECK (posti >= 0)} per il numero di posti rimasti non negativo.
-	\item \texttt{iscrive}: \texttt{CHECK (partecipanti > 0)} per il numero di partecipanti non negativo o nullo.
-\end{itemize}
+Sono stati utilizzati vincoli di tipo \texttt{CHECK} per definire alcuni domini e assicurare semplici proprietà degli attributi.
+Di seguito un esempio di vincolo \texttt{CHECK} utilizzato per assicurare che il prezzo di ogni prodotto sia maggiore o uguale a zero:
 
-\paragraph{Nota} I vincoli \texttt{CHECK} sono stati usati per vincoli locali semplici (dominio di attributi e relazione tra date/orari). Vincoli piu complessi (ad es. check che richiedono subquery) non sono utilizzati come \texttt{CHECK} nel file finale; per logiche relazionali complesse sono stati impiegati i trigger.
-
-\section{Viste}
-TODO scegliere.
-
-\section{Trigger}
-Nel Database sono presenti i seguenti trigger (riportati qui tali e quali come definiti nel file):
-
-\begin{sqlcode}[caption={TRIGGERS},label={lst:trigger}]
-
-	DELIMITER \$\$
-
-	-- Trigger: impedisce di eliminare l'ultimo turno di un dipendente
-	CREATE TRIGGER trg_check_dipendente_turni
-	BEFORE DELETE ON svolge
-	FOR EACH ROW
-	BEGIN
-	IF NOT EXISTS (
-	SELECT 1 FROM svolge
-	WHERE username = OLD.username
-	AND ID_turno <> OLD.ID_turno
-	) THEN
-	SIGNAL SQLSTATE '45000'
-	SET MESSAGE_TEXT = 'Un dipendente deve avere almeno un turno';
-	END IF;
-	END\$\$
-
-	-- Trigger: impedisce di eliminare l'ultimo servizio da un pacchetto
-	CREATE TRIGGER trg_check_pacchetto_servizi
-	BEFORE DELETE ON composto
-	FOR EACH ROW
-	BEGIN
-	IF NOT EXISTS (
-	SELECT 1 FROM composto
-	WHERE ID_pacchetto = OLD.ID_pacchetto
-	AND ID_servizio <> OLD.ID_servizio
-	) THEN
-	SIGNAL SQLSTATE '45000'
-	SET MESSAGE\_TEXT = 'Un pacchetto deve avere almeno un servizio';
-	END IF;
-	END\$\$
-
-	-- Trigger: che decrementa il numero di posti rimasti dell'evento in base al numero di partecipanti iscritti
-	CREATE TRIGGER trg_decrementa_posti_evento
-	BEFORE INSERT ON iscrive
-	FOR EACH ROW
-	BEGIN
-	DECLARE posti_disponibili INT;
-
-	-- Recupero i posti disponibili
-	SELECT posti
-	INTO posti_disponibili
-	FROM EVENTO
-	WHERE ID_evento = NEW.ID_evento;
-
-	-- Se non ci sono abbastanza posti, blocco l'iscrizione
-	IF posti < NEW.partecipanti THEN
-	SIGNAL SQLSTATE '45000'
-	SET MESSAGE_TEXT = 'Posti insufficienti per questo evento';
-	ELSE
-	-- Decremento i posti disponibili
-	UPDATE EVENTO
-	SET posti = posti - NEW.partecipanti
-	WHERE ID_evento = NEW.ID_evento;
-	END IF;
-	END\$\$
-
-	-- Trigger: che si assicura che un utente abbia usufruito del servizio che vuole recensire
-	CREATE TRIGGER trg_recensione_valida
-	BEFORE INSERT ON RECENSIONE
-	FOR EACH ROW
-	BEGIN
-	DECLARE fine_servizio DATE;
-
-	-- Recupero la data_fine dal dettaglio prenotazione corrispondente
-	SELECT DP.data_fine
-	INTO fine_servizio
-	FROM DETTAGLI_PRENOTAZIONE DP
-	WHERE DP.ID_prenotazione = NEW.ID_prenotazione
-	AND DP.ID_servizio = (
-	SELECT S.ID_servizio
-	FROM SERVIZIO S
-	WHERE S.tipo_servizio = NEW.tipo_servizio
-	LIMIT 1
-	)
-	LIMIT 1;
-
-	-- Se non trovo alcun dettaglio collegato al servizio
-	IF fine_servizio IS NULL THEN
-	SIGNAL SQLSTATE '45000'
-	SET MESSAGE_TEXT = 'Non esiste un dettaglio prenotazione valido per questa recensione.';
-	END IF;
-
-	-- Se il servizio non e' ancora terminato, blocco la recensione
-	IF fine_servizio >= CURDATE() THEN
-	SIGNAL SQLSTATE '45000'
-	SET MESSAGE_TEXT = 'La recensione puo' essere inserita solo dopo la fine del servizio prenotato.';
-	END IF;
-	END\$\$
-
-	DELIMITER ;
+\begin{sqlcode}[caption={},label={lst:check}]
+CREATE TABLE PRODOTTO (
+	ID_prodotto INT AUTO_INCREMENT NOT NULL,
+	nome VARCHAR(100) NOT NULL,
+	prezzo DECIMAL(8,2) NOT NULL CHECK (prezzo >= 0),
+	CONSTRAINT ID_PRODOTTO_ID PRIMARY KEY (ID_prodotto)
+);
 \end{sqlcode}
 
-\paragraph{Commento sui trigger}
-I trigger presenti realizzano vincoli di business pi\u00F9 complessi che non possono essere espressi tramite semplici \texttt{CHECK} (ad esempio verifiche che richiedono l'esistenza di righe correlate o l'aggiornamento di attributi aggregati come i posti disponibili). I trigger sono usati per:
-\begin{itemize}
-	\item impedire cancellazioni che lascerebbero entit\u00E0 orfane (es. ultimo turno o ultimo servizio di un pacchetto);
-	\item mantenere coerenza di quantit\u00E0 (decremento automatico dei posti in \texttt{EVENTO});
-	\item validare l'inserimento di recensioni solo se la prenotazione/servizio risulta concluso.
-\end{itemize}
+\section{Viste}
+Poiché la visualizzazione dei servizi disponibili è centrale nell'applicazione, è stata creata la vista \texttt{V\_SERVIZI\_DISPONIBILI}, che
+mostra rapidamente tutti i servizi attualmente prenotabili, con le informazioni essenziali già aggregate.
+
+\begin{sqlcode}[caption={},label={lst:view}]
+CREATE VIEW V_SERVIZI_DISPONIBILI AS
+SELECT
+S.ID_servizio,
+S.tipo_servizio,
+S.prezzo,
+S.status,
+COALESCE(R.cod_tavolo, P.cod_lettino, CG.cod_campo, CA.cod_camera, A.cod_attivita) AS codice,
+COALESCE(R.max_capienza, CG.max_capienza, CA.max_capienza) AS max_capienza,
+A.descrizione AS dettaglio_descrizione
+FROM SERVIZIO S
+LEFT JOIN RISTORANTE R ON R.ID_servizio = S.ID_servizio
+LEFT JOIN PISCINA P ON P.ID_servizio = S.ID_servizio
+LEFT JOIN CAMPO_DA_GIOCO CG ON CG.ID_servizio = S.ID_servizio
+LEFT JOIN CAMERA CA ON CA.ID_servizio = S.ID_servizio
+LEFT JOIN ATTIVITA_CON_ANIMALI A ON A.ID_servizio = S.ID_servizio
+WHERE S.status = 'DISPONIBILE';
+\end{sqlcode}
+
+\section{Trigger}
+
+Nel database sono stati implementati trigger per garantire vincoli di business complessi, come il controllo dei posti disponibili
+negli eventi. Di seguito è riportato un esempio di trigger che impedisce l'iscrizione a un evento se non ci sono abbastanza posti
+e aggiorna automaticamente il numero di posti disponibili:
+
+\begin{sqlcode}[caption={},label={lst:trigger}]
+CREATE TRIGGER trg_decrementa_posti_evento
+BEFORE INSERT ON iscrive
+FOR EACH ROW
+BEGIN
+DECLARE posti_disponibili INT;
+
+-- Recupero i posti disponibili
+SELECT posti
+INTO posti_disponibili
+FROM EVENTO
+WHERE ID_evento = NEW.ID_evento;
+
+-- Se non ci sono abbastanza posti, blocco l'iscrizione
+IF posti_disponibili < NEW.partecipanti THEN
+SIGNAL SQLSTATE '45000'
+SET MESSAGE_TEXT = 'Posti insufficienti per questo evento';
+ELSE
+-- Decremento i posti disponibili
+UPDATE EVENTO
+SET posti = posti_disponibili - NEW.partecipanti
+WHERE ID_evento = NEW.ID_evento;
+END IF;
+\end{sqlcode}
 
 \section{Eventi}
 Nel file SQL è presente un evento che aggiorna periodicamente lo stato dei servizi in base alle prenotazioni. Di seguito la definizione presente nel file:
 
-\begin{sqlcode}[caption={EVENTI},label={lst:eventi}]
-
+\begin{sqlcode}[caption={},label={lst:event}]
 	CREATE EVENT IF NOT EXISTS evt_aggiorna_stato_servizi
-	ON SCHEDULE EVERY 1 HOUR
-	STARTS CURRENT_TIMESTAMP
-	DO
-	BEGIN
-	-- 1. Servizi che devono essere OCCUPATI perche` la prenotazione  e` attiva
-	UPDATE SERVIZIO S
-	SET S.status = 'OCCUPATO'
-	WHERE EXISTS (
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+UPDATE SERVIZIO S
+SET S.status = 'OCCUPATO'
+WHERE EXISTS (
 	SELECT 1
-	FROM DETTAGLI_PRENOTAZIONE DP
+	FROM DETTAGLIO_PRENOTAZIONE DP
 	WHERE DP.ID_servizio = S.ID_servizio
 	AND DP.data_inizio <= NOW()
 	AND DP.data_fine > NOW()
 	);
 
-	-- 2. Servizi che devono tornare DISPONIBILI perche` la prenotazione  e` finita
 	UPDATE SERVIZIO S
 	SET S.status = 'DISPONIBILE'
 	WHERE S.status = 'OCCUPATO'
 	AND NOT EXISTS (
 	SELECT 1
-	FROM DETTAGLI_PRENOTAZIONE DP
+	FROM DETTAGLIO_PRENOTAZIONE DP
 	WHERE DP.ID_servizio = S.ID_servizio
 	AND DP.data_fine > NOW()
-	);
-	END\$\$
+);
 \end{sqlcode}
 
 \paragraph{Comportamento}
-L'evento viene schedulato ogni ora e si occupa di sincronizzare l'attributo \texttt{status} della tabella \texttt{SERVIZIO} con le prenotazioni attive: segna come \texttt{OCCUPATO} i servizi con prenotazioni in corso e come \texttt{DISPONIBILE} i servizi marcati come occupati ma non piu coperti da prenotazioni.
+L'evento viene schedulato ogni ora e si occupa di sincronizzare l'attributo \texttt{status} della tabella \texttt{SERVIZIO} con le prenotazioni attive: segna come \texttt{OCCUPATO} i servizi con prenotazioni in corso e come \texttt{DISPONIBILE} i servizi marcati come occupati ma non più coperti da prenotazioni.
 
 \section{Traduzione delle operazioni}
 
@@ -1706,144 +1265,74 @@ In questa sezione vengono riportate le principali operazioni del sistema
 e la relativa traduzione in query SQL.
 Per ciascuna operazione viene fornita una breve spiegazione del funzionamento seguita dalla query SQL corrispondente.
 
-\subsection*{1) Registrazione nuovo utente}
-L’operazione inserisce un nuovo utente nella piattaforma.
-\begin{verbatim}
-INSERT INTO UTENTE (username, password, email)
-VALUES (:username, :password, :email);
-\end{verbatim}
-
-\subsection*{2) Autenticazione / login}
-Quest'operazione verifica che le credenziali inserite corrispondano ad un utente registrato.
-\begin{verbatim}
-SELECT *
-FROM UTENTE
-WHERE username = :username
-  AND password = :password;
-\end{verbatim}
-
-\subsection*{3) Prenotazione servizio}
-L'operazione crea una prenotazione e i relativi dettagli sui servizi scelti.
-\begin{verbatim}
+\begin{enumerate}[label=\textbf{\arabic*.}]
+	\item \textbf{Prenotazione servizio} \newline
+	      Crea una nuova prenotazione per un utente e aggiunge i dettagli dei servizi prenotati (ad esempio camere, tavoli, ecc.).
+\begin{sqlcode}
 INSERT INTO PRENOTAZIONE (ID_prenotazione, username)
-VALUES (:id_prenotazione, :username);
+VALUES (?, ?);
 
-INSERT INTO DETTAGLIO_PRENOTAZIONE (ID_prenotazione, ID_servizio, 
-data_inizio, data_fine)
-VALUES (:id_prenotazione, :id_servizio, :data_inizio, :data_fine);
-\end{verbatim}
+INSERT INTO DETTAGLIO_PRENOTAZIONE (ID_prenotazione, ID_servizio, data_inizio, data_fine)
+VALUES (?, ?, ?, ?);
+\end{sqlcode}
 
-\subsection*{4) Modifica / cancellazione prenotazione}
-L'operazione consente di rimuovere una prenotazione esistente e i relativi dettagli.
-\begin{verbatim}
-DELETE FROM DETTAGLIO_PRENOTAZIONE
-WHERE ID_prenotazione = :id_prenotazione;
-
-DELETE FROM PRENOTAZIONE
-WHERE ID_prenotazione = :id_prenotazione;
-\end{verbatim}
-
-\subsection*{5) Creazione / modifica pacchetto}
-L'operazione inserisce un nuovo pacchetto e ne definisce i servizi inclusi.
-\begin{verbatim}
-INSERT INTO PACCHETTO (ID_pacchetto, nome, descrizione)
-VALUES (:id_pacchetto, :nome, :descrizione);
-
-INSERT INTO COMPOSTO (ID_pacchetto, ID_servizio)
-VALUES (:id_pacchetto, :id_servizio);
-\end{verbatim}
-
-\subsection*{6) Acquisto pacchetto}
-L'operazione registra l’acquisto di un pacchetto da parte di un utente.
-\begin{verbatim}
+	\item \textbf{Acquisto pacchetto} \newline
+	      Registra l’acquisto di un pacchetto da parte di un utente.
+\begin{sqlcode}
 INSERT INTO ACQUISTA (username, ID_pacchetto)
-VALUES (:username, :id_pacchetto);
-\end{verbatim}
+VALUES (?, ?);
+\end{sqlcode}
 
-\subsection*{7) Inserimento recensione}
-Quest'operazione permette ad un utente di lasciare una recensione per un servizio.
-\begin{verbatim}
-INSERT INTO RECENSIONE (ID_recensione, username, ID_prenotazione, 
-tipo_servizio, voto, descrizione)
-VALUES (:id_recensione, :username, :id_prenotazione, :tipo_servizio, 
-:voto, :descrizione);
-\end{verbatim}
+	\item \textbf{Inserimento recensione} \newline
+	      Permette a un utente di lasciare una recensione su un servizio utilizzato.
+\begin{sqlcode}
+INSERT INTO RECENSIONE (ID_recensione, username, ID_prenotazione, tipo_servizio, voto, descrizione)
+VALUES (?, ?, ?, ?, ?, ?);
+\end{sqlcode}
 
-\subsection*{8) Gestione inventario / prodotti}
-L'operazione aggiorna i dati di un prodotto esistente, come il prezzo o nome.
-\begin{verbatim}
-UPDATE PRODOTTO
-SET nome = :nome, prezzo = :prezzo
-WHERE ID_prodotto = :id_prodotto;
-\end{verbatim}
-
-\subsection*{9) Creazione evento}
-L'operazione crea un nuovo evento con nome, data e descrizione.
-\begin{verbatim}
-INSERT INTO EVENTO (ID_evento, max_partecipanti, descrizione, username)
-VALUES (:id_evento, :max_partecipanti, :descrizione, :username);
-\end{verbatim}
-
-\subsection*{10) Iscrizione evento}
-L'operazione registra l’iscrizione di un utente ad un evento.
-\begin{verbatim}
-INSERT INTO ISCRIVE (ID_evento, username)
-VALUES (:id_evento, :username);
-\end{verbatim}
-
-\subsection*{11) Creazione ordine}
-Tale operazione crea un ordine e i relativi dettagli dei prodotti acquistati.
-\begin{verbatim}
+	\item \textbf{Creazione ordine} \newline
+	      Crea un nuovo ordine e aggiunge i dettagli dei prodotti acquistati.
+\begin{sqlcode}
 INSERT INTO ORDINE (ID_ordine, data, username)
-VALUES (:id_ordine, :data, :username);
+VALUES (?, ?, ?);
 
-INSERT INTO DETTAGLIO_ORDINE (ID_ordine, ID_prodotto, quantita, 
-prezzo_unitario)
-VALUES (:id_ordine, :id_prodotto, :quantita, :prezzo_unitario);
-\end{verbatim}
+INSERT INTO DETTAGLIO_ORDINE (ID_ordine, ID_prodotto, quantita, prezzo_unitario)
+VALUES (?, ?, ?, ?);
+\end{sqlcode}
 
-\subsection*{12) Assegnazione / modifica ruolo dipendenti}
-Quest'operazione attribuisce un ruolo ad un dipendente.
-\begin{verbatim}
-INSERT INTO ASSEGNA_RUOLO (username, ID_ruolo)
-VALUES (:username, :id_ruolo);
-\end{verbatim}
+	\item \textbf{Check-in / Check-out} \newline
+	      Aggiorna lo stato di check-in o check-out nei dettagli della prenotazione.
+\begin{sqlcode}
+UPDATE DETTAGLIO_PRENOTAZIONE
+SET stato = 'CHECKIN'
+WHERE ID_prenotazione = ? AND ID_servizio = ?;
 
-\subsection*{13) Check-in / Check-out}
-Quest'operazione aggiorna lo stato della prenotazione al momento dell’arrivo o della partenza.
-\begin{verbatim}
--- Query ancora da definire
-\end{verbatim}
+UPDATE DETTAGLIO_PRENOTAZIONE
+SET stato = 'CHECKOUT'
+WHERE ID_prenotazione = ? AND ID_servizio = ?;
+\end{sqlcode}
 
-\subsection*{14) Aggiornamento stato servizio}
-Quest'operazione modifica lo stato di un servizio (es. disponibile, in manutenzione).
-\begin{verbatim}
-UPDATE SERVIZIO
-SET status = :status
-WHERE ID_servizio = :id_servizio;
-\end{verbatim}
-
-\subsection*{15) Controllo disponibilità servizi}
-Quest'operazione elenca i servizi attivi e disponibili alla prenotazione.
-\begin{verbatim}
+	\item \textbf{Servizi attivi} \newline
+	      Restituisce tutti i servizi attualmente attivi e disponibili per la prenotazione.
+\begin{sqlcode}
 SELECT *
 FROM SERVIZIO
 WHERE status = 'ATTIVO';
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{16) Generazione report settimanali}
-Quest'operazione conta le prenotazioni per ciascun servizio in un determinato intervallo.
-\begin{verbatim}
+	\item \textbf{Generazione report settimanali} \newline
+	      Conta il numero di prenotazioni per ciascun servizio in un intervallo di date specificato.
+\begin{sqlcode}
 SELECT s.ID_servizio, COUNT(*) AS num_prenotazioni
 FROM DETTAGLIO_PRENOTAZIONE dp
-JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
+JOIN SERVIZIO s ON dp.ID_servizio = s.ID_servizio
 WHERE dp.data_inizio BETWEEN :data_inizio AND :data_fine
 GROUP BY s.ID_servizio;
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{17) Applicazione sconto/promozione}
-L'operazione che applica uno sconto a una prenotazione o ad un ordine.
-\begin{verbatim}
+	\item \textbf{Applicazione sconto/promozione} \newline
+	      Applica uno sconto a una prenotazione o a un ordine.
+\begin{sqlcode}
 UPDATE PRENOTAZIONE
 SET sconto = :sconto
 WHERE ID_prenotazione = :id_prenotazione;
@@ -1851,65 +1340,70 @@ WHERE ID_prenotazione = :id_prenotazione;
 UPDATE ORDINE
 SET sconto = :sconto
 WHERE ID_ordine = :id_ordine;
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{18) Pianificazione turno esistente per dipendente}
-L'operazione inserisce un turno pianificato per un dipendente.
-\begin{verbatim}
+	\item \textbf{Pianificazione turno esistente per dipendente} \newline
+	      Associa un dipendente a un turno pianificato.
+\begin{sqlcode}
 INSERT INTO SVOLGE (username, ID_turno, data_inizio)
 VALUES (:username, :id_turno, :data_inizio);
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{19) Calcolo tasso di occupazione camere}
-L'operazione che calcola la percentuale di camere occupate in un certo periodo.
-\begin{verbatim}
-SELECT COUNT(DISTINCT dp.riguarda) * 100.0 / COUNT(*) 
-AS tasso_occupazione
+	\item \textbf{Calcolo tasso di occupazione camere} \newline
+	      Calcola la percentuale di camere occupate in un certo periodo.
+\begin{sqlcode}
+SELECT COUNT(DISTINCT dp.ID_servizio) * 100.0 / COUNT(*) AS tasso_occupazione
 FROM DETTAGLIO_PRENOTAZIONE dp
-JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
-JOIN CAMERA c ON c.cod_camera = s.ID_servizio
-WHERE s.tipo = 'CAMERA';
-\end{verbatim}
+JOIN SERVIZIO s ON dp.ID_servizio = s.ID_servizio
+JOIN CAMERA c ON c.ID_servizio = s.ID_servizio
+WHERE s.tipo_servizio = 'CAMERA';
+\end{sqlcode}
 
-\subsection*{20) Analisi fasce orarie più richieste per i lettini}
-Quest'operazione restituisce le ore più richieste per le prenotazioni dei lettini.
-\begin{verbatim}
-SELECT EXTRACT(HOUR FROM dp.data_inizio) AS ora, COUNT(*) 
-AS num_prenotazioni
+	      \newpage
+	\item \textbf{Analisi fasce orarie più richieste per i lettini} \newline
+	      Restituisce le ore più richieste per le prenotazioni dei lettini.
+\begin{sqlcode}
+SELECT EXTRACT(HOUR FROM dp.data_inizio) AS ora, COUNT(*) AS num_prenotazioni
 FROM DETTAGLIO_PRENOTAZIONE dp
-JOIN SERVIZIO s ON dp.riguarda = s.ID_servizio
-WHERE s.tipo = 'LETTINO'
+JOIN SERVIZIO s ON dp.ID_servizio = s.ID_servizio
+WHERE s.tipo_servizio = 'LETTINO'
 GROUP BY ora
 ORDER BY num_prenotazioni DESC;
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{21) Individuazione pacchetto più richiesto}
-Quest'operazione ha lo scopo di individuare il pacchetto acquistato più volte.
-\begin{verbatim}
+	\item \textbf{Individuazione pacchetto più richiesto} \newline
+	      Individua il pacchetto acquistato più volte dagli utenti.
+\begin{sqlcode}
 SELECT p.ID_pacchetto, COUNT(*) AS num_acquisti
 FROM PACCHETTO p
 JOIN ACQUISTA a ON p.ID_pacchetto = a.ID_pacchetto
 GROUP BY p.ID_pacchetto
 ORDER BY num_acquisti DESC
 LIMIT 1;
-\end{verbatim}
+\end{sqlcode}
 
-\subsection*{22) Calcolo fatturato mensile per servizio}
-L'operazione somma i ricavi mensili per ciascun servizio.
+	\item \textbf{Calcolo fatturato mensile per servizio} \newline
+	      Calcola il fatturato mensile per ciascun servizio sulla base degli ordini effettuati.
+\begin{sqlcode}
+SELECT s.ID_servizio, SUM(dp.prezzo_unitario * dp.quantita) AS fatturato_mensile
+FROM DETTAGLIO_ORDINE dp
+JOIN ORDINE o ON dp.ID_ordine = o.ID_ordine
+JOIN SERVIZIO s ON dp.ID_servizio = s.ID_servizio
+WHERE MONTH(o.data) = :mese AND YEAR(o.data) = :anno
+GROUP BY s.ID_servizio;
+\end{sqlcode}
 
-\begin{verbatim}
--- Query ancora da definire
-\end{verbatim}
-
-\subsection*{23) Analisi servizi più inclusi nei pacchetti}
-Quest'operazione conta il numero di volte che ciascun servizio compare nei pacchetti.
-\begin{verbatim}
+	\item \textbf{Analisi servizi più inclusi nei pacchetti} \newline
+	      Conta quante volte ciascun servizio è incluso nei pacchetti disponibili.
+\begin{sqlcode}
 SELECT s.ID_servizio, COUNT(*) AS frequenza
 FROM COMPOSTO_DA c
 JOIN SERVIZIO s ON c.ID_servizio = s.ID_servizio
 GROUP BY s.ID_servizio
 ORDER BY frequenza DESC;
-\end{verbatim}
+\end{sqlcode}
+
+\end{enumerate}
 
 \chapter{Progettazione dell'applicazione}
 L'applicazione è stata sviluppata utilizzando il framework \textbf{Django}, che permette
