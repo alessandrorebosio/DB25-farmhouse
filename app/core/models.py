@@ -246,20 +246,18 @@ class Booking(models.Model):
         verbose_name_plural = "Prenotazioni"
 
 
-class BookingDetail(CPkModel):
-    booking = models.OneToOneField(
+class BookingDetail(models.Model):
+    booking = models.ForeignKey(
         Booking,
         models.CASCADE,
         db_column="ID_prenotazione",
-        to_field="id",
-        primary_key=True,
+        related_name="details",
     )
-    service = models.OneToOneField(
+    service = models.ForeignKey(
         Service,
         models.CASCADE,
         db_column="ID_servizio",
-        to_field="id",
-        primary_key=True,
+        related_name="booking_details",
     )
     start_date = models.DateField(db_column="data_inizio")
     end_date = models.DateField(db_column="data_fine")

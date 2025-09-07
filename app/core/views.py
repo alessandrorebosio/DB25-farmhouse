@@ -24,12 +24,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import DatabaseError
 from datetime import datetime, timedelta
-
+from django.db.models import Q, Prefetch
 from .models import *
 
 from .forms import RegisterForm
 
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
 
 # View per prenotazione servizio
 
@@ -130,49 +132,61 @@ def login_view(request: HttpRequest) -> HttpResponse:
 @login_required
 def profile_view(request: HttpRequest) -> HttpResponse:
     """
-    Show profile information for the logged-in user.
-
-    URL: /profile/ (example)
-    Methods: GET
-
-    Behavior:
-      - Uses request.user.username to locate the corresponding UserModel row.
-      - Uses select_related on the FK to PersonModel to avoid extra queries when possible.
-      - Passes `person` (PersonModel instance or None) to the template along with
-        a small debug dict for development.
-
-    Template: user/profile.html
-    Context:
-      - person: PersonModel instance (or None)
-      - debug: dict with diagnostic values (can be removed in production)
-
-    Security:
-      - Protected with @login_required so only authenticated users can access it.
+    Show profile information for the logged-in user, including event enrollments
+    and service bookings.
     """
-    iscrizioni = []
-    debug = {}
-
     try:
         ut = User.objects.select_related("cf").get(username=request.user.username)
-        iscrizioni = (
-            Enrolls.objects.filter(
-                username=ut,
-                event__date__gte=timezone.now().date(),
-            )
-            .select_related("event")
-            .order_by("event__date")
-        )
-
-        debug["iscrizioni_count"] = iscrizioni.count()
     except User.DoesNotExist:
         return render(request, "user/profile.html", {"person": None})
 
     person = getattr(ut, "cf", None)
 
+    try:
+        subscriptions = (
+            Enrolls.objects.filter(
+                Q(username__username=request.user.username)
+                | Q(username=request.user.username)
+            )
+            .select_related("event")
+            .order_by("-event__date")
+        )
+    except Exception:
+        subscriptions = None
+
+    try:
+        bookings = (
+            Booking.objects.filter(username__username=request.user.username)
+            .select_related("username")
+            .prefetch_related(
+                Prefetch(
+                    "details",
+                    queryset=BookingDetail.objects.select_related("service"),
+                )
+            )
+            .order_by("-booking_date") 
+        )
+    except Exception:
+        bookings = Booking.objects.none()
+
+    try:
+        reviews = (
+            Review.objects.filter(username__username=request.user.username)
+            .select_related("id_booking")
+            .order_by("-review_date")
+        )
+    except Exception:
+        reviews = Review.objects.none()
+
     return render(
         request,
         "user/profile.html",
-        {"person": person, "iscrizioni": iscrizioni, "debug": debug},
+        {
+            "person": person,
+            "subscriptions": subscriptions,
+            "bookings": bookings,
+            "reviews": reviews,
+        },
     )
 
 

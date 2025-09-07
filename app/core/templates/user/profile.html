@@ -6,13 +6,16 @@
     <div class="container py-4">
         <div class="row justify-content-center">
             <div class="col-12">
+
                 {% if user.is_authenticated %}
+
+                <!-- User info -->
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
                                 style="width:56px;height:56px;font-weight:700;font-size:20px;">
-                                {{ user.username|slice:":1"|upper }}
+                                {{ user.username|first|upper }}
                             </div>
                             <div class="ms-3 text-start">
                                 <h5 class="mb-0">{{ person.name|default:"-" }} {{ person.surname|default:"-" }}</h5>
@@ -21,7 +24,6 @@
                         </div>
 
                         <dl class="row mb-0">
-
                             <dt class="col-sm-4 text-muted small text-start">Email</dt>
                             <dd class="col-sm-8 text-end">{{ user.email|default:"—" }}</dd>
 
@@ -33,16 +35,14 @@
 
                             <dt class="col-sm-4 text-muted small text-start">Joined</dt>
                             <dd class="col-sm-8 text-end">{{ user.date_joined|date:"F j, Y H:i" }}</dd>
-
                         </dl>
-
                     </div>
-                    <div
-                        class="card-footer bg-transparent border-top d-flex align-items-center justify-content-between py-2 px-3">
+
+                    <div class="card-footer bg-transparent border-top d-flex justify-content-between py-2 px-3">
                         {% if user.is_superuser %}
                         <a href="{% url 'admin:index' %}" class="text-muted small mb-0">Admin console</a>
                         {% else %}
-                        <div></div>
+                        <span></span>
                         {% endif %}
 
                         <form method="post" action="{% url 'logout' %}" class="m-0">
@@ -51,42 +51,36 @@
                         </form>
                     </div>
                 </div>
-            </div>
 
-            {% if iscrizioni %}
-            <div class="col-12 mt-4">
-                <div class="col-12">
+                <!-- Event registrations -->
+                <div class="col-12 mt-4">
+                    {% if subscriptions and subscriptions.exists %}
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h6 class="mb-0">Le tue iscrizioni agli eventi</h6>
+                            <h6 class="mb-0">Your event registrations</h6>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-striped align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th class="text-start">Titolo</th>
-                                            <th class="text-start">Data evento</th>
-                                            <th class="text-center">Partecipanti</th>
-                                            <th class="text-center">Azione</th>
+                                            <th class="text-start">Title</th>
+                                            <th class="text-start">Event date</th>
+                                            <th class="text-center">Participants</th>
+                                            <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for iscrizione in iscrizioni %}
+                                        {% for subscription in subscriptions %}
                                         <tr>
-                                            <td class="text-start">{{ iscrizione.event.title }}</td>
-                                            <td class="text-start">
-                                                {{ iscrizione.event.date|date:"d/m/Y" }}
-                                            </td>
-                                            <td class="text-center">{{ iscrizione.participants }}</td>
+                                            <td>{{ subscription.event.title }}</td>
+                                            <td>{{ subscription.event.date|date:"d/m/Y" }}</td>
+                                            <td class="text-center">{{ subscription.participants }}</td>
                                             <td class="text-center">
                                                 <form method="post"
-                                                    action="{% url 'cancel_enrollment' iscrizione.event.id %}"
-                                                    class="d-inline">
+                                                    action="{% url 'cancel_enrollment' subscription.event.id %}">
                                                     {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                        Cancella
-                                                    </button>
+                                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -96,9 +90,100 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="alert alert-secondary mb-0">You have no event registrations.</div>
+                    {% endif %}
                 </div>
-                {% endif %}
+
+                <!-- Service bookings -->
+                <div class="col-12 mt-4">
+                    {% if bookings and bookings.exists %}
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="mb-0">Your service bookings</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Type</th>
+                                            <th>Start</th>
+                                            <th>End</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for booking in bookings %}
+                                        <tr>
+                                            <td>{{ booking.service.name|default:booking.service|default:"—" }}</td>
+                                            <td>{{ booking.service_type|default:"—" }}</td>
+                                            <td>{% if booking.start_date %}{{ booking.start_date|date:"d/m/Y" }}{% else
+                                                %}—{% endif %}</td>
+                                            <td>{% if booking.end_date %}{{ booking.end_date|date:"d/m/Y" }}{% else
+                                                %}—{% endif %}</td>
+                                            <td class="text-center">
+                                                <form method="post" action="{% url 'cancel_booking' booking.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary mb-0">You have no service bookings.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Reviews -->
+                <div class="col-12 mt-4">
+                    {% if reviews and reviews.exists %}
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="mb-0">Your reviews</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Service / Booking</th>
+                                            <th class="text-center">Rating</th>
+                                            <th class="text-center">Comment</th>
+                                            <th class="text-center">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for review in reviews %}
+                                        <tr>
+                                            <td>
+                                                {{ review.service_type|default:"—" }}
+                                                {% if review.id_booking %} — booking #{{ review.id_booking.id }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">{{ review.vote|default:"—" }}</td>
+                                            <td class="text-center">{{ review.description|default:"—" }}</td>
+                                            <td class="text-center">{{ review.review_date|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary mb-0">You have not posted any reviews yet.</div>
+                    {% endif %}
+                </div>
+
                 {% else %}
+                <!-- Not authenticated -->
                 <div class="alert alert-info">
                     You are not signed in. <a href="{% url 'login' %}">Sign in</a> or
                     <a href="{% url 'register' %}">register</a>.
@@ -107,5 +192,6 @@
             </div>
         </div>
     </div>
+</main>
 </main>
 {% endblock %}
