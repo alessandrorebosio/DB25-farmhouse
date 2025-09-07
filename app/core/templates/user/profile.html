@@ -77,8 +77,7 @@
                                             <td>{{ subscription.event.date|date:"d/m/Y" }}</td>
                                             <td class="text-center">{{ subscription.participants }}</td>
                                             <td class="text-center">
-                                                <form method="post"
-                                                    action="{% url 'cancel_enrollment' subscription.event.id %}">
+                                                <form method="post" action="{% url 'cancel_enrollment' subscription.event.id %}">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
                                                 </form>
@@ -119,10 +118,20 @@
                                         <tr>
                                             <td>{{ booking.service.name|default:booking.service|default:"—" }}</td>
                                             <td>{{ booking.service_type|default:"—" }}</td>
-                                            <td>{% if booking.start_date %}{{ booking.start_date|date:"d/m/Y" }}{% else
-                                                %}—{% endif %}</td>
-                                            <td>{% if booking.end_date %}{{ booking.end_date|date:"d/m/Y" }}{% else
-                                                %}—{% endif %}</td>
+                                            <td>
+                                                {% if booking.start_date %}
+                                                    {{ booking.start_date|date:"d/m/Y" }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if booking.end_date %}
+                                                    {{ booking.end_date|date:"d/m/Y" }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
                                             <td class="text-center">
                                                 <form method="post" action="{% url 'cancel_booking' booking.id %}">
                                                     {% csrf_token %}
@@ -143,7 +152,6 @@
 
                 <!-- Reviews -->
                 <div class="col-12 mt-4">
-                    {% if reviews and reviews.exists %}
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h6 class="mb-0">Your reviews</h6>
@@ -164,12 +172,15 @@
                                         <tr>
                                             <td>
                                                 {{ review.service_type|default:"—" }}
-                                                {% if review.id_booking %} — booking #{{ review.id_booking.id }}
-                                                {% endif %}
+                                                {% if review.id_booking %} — booking #{{ review.id_booking.id }}{% endif %}
                                             </td>
                                             <td class="text-center">{{ review.vote|default:"—" }}</td>
                                             <td class="text-center">{{ review.description|default:"—" }}</td>
                                             <td class="text-center">{{ review.review_date|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">You have not posted any reviews yet.</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -177,9 +188,6 @@
                             </div>
                         </div>
                     </div>
-                    {% else %}
-                    <div class="alert alert-secondary mb-0">You have not posted any reviews yet.</div>
-                    {% endif %}
                 </div>
 
                 {% else %}
@@ -192,6 +200,5 @@
             </div>
         </div>
     </div>
-</main>
 </main>
 {% endblock %}
