@@ -233,6 +233,23 @@ CREATE TABLE RECENSIONE (
     CONSTRAINT FKgiudica_FK FOREIGN KEY (ID_prenotazione) REFERENCES PRENOTAZIONE(ID_prenotazione)
 );
 
+CREATE VIEW V_SERVIZI_DISPONIBILI AS
+SELECT 
+    S.ID_servizio,
+    S.tipo_servizio,
+    S.prezzo,
+    S.status,
+    COALESCE(R.cod_tavolo, P.cod_lettino, CG.cod_campo, CA.cod_camera, A.cod_attivita) AS codice,
+    COALESCE(R.max_capienza, CG.max_capienza, CA.max_capienza) AS max_capienza,
+    A.descrizione AS dettaglio_descrizione
+FROM SERVIZIO S
+LEFT JOIN RISTORANTE R ON R.ID_servizio = S.ID_servizio
+LEFT JOIN PISCINA P ON P.ID_servizio = S.ID_servizio
+LEFT JOIN CAMPO_DA_GIOCO CG ON CG.ID_servizio = S.ID_servizio
+LEFT JOIN CAMERA CA ON CA.ID_servizio = S.ID_servizio
+LEFT JOIN ATTIVITA_CON_ANIMALI A ON A.ID_servizio = S.ID_servizio
+WHERE S.status = 'DISPONIBILE';
+
 -- Index Section
 -- _____________ 
 
