@@ -111,7 +111,6 @@ class Purchase(models.Model):
         managed = False
         verbose_name = "Acquisto"
         verbose_name_plural = "Acquisti"
-        unique_together = (("username", "package"),)
 
 
 class Restaurant(models.Model):
