@@ -37,6 +37,7 @@ DB25-farmhouse/
 - **MySQL Server**: 8.0 or higher
 - **pip**: Python package installer
 - **MySQL client**: Command line tool (`mysql`)
+- **django-compositepk-model**: 1.0.3
 
 ## ⚙️ Installation & Setup
 
