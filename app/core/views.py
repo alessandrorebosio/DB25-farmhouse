@@ -28,6 +28,7 @@ from django.db.models import Q, Prefetch
 from .models import *
 
 from .forms import RegisterForm
+# from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
@@ -39,6 +40,9 @@ from django.core.exceptions import PermissionDenied
 # Gestione doppia firma per compatibilità con entrambe le url
 from django.http import Http404
 
+
+# Backend booking logic for services from services.html
+from django.views.decorators.http import require_POST
 
 def homepage(request: HttpRequest) -> HttpResponse:
     """
@@ -62,6 +66,32 @@ def homepage(request: HttpRequest) -> HttpResponse:
             visti.add(s.type)
     return render(request, "index.html", {"servizi_disponibili": tipi_unici})
 
+
+def services(request):
+    from collections import defaultdict
+
+    service_types = Service.objects.filter(status="DISPONIBILE").values_list("type", flat=True).distinct()
+    grouped_services = {}
+    for s_type in service_types:
+        # Get all services of this type
+        services_of_type = Service.objects.filter(type=s_type, status="DISPONIBILE")
+        # Get related instances
+        if s_type == "CAMERA":
+            instances = Room.objects.filter(id__in=services_of_type)
+        elif s_type == "PISCINA":
+            instances = Pool.objects.filter(id__in=services_of_type)
+        elif s_type == "ATTIVITA_CON_ANIMALI":
+            instances = AnimalActivity.objects.filter(id__in=services_of_type)
+        elif s_type == "CAMPO_DA_GIOCO":
+            instances = Playground.objects.filter(id__in=services_of_type)
+        elif s_type == "RISTORANTE":
+            instances = Restaurant.objects.filter(id__in=services_of_type)
+        else:
+            instances = []
+        grouped_services[s_type] = instances
+
+    hours = ["08", "10", "12", "14", "16", "18", "20"]
+    return render(request, "services.html", {"grouped_services": grouped_services, "hours": hours})
 
 def register_view(request: HttpRequest) -> HttpResponse:
     """
@@ -350,3 +380,90 @@ def book_service(request, type=None, service_id=None, service_type=None):
         return render(request, "book_service.html", {"service_id": service_id})
     else:
         raise Http404("Invalid parameter for service booking.")
+
+
+@login_required(login_url="login")
+@require_POST
+def book_service_from_services(request):
+    """
+    Handles booking submission from the services page.
+    - Rooms (CAMERA): requires start_date and end_date.
+    - Other services: requires start_date, start_time, end_time (max 2 consecutive hours).
+    - Creates Booking and BookingDetail records for the user.
+    """
+    user_db = get_object_or_404(User, username=request.user.username)
+
+    service_type = request.POST.get("service_type")
+    instance_id = request.POST.get("instance")
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+    start_time = request.POST.get("start_time")
+    end_time = request.POST.get("end_time")
+
+    # Find the Service instance
+    try:
+        service = Service.objects.get(id=instance_id)
+    except Service.DoesNotExist:
+        messages.error(request, "Selected service does not exist.")
+        return redirect("services")
+
+    # Validate dates/times
+    if service_type.upper() == "CAMERA":
+        # Room booking → needs both start and end dates
+        if not (start_date and end_date):
+            messages.error(request, "Please provide start and end dates.")
+            return redirect("services")
+    else:
+        # Other services → need date and both times
+        if not (start_date and start_time and end_time):
+            messages.error(request, "Please provide date and time.")
+            return redirect("services")
+        try:
+            dt_start = datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+            dt_end = datetime.strptime(f"{start_date} {end_time}", "%Y-%m-%d %H:%M")
+
+            duration = dt_end - dt_start
+
+            # End time must be after start time
+            if duration <= timedelta(0):
+                messages.error(request, "End time must be later than start time.")
+                return redirect("services")
+
+            # Max duration = 2 hours
+            if duration > timedelta(hours=2):
+                messages.error(request, "Maximum booking duration is 2 hours.")
+                return redirect("services")
+
+        except Exception:
+            messages.error(request, "Invalid date or time format.")
+            return redirect("services")
+
+    # Create Booking and BookingDetail
+    try:
+        booking = Booking.objects.create(
+            username=user_db,
+            booking_date=timezone.now(),
+        )
+
+        if service_type.upper() == "CAMERA":
+            # Room booking detail
+            BookingDetail.objects.create(
+                booking=booking,
+                service=service,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        else:
+            # Other services → same-day booking with max 2 hours
+            BookingDetail.objects.create(
+                booking=booking,
+                service=service,
+                start_date=start_date,
+                end_date=start_date,
+            )
+
+        messages.success(request, "Booking successful!")
+    except Exception as e:
+        messages.error(request, f"Booking failed: {str(e)}")
+
+    return redirect("services")

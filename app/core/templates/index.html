@@ -21,48 +21,5 @@
         </p>
     </section>
 
-    <!-- Services Section -->
-    <section class="services mt-5">
-        <h2 class="text-center mb-4">Our Services</h2>
-        <div class="row justify-content-center">
-            {% for servizio in servizi_disponibili %}
-            <div class="col-12 col-sm-6 col-md-4 mb-4 d-flex align-items-stretch">
-                <div class="card shadow-sm w-100">
-                    <div class="card-body text-center d-flex flex-column">
-                        {% if servizio.tipo_servizio == 'CAMERA' %}
-                        <i class="fas fa-bed fa-3x mb-3 text-primary"></i>
-                        {% elif servizio.tipo_servizio == 'PISCINA' %}
-                        <i class="fas fa-swimming-pool fa-3x mb-3 text-primary"></i>
-                        {% elif servizio.tipo_servizio == 'CAMPO_DA_GIOCO' %}
-                        <i class="fas fa-futbol fa-3x mb-3 text-primary"></i>
-                        {% elif servizio.tipo_servizio == 'ATTIVITA_CON_ANIMALI' %}
-                        <i class="fas fa-paw fa-3x mb-3 text-primary"></i>
-                        {% elif servizio.tipo_servizio == 'RISTORANTE' %}
-                        <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
-                        {% endif %}
-
-                        <h5 class="card-title mt-2 mb-2">
-                            {{ servizio.type|title }}
-                        </h5>
-                        <p class="card-text flex-grow-1">
-                            {% if servizio.price > 0 %}
-                            <span class="fw-bold">Price:</span> €{{ servizio.price }}
-                            {% else %}
-                            <span class="text-success fw-bold">Free Service</span>
-                            {% endif %}
-                        </p>
-                        <a href="{% url 'book_service' servizio.id %}" class="btn btn-primary mt-auto">
-                            <i class="fas fa-calendar-plus"></i> Book Now
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <p class="text-center">No services available at the moment.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
 </main>
 {% endblock %}

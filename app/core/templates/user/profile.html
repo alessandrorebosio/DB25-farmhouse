@@ -96,7 +96,7 @@
 
                 <!-- Service bookings -->
                 <div class="col-12 mt-4">
-                    {% if bookings and bookings.exists %}
+                    {% if booking_details and booking_details.exists %}
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h6 class="mb-0">Your service bookings</h6>
@@ -114,29 +114,36 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for booking in bookings %}
+                                        {% for detail in booking_details %}
                                         <tr>
-                                            <td>{{ booking.service.name|default:booking.service|default:"—" }}</td>
-                                            <td>{{ booking.service_type|default:"—" }}</td>
+                                            <td>{{ detail.service }}</td>
+                                            <td>{{ detail.service.type|default:"—" }}</td>
                                             <td>
+<<<<<<< HEAD
                                                 {% if booking.start_date %}
                                                     {{ booking.start_date|date:"d/m/Y" }}
+=======
+                                                {% if detail.start_date %}
+                                                {{ detail.start_date|date:"d/m/Y" }}
+>>>>>>> fabe2ad (Fixed: booking form, template and DB integration for services)
                                                 {% else %}
                                                     —
                                                 {% endif %}
                                             </td>
                                             <td>
+<<<<<<< HEAD
                                                 {% if booking.end_date %}
                                                     {{ booking.end_date|date:"d/m/Y" }}
+=======
+                                                {% if detail.end_date %}
+                                                {{ detail.end_date|date:"d/m/Y" }}
+>>>>>>> fabe2ad (Fixed: booking form, template and DB integration for services)
                                                 {% else %}
                                                     —
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                <form method="post" action="{% url 'cancel_booking' booking.id %}">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
-                                                </form>
+                                                <!-- Azione di cancellazione da implementare se serve -->
                                             </td>
                                         </tr>
                                         {% endfor %}
