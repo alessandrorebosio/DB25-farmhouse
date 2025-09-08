@@ -64,6 +64,7 @@ def homepage(request: HttpRequest) -> HttpResponse:
         if s.type not in visti:
             tipi_unici.append(s)
             visti.add(s.type)
+
     return render(request, "index.html", {"servizi_disponibili": tipi_unici})
 
 
